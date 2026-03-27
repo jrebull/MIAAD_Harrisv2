@@ -1,8 +1,14 @@
 <script setup lang="ts">
 /**
- * Cinematic Harris Hawks Optimization — obra de arte edition.
- * Deep space with nebula, constellation mesh, orbital siege, shooting stars,
- * completion shockwave, large detailed hawks & rabbit.
+ * Cinematic Harris Hawks Optimization — "obra de arte" edition.
+ *
+ * Architecture:
+ * - Incoming pareto updates are BUFFERED and played back at a controlled rate
+ *   (~4 updates/sec) so the animation is dramatic even when the backend is fast.
+ * - Hawks smoothly interpolate toward targets over many frames.
+ * - A persistent animation loop (requestAnimationFrame) ALWAYS runs and draws
+ *   hawks + rabbit, so they never "disappear".
+ * - The canvas is never re-initialized mid-animation; only on mount or explicit resize.
  */
 
 const props = defineProps<{
@@ -17,40 +23,59 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
 let animId = 0
 let dpr = 1
 let frameCount = 0
-let completionPulse = 0
 
 // ======================== TYPES ========================
 
-interface Star { x: number; y: number; r: number; twinkle: number; speed: number }
-interface ShootingStar { x: number; y: number; vx: number; vy: number; life: number; maxLife: number }
-
+interface Star { x: number; y: number; r: number; tw: number; sp: number }
 interface Hawk {
-  x: number; y: number; tx: number; ty: number; vx: number; vy: number
-  angle: number; trail: Array<{ x: number; y: number; age: number }>
+  x: number; y: number
+  tx: number; ty: number
+  vx: number; vy: number
+  angle: number
+  trail: Array<{ x: number; y: number; age: number }>
   phase: 'explore' | 'transition' | 'siege'
-  size: number; wing: number; wingSpeed: number; orbitOffset: number
+  size: number; wing: number; wingSpeed: number; orbitOff: number
 }
-
 interface Spark {
   x: number; y: number; vx: number; vy: number
-  life: number; maxLife: number; r: number; g: number; b: number; size: number
+  life: number; maxLife: number
+  r: number; g: number; b: number; size: number
 }
 
 // ======================== STATE ========================
 
 let stars: Star[] = []
-let shootingStars: ShootingStar[] = []
 let hawks: Hawk[] = []
 let sparks: Spark[] = []
 let rabbitX = 0.5, rabbitY = 0.5, rabbitPulse = 0
 let paretoNorm: Array<{ x: number; y: number }> = []
 
+// Controlled playback: buffer incoming updates
+interface QueuedUpdate {
+  front: Array<{ x: number; y: number }>
+  progress: number
+  iteration: number
+}
+let updateQueue: QueuedUpdate[] = []
+let currentProgress = 0
+let displayedIteration = 0
+const FRAMES_PER_UPDATE = 15 // ~250ms at 60fps → deliberate, dramatic pace
+let framesSinceUpdate = 0
+
+// Completion state
+let finished = false
+let completionFrame = 0
+
 // ======================== HELPERS ========================
 
 function phaseRGB(phase: string): [number, number, number] {
-  if (phase === 'siege') return [255, 180, 30]
-  if (phase === 'transition') return [220, 180, 80]
-  return [100, 170, 255]
+  if (phase === 'siege') return [255, 120, 40]
+  if (phase === 'transition') return [255, 200, 60]
+  return [80, 160, 255]
+}
+
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * t
 }
 
 // ======================== INITIALIZATION ========================
@@ -58,9 +83,9 @@ function phaseRGB(phase: string): [number, number, number] {
 function initStars(n: number) {
   stars = Array.from({ length: n }, () => ({
     x: Math.random(), y: Math.random(),
-    r: 0.3 + Math.random() * 1.4,
-    twinkle: Math.random() * Math.PI * 2,
-    speed: 0.008 + Math.random() * 0.025,
+    r: 0.3 + Math.random() * 1.6,
+    tw: Math.random() * Math.PI * 2,
+    sp: 0.008 + Math.random() * 0.025,
   }))
 }
 
@@ -71,18 +96,17 @@ function spawnHawks(n: number) {
     y: 0.05 + Math.random() * 0.9,
     tx: 0.25 + Math.random() * 0.5,
     ty: 0.25 + Math.random() * 0.5,
-    vx: (Math.random() - 0.5) * 0.003,
-    vy: (Math.random() - 0.5) * 0.003,
+    vx: (Math.random() - 0.5) * 0.002,
+    vy: (Math.random() - 0.5) * 0.002,
     angle: Math.random() * Math.PI * 2,
     trail: [],
     phase: 'explore' as const,
-    size: 24 + Math.random() * 14,
+    size: 28 + Math.random() * 16,
     wing: Math.random() * Math.PI * 2,
-    wingSpeed: 0.07 + Math.random() * 0.04,
-    orbitOffset: Math.random() * Math.PI * 2,
+    wingSpeed: 0.06 + Math.random() * 0.04,
+    orbitOff: Math.random() * Math.PI * 2,
   }))
   sparks = []
-  shootingStars = []
 }
 
 function normalize(pts: Array<{ f1: number; f2: number }>) {
@@ -100,27 +124,35 @@ function normalize(pts: Array<{ f1: number; f2: number }>) {
 }
 
 function fullReset() {
-  const cvs = canvasRef.value
-  if (cvs) {
-    const ctx = cvs.getContext('2d')
-    if (ctx) {
-      ctx.setTransform(1, 0, 0, 1, 0, 0)
-      ctx.clearRect(0, 0, cvs.width, cvs.height)
-      setupCanvas()
-    }
-  }
   spawnHawks(props.popSize || 20)
   paretoNorm = []
+  updateQueue = []
   rabbitX = 0.5; rabbitY = 0.5
   frameCount = 0
-  completionPulse = 0
+  framesSinceUpdate = 0
+  currentProgress = 0
+  displayedIteration = 0
   finished = false
+  completionFrame = 0
 }
 
-// ======================== DERIVED STATE ========================
+// ======================== CANVAS MANAGEMENT ========================
 
-/** True once the simulation finishes (not running but has data) */
-let finished = false
+function setupCanvas() {
+  const cvs = canvasRef.value
+  if (!cvs) return
+  dpr = window.devicePixelRatio || 1
+  const rect = cvs.getBoundingClientRect()
+  const newW = Math.round(rect.width * dpr)
+  const newH = Math.round(rect.height * dpr)
+  // Only resize if dimensions actually changed — prevents unnecessary context reset
+  if (cvs.width !== newW || cvs.height !== newH) {
+    cvs.width = newW
+    cvs.height = newH
+    const ctx = cvs.getContext('2d')
+    if (ctx) ctx.scale(dpr, dpr)
+  }
+}
 
 // ======================== WATCHERS ========================
 
@@ -130,11 +162,9 @@ watch(() => props.running, (isRunning) => {
     fullReset()
   } else if (props.iteration > 0) {
     finished = true
-    completionPulse = 160
-    // Expand hawks into a wider victory orbit so they stay clearly visible
-    hawks.forEach(h => {
-      h.phase = 'siege'
-    })
+    completionFrame = frameCount
+    // Drain remaining queue quickly
+    while (updateQueue.length > 1) updateQueue.shift()
   }
 })
 
@@ -142,109 +172,102 @@ watch(() => props.popSize, (n) => {
   if (!props.running && !props.iteration) spawnHawks(n || 20)
 })
 
+// Buffer incoming pareto updates instead of processing immediately
 watch(() => props.paretoFront, (front) => {
   if (!front?.length) return
-  paretoNorm = normalize(front)
+  const norm = normalize(front)
   const progress = props.maxIter > 0 ? props.iteration / props.maxIter : 0
-
-  rabbitX = paretoNorm[0].x
-  rabbitY = paretoNorm[0].y
-
-  const scatter = Math.max(0.2 * (1 - progress), 0.03)
-  hawks.forEach((h, i) => {
-    const tgt = paretoNorm[i % paretoNorm.length]
-    h.tx = tgt.x + (Math.random() - 0.5) * scatter
-    h.ty = tgt.y + (Math.random() - 0.5) * scatter
-    h.phase = progress < 0.3 ? 'explore' : progress < 0.65 ? 'transition' : 'siege'
-  })
+  updateQueue.push({ front: norm, progress, iteration: props.iteration })
 }, { deep: true })
+
+// ======================== UPDATE PROCESSING ========================
+
+function processUpdate(upd: QueuedUpdate) {
+  paretoNorm = upd.front
+  currentProgress = upd.progress
+  displayedIteration = upd.iteration
+
+  if (paretoNorm.length > 0) {
+    rabbitX = paretoNorm[0].x
+    rabbitY = paretoNorm[0].y
+  }
+
+  const scatter = Math.max(0.22 * (1 - currentProgress), 0.05)
+  hawks.forEach((h, i) => {
+    const tgt = paretoNorm[i % Math.max(paretoNorm.length, 1)]
+    if (tgt) {
+      h.tx = tgt.x + (Math.random() - 0.5) * scatter
+      h.ty = tgt.y + (Math.random() - 0.5) * scatter
+    }
+    h.phase = currentProgress < 0.3 ? 'explore' : currentProgress < 0.65 ? 'transition' : 'siege'
+  })
+}
 
 // ======================== DRAWING — BACKGROUND ========================
 
-function drawNebula(ctx: CanvasRenderingContext2D, W: number, H: number, progress: number) {
-  const hue = 220 - progress * 180
-  const t = frameCount * 0.003
-  for (let i = 0; i < 4; i++) {
-    const cx = W * (0.25 + 0.5 * Math.sin(t + i * 1.8))
-    const cy = H * (0.25 + 0.5 * Math.cos(t * 0.7 + i * 1.5))
-    const r = W * (0.18 + 0.12 * Math.sin(t * 0.5 + i * 0.9))
-    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r)
-    grad.addColorStop(0, `hsla(${hue + i * 25},80%,40%,0.05)`)
-    grad.addColorStop(0.6, `hsla(${hue + i * 25},60%,20%,0.02)`)
-    grad.addColorStop(1, 'transparent')
-    ctx.fillStyle = grad
+function drawBackground(ctx: CanvasRenderingContext2D, W: number, H: number) {
+  // Sky gradient that shifts with progress
+  const hue = 230 - currentProgress * 30
+  const grad = ctx.createLinearGradient(0, 0, 0, H)
+  grad.addColorStop(0, `hsl(${hue}, 40%, 5%)`)
+  grad.addColorStop(0.5, `hsl(${hue - 10}, 35%, 7%)`)
+  grad.addColorStop(1, `hsl(${hue - 20}, 30%, 4%)`)
+  ctx.fillStyle = grad
+  ctx.fillRect(0, 0, W, H)
+
+  // Nebula clouds
+  const t = frameCount * 0.002
+  for (let i = 0; i < 3; i++) {
+    const cx = W * (0.3 + 0.4 * Math.sin(t + i * 2.1))
+    const cy = H * (0.3 + 0.4 * Math.cos(t * 0.7 + i * 1.7))
+    const r = W * (0.15 + 0.1 * Math.sin(t * 0.4 + i))
+    const ng = ctx.createRadialGradient(cx, cy, 0, cx, cy, r)
+    ng.addColorStop(0, `hsla(${hue + i * 30 - currentProgress * 60},70%,35%,0.04)`)
+    ng.addColorStop(1, 'transparent')
+    ctx.fillStyle = ng
     ctx.fillRect(0, 0, W, H)
   }
-}
 
-function drawStarfield(ctx: CanvasRenderingContext2D, W: number, H: number) {
+  // Stars
   stars.forEach(s => {
-    s.twinkle += s.speed
-    const alpha = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(s.twinkle))
+    s.tw += s.sp
+    const alpha = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(s.tw))
     ctx.beginPath()
     ctx.fillStyle = `rgba(200,215,255,${alpha})`
     ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2)
     ctx.fill()
   })
-}
 
-function updateShootingStars(ctx: CanvasRenderingContext2D, W: number, H: number) {
-  if (shootingStars.length < 4 && Math.random() < 0.003) {
-    const angle = -Math.PI / 4 + (Math.random() - 0.5) * 0.5
-    const speed = 0.01 + Math.random() * 0.015
-    shootingStars.push({
-      x: Math.random() * 0.8 + 0.1, y: Math.random() * 0.25,
-      vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
-      life: 40 + Math.random() * 25, maxLife: 65,
-    })
-  }
-  shootingStars = shootingStars.filter(s => s.life > 0)
-  shootingStars.forEach(s => {
-    s.x += s.vx; s.y += s.vy; s.life--
-    const alpha = s.life / s.maxLife
-    const spd = Math.sqrt(s.vx * s.vx + s.vy * s.vy)
-    const tailLen = Math.min(4 / Math.max(spd, 0.001), 300)
-    ctx.beginPath()
-    ctx.strokeStyle = `rgba(210,225,255,${alpha * 0.8})`
-    ctx.lineWidth = 2.5 * alpha
-    ctx.lineCap = 'round'
-    ctx.moveTo(s.x * W, s.y * H)
-    ctx.lineTo((s.x - s.vx * tailLen) * W, (s.y - s.vy * tailLen) * H)
-    ctx.stroke()
-  })
-}
-
-function drawGrid(ctx: CanvasRenderingContext2D, W: number, H: number) {
-  ctx.strokeStyle = 'rgba(255,255,255,0.02)'
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.015)'
   ctx.lineWidth = 0.5
   for (let i = 1; i < 20; i++) {
     const gx = (i / 20) * W, gy = (i / 20) * H
     ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke()
     ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke()
   }
-}
 
-function drawVignette(ctx: CanvasRenderingContext2D, W: number, H: number) {
-  const grad = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.78)
-  grad.addColorStop(0, 'transparent')
-  grad.addColorStop(1, 'rgba(0,0,0,0.3)')
-  ctx.fillStyle = grad
+  // Vignette
+  const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.max(W, H) * 0.8)
+  vg.addColorStop(0, 'transparent')
+  vg.addColorStop(1, 'rgba(0,0,0,0.35)')
+  ctx.fillStyle = vg
   ctx.fillRect(0, 0, W, H)
 }
 
 // ======================== DRAWING — CONNECTIONS ========================
 
 function drawConstellations(ctx: CanvasRenderingContext2D, W: number, H: number) {
-  const maxD = 0.18
-  ctx.lineWidth = 0.6
+  const maxD = 0.2
+  ctx.lineWidth = 0.7
   let count = 0
   for (let i = 0; i < hawks.length && count < 80; i++) {
     for (let j = i + 1; j < hawks.length && count < 80; j++) {
       const dx = hawks[i].x - hawks[j].x
       const dy = hawks[i].y - hawks[j].y
-      const dist = Math.sqrt(dx * dx + dy * dy)
-      if (dist < maxD) {
-        const alpha = 0.07 * (1 - dist / maxD)
+      const d = Math.sqrt(dx * dx + dy * dy)
+      if (d < maxD) {
+        const alpha = 0.08 * (1 - d / maxD)
         const [r, g, b] = phaseRGB(hawks[i].phase)
         ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`
         ctx.beginPath()
@@ -260,49 +283,40 @@ function drawConstellations(ctx: CanvasRenderingContext2D, W: number, H: number)
 function drawParetoFront(ctx: CanvasRenderingContext2D, W: number, H: number) {
   if (paretoNorm.length < 1) return
 
-  if (paretoNorm.length === 1) {
+  if (paretoNorm.length > 1) {
+    const sorted = [...paretoNorm].sort((a, b) => a.x - b.x)
     ctx.beginPath()
-    ctx.fillStyle = 'rgba(0,100,255,0.6)'
-    ctx.shadowColor = '#0066ff'; ctx.shadowBlur = 15
-    ctx.arc(paretoNorm[0].x * W, paretoNorm[0].y * H, 5, 0, Math.PI * 2)
-    ctx.fill(); ctx.shadowBlur = 0
-    return
+    ctx.strokeStyle = 'rgba(60,130,255,0.35)'
+    ctx.lineWidth = 2.5
+    ctx.shadowColor = '#0066ff'; ctx.shadowBlur = 16
+    ctx.moveTo(sorted[0].x * W, sorted[0].y * H)
+    for (let i = 1; i < sorted.length; i++) ctx.lineTo(sorted[i].x * W, sorted[i].y * H)
+    ctx.stroke()
+    ctx.shadowBlur = 0
   }
 
-  const sorted = [...paretoNorm].sort((a, b) => a.x - b.x)
-  ctx.beginPath()
-  ctx.strokeStyle = 'rgba(0,100,255,0.3)'
-  ctx.lineWidth = 2.5
-  ctx.shadowColor = '#0066ff'; ctx.shadowBlur = 18
-  ctx.moveTo(sorted[0].x * W, sorted[0].y * H)
-  for (let i = 1; i < sorted.length; i++) {
-    ctx.lineTo(sorted[i].x * W, sorted[i].y * H)
-  }
-  ctx.stroke()
-  ctx.shadowBlur = 0
-
-  sorted.forEach((p, i) => {
-    const pulse = 0.5 + 0.5 * Math.sin(frameCount * 0.04 + i * 0.4)
+  paretoNorm.forEach((p, i) => {
+    const pulse = 0.4 + 0.6 * Math.sin(frameCount * 0.04 + i * 0.3)
     ctx.beginPath()
-    ctx.fillStyle = `rgba(60,140,255,${pulse})`
+    ctx.fillStyle = `rgba(60,140,255,${pulse * 0.7})`
     ctx.arc(p.x * W, p.y * H, 4, 0, Math.PI * 2)
     ctx.fill()
   })
 }
 
-function drawEnergyBeams(ctx: CanvasRenderingContext2D, W: number, H: number, progress: number) {
-  if (progress < 0.6) return
-  const intensity = (progress - 0.6) / 0.4
+function drawEnergyBeams(ctx: CanvasRenderingContext2D, W: number, H: number) {
+  if (currentProgress < 0.55) return
+  const intensity = (currentProgress - 0.55) / 0.45
   hawks.forEach(h => {
     if (h.phase !== 'siege') return
     const dx = rabbitX - h.x, dy = rabbitY - h.y
     const dist = Math.sqrt(dx * dx + dy * dy)
-    if (dist > 0.35) return
-    const alpha = intensity * 0.18 * (1 - dist / 0.35)
+    if (dist > 0.4) return
+    const alpha = intensity * 0.2 * (1 - dist / 0.4)
     ctx.beginPath()
     ctx.strokeStyle = `rgba(255,200,50,${alpha})`
     ctx.lineWidth = 1.5
-    ctx.setLineDash([5, 7])
+    ctx.setLineDash([6, 8])
     ctx.moveTo(h.x * W, h.y * H)
     ctx.lineTo(rabbitX * W, rabbitY * H)
     ctx.stroke()
@@ -312,19 +326,19 @@ function drawEnergyBeams(ctx: CanvasRenderingContext2D, W: number, H: number, pr
 
 // ======================== DRAWING — HAWK ========================
 
-function drawHawk(ctx: CanvasRenderingContext2D, h: Hawk, W: number, H: number, isFinished: boolean) {
+function drawHawk(ctx: CanvasRenderingContext2D, h: Hawk, W: number, H: number) {
   const px = h.x * W, py = h.y * H
+  const [cr, cg, cb] = phaseRGB(h.phase)
 
-  // Energy trail
+  // Trail
   if (h.trail.length > 1) {
     for (let i = 1; i < h.trail.length; i++) {
       const t = h.trail[i], prev = h.trail[i - 1]
-      const alpha = Math.max(0, 1 - t.age / 45) * 0.45
+      const alpha = Math.max(0, 1 - t.age / 55) * 0.5
       if (alpha <= 0) continue
-      const w = (1 - t.age / 45) * 4
-      const [r, g, b] = phaseRGB(h.phase)
+      const w = (1 - t.age / 55) * 4.5
       ctx.beginPath()
-      ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`
+      ctx.strokeStyle = `rgba(${cr},${cg},${cb},${alpha})`
       ctx.lineWidth = w; ctx.lineCap = 'round'
       ctx.moveTo(prev.x * W, prev.y * H)
       ctx.lineTo(t.x * W, t.y * H)
@@ -338,32 +352,29 @@ function drawHawk(ctx: CanvasRenderingContext2D, h: Hawk, W: number, H: number, 
 
   const s = h.size
   const flap = Math.sin(h.wing)
-  const wingSpan = s * 2.2
-  const bodyLen = s * 1.2
-  const [cr, cg, cb] = phaseRGB(h.phase)
+  const wingSpan = s * 2.4
+  const bodyLen = s * 1.3
 
-  // Siege/victory aura
-  if (h.phase === 'siege') {
-    const auraR = isFinished ? s * 2.2 : s * 1.8
-    const ap = isFinished
-      ? 0.12 + 0.06 * Math.sin(frameCount * 0.04 + h.orbitOffset)
-      : 0.08 + 0.06 * Math.sin(frameCount * 0.06 + h.orbitOffset)
-    const ag = ctx.createRadialGradient(0, 0, s * 0.3, 0, 0, auraR)
-    if (isFinished) {
-      ag.addColorStop(0, `rgba(0,229,160,${ap})`)
-      ag.addColorStop(0.6, `rgba(${cr},${cg},${cb},${ap * 0.4})`)
-    } else {
-      ag.addColorStop(0, `rgba(${cr},${cg},${cb},${ap})`)
-    }
-    ag.addColorStop(1, 'transparent')
-    ctx.fillStyle = ag
-    ctx.beginPath(); ctx.arc(0, 0, auraR, 0, Math.PI * 2); ctx.fill()
+  // Phase aura
+  const auraR = finished ? s * 2.5 : s * 2
+  const ap = finished
+    ? 0.14 + 0.06 * Math.sin(frameCount * 0.035 + h.orbitOff)
+    : 0.08 + 0.05 * Math.sin(frameCount * 0.06 + h.orbitOff)
+  const ag = ctx.createRadialGradient(0, 0, s * 0.2, 0, 0, auraR)
+  if (finished) {
+    ag.addColorStop(0, `rgba(0,229,160,${ap})`)
+    ag.addColorStop(0.5, `rgba(${cr},${cg},${cb},${ap * 0.3})`)
+  } else {
+    ag.addColorStop(0, `rgba(${cr},${cg},${cb},${ap})`)
   }
+  ag.addColorStop(1, 'transparent')
+  ctx.fillStyle = ag
+  ctx.beginPath(); ctx.arc(0, 0, auraR, 0, Math.PI * 2); ctx.fill()
 
   ctx.shadowColor = `rgb(${cr},${cg},${cb})`
-  ctx.shadowBlur = h.phase === 'siege' ? 28 : 16
+  ctx.shadowBlur = h.phase === 'siege' ? 30 : 18
 
-  // Wings (both sides)
+  // Wings
   ctx.lineWidth = 3.5; ctx.lineCap = 'round'
   for (const side of [-1, 1]) {
     ctx.strokeStyle = `rgba(${cr},${cg},${cb},0.9)`
@@ -377,7 +388,7 @@ function drawHawk(ctx: CanvasRenderingContext2D, h: Hawk, W: number, H: number, 
     ctx.stroke()
 
     ctx.beginPath()
-    ctx.fillStyle = `rgba(${cr},${cg},${cb},0.14)`
+    ctx.fillStyle = `rgba(${cr},${cg},${cb},0.15)`
     ctx.moveTo(0, 0)
     ctx.bezierCurveTo(
       side * wingSpan * 0.3, -wingSpan * 0.4 * flap,
@@ -403,27 +414,27 @@ function drawHawk(ctx: CanvasRenderingContext2D, h: Hawk, W: number, H: number, 
 
   // Body
   ctx.beginPath(); ctx.fillStyle = `rgba(${cr},${cg},${cb},0.95)`
-  ctx.ellipse(0, 0, s * 0.35, bodyLen * 0.5, 0, 0, Math.PI * 2); ctx.fill()
+  ctx.ellipse(0, 0, s * 0.38, bodyLen * 0.5, 0, 0, Math.PI * 2); ctx.fill()
   ctx.beginPath(); ctx.fillStyle = 'rgba(255,255,255,0.16)'
   ctx.ellipse(-s * 0.1, -bodyLen * 0.15, s * 0.14, bodyLen * 0.2, -0.2, 0, Math.PI * 2); ctx.fill()
 
   // Head
   ctx.beginPath()
   ctx.fillStyle = `rgba(${Math.min(255, cr + 40)},${Math.min(255, cg + 40)},${Math.min(255, cb + 40)},1)`
-  ctx.arc(0, -bodyLen * 0.48, s * 0.27, 0, Math.PI * 2); ctx.fill()
+  ctx.arc(0, -bodyLen * 0.48, s * 0.28, 0, Math.PI * 2); ctx.fill()
 
   // Eye
   ctx.beginPath(); ctx.fillStyle = '#fff'
-  ctx.arc(s * 0.08, -bodyLen * 0.5, s * 0.12, 0, Math.PI * 2); ctx.fill()
+  ctx.arc(s * 0.08, -bodyLen * 0.5, s * 0.13, 0, Math.PI * 2); ctx.fill()
   ctx.beginPath(); ctx.fillStyle = '#000'
-  ctx.arc(s * 0.09, -bodyLen * 0.5, s * 0.06, 0, Math.PI * 2); ctx.fill()
+  ctx.arc(s * 0.09, -bodyLen * 0.5, s * 0.065, 0, Math.PI * 2); ctx.fill()
   ctx.beginPath(); ctx.fillStyle = 'rgba(255,255,255,0.85)'
   ctx.arc(s * 0.11, -bodyLen * 0.52, s * 0.025, 0, Math.PI * 2); ctx.fill()
 
   // Beak
-  ctx.beginPath(); ctx.fillStyle = '#555'
+  ctx.beginPath(); ctx.fillStyle = '#666'
   ctx.moveTo(s * 0.1, -bodyLen * 0.62)
-  ctx.lineTo(s * 0.25, -bodyLen * 0.68)
+  ctx.lineTo(s * 0.26, -bodyLen * 0.68)
   ctx.lineTo(s * 0.1, -bodyLen * 0.55)
   ctx.closePath(); ctx.fill()
 
@@ -442,115 +453,117 @@ function drawHawk(ctx: CanvasRenderingContext2D, h: Hawk, W: number, H: number, 
 
 // ======================== DRAWING — RABBIT ========================
 
-function drawRabbit(ctx: CanvasRenderingContext2D, x: number, y: number, pulse: number, progress: number, isFinished: boolean) {
+function drawRabbit(ctx: CanvasRenderingContext2D, x: number, y: number, pulse: number) {
   ctx.save()
   ctx.translate(x, y)
 
-  // After completion: golden victory aura instead of danger crosshair
-  if (isFinished) {
-    const ga = 0.15 + 0.08 * Math.sin(frameCount * 0.025)
-    const victoryGlow = ctx.createRadialGradient(0, 0, 10, 0, 0, 90)
-    victoryGlow.addColorStop(0, `rgba(255,200,50,${ga})`)
-    victoryGlow.addColorStop(0.5, `rgba(0,229,160,${ga * 0.4})`)
-    victoryGlow.addColorStop(1, 'transparent')
-    ctx.fillStyle = victoryGlow
-    ctx.beginPath(); ctx.arc(0, 0, 90, 0, Math.PI * 2); ctx.fill()
+  if (finished) {
+    // Victory glow
+    const ga = 0.18 + 0.08 * Math.sin(frameCount * 0.025)
+    const vg = ctx.createRadialGradient(0, 0, 8, 0, 0, 100)
+    vg.addColorStop(0, `rgba(255,215,0,${ga})`)
+    vg.addColorStop(0.4, `rgba(0,229,160,${ga * 0.5})`)
+    vg.addColorStop(1, 'transparent')
+    ctx.fillStyle = vg
+    ctx.beginPath(); ctx.arc(0, 0, 100, 0, Math.PI * 2); ctx.fill()
 
-    // Victory rings (golden, slower)
+    // Golden rings
     for (let i = 0; i < 3; i++) {
-      const p = (pulse * 0.5 + i / 3) % 1
-      const r = 25 + p * 65
+      const p = (pulse * 0.4 + i / 3) % 1
+      const r = 28 + p * 70
       ctx.beginPath()
-      ctx.strokeStyle = `rgba(255,200,50,${0.4 * (1 - p)})`
+      ctx.strokeStyle = `rgba(255,215,0,${0.4 * (1 - p)})`
       ctx.lineWidth = 3 * (1 - p)
       ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke()
     }
   } else {
-    // Target crosshair during siege
-    if (progress > 0.55) {
-      const ca = (progress - 0.55) / 0.45 * 0.3
+    // Crosshair during siege
+    if (currentProgress > 0.55) {
+      const ca = (currentProgress - 0.55) / 0.45 * 0.35
       ctx.strokeStyle = `rgba(255,51,102,${ca})`
       ctx.lineWidth = 1
       ctx.setLineDash([5, 5])
-      ctx.beginPath(); ctx.moveTo(-55, 0); ctx.lineTo(-22, 0); ctx.stroke()
-      ctx.beginPath(); ctx.moveTo(22, 0); ctx.lineTo(55, 0); ctx.stroke()
-      ctx.beginPath(); ctx.moveTo(0, -55); ctx.lineTo(0, -35); ctx.stroke()
-      ctx.beginPath(); ctx.moveTo(0, 28); ctx.lineTo(0, 55); ctx.stroke()
-      ctx.beginPath(); ctx.arc(0, 0, 45, 0, Math.PI * 2); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(-60, 0); ctx.lineTo(-24, 0); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(24, 0); ctx.lineTo(60, 0); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(0, -60); ctx.lineTo(0, -36); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(0, 30); ctx.lineTo(0, 60); ctx.stroke()
+      ctx.beginPath(); ctx.arc(0, 0, 48, 0, Math.PI * 2); ctx.stroke()
       ctx.setLineDash([])
     }
 
-    // Danger rings
-    const ringCount = 3 + Math.floor(progress * 4)
+    // Danger pulses
+    const ringCount = 3 + Math.floor(currentProgress * 4)
     for (let i = 0; i < ringCount; i++) {
       const p = (pulse + i / ringCount) % 1
-      const r = 20 + p * 75
+      const r = 22 + p * 80
       ctx.beginPath()
-      ctx.strokeStyle = `rgba(255,51,102,${0.5 * (1 - p) * (0.4 + progress * 0.6)})`
+      ctx.strokeStyle = `rgba(255,51,102,${0.5 * (1 - p) * (0.3 + currentProgress * 0.7)})`
       ctx.lineWidth = 4 * (1 - p)
       ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke()
     }
   }
 
-  // Ground glow — bigger after completion
-  const glowR = isFinished ? 70 : 50
+  // Ground glow
+  const glowR = finished ? 75 : 55
+  const glowCol = finished ? 'rgba(255,215,0,0.3)' : 'rgba(255,51,102,0.3)'
   const gg = ctx.createRadialGradient(0, 5, 0, 0, 5, glowR)
-  gg.addColorStop(0, isFinished ? 'rgba(255,200,50,0.35)' : 'rgba(255,51,102,0.3)')
+  gg.addColorStop(0, glowCol)
   gg.addColorStop(1, 'transparent')
   ctx.fillStyle = gg
   ctx.beginPath(); ctx.arc(0, 5, glowR, 0, Math.PI * 2); ctx.fill()
 
   // Body
-  ctx.shadowColor = '#FF3366'; ctx.shadowBlur = 30
-  ctx.fillStyle = '#FF3366'
-  ctx.beginPath(); ctx.ellipse(0, 5, 16, 20, 0, 0, Math.PI * 2); ctx.fill()
+  ctx.shadowColor = finished ? '#FFD700' : '#FF3366'
+  ctx.shadowBlur = finished ? 40 : 30
+  ctx.fillStyle = finished ? '#FFD700' : '#FF3366'
+  ctx.beginPath(); ctx.ellipse(0, 5, 18, 22, 0, 0, Math.PI * 2); ctx.fill()
 
   // Head
   ctx.shadowBlur = 0
-  ctx.fillStyle = '#FF4477'
-  ctx.beginPath(); ctx.arc(0, -14, 13, 0, Math.PI * 2); ctx.fill()
+  ctx.fillStyle = finished ? '#FFE040' : '#FF4477'
+  ctx.beginPath(); ctx.arc(0, -16, 14, 0, Math.PI * 2); ctx.fill()
 
   // Ears
   for (const side of [-1, 1]) {
-    ctx.fillStyle = '#FF3366'
-    ctx.beginPath(); ctx.ellipse(side * 7, -34, 5, 14, side * 0.15, 0, Math.PI * 2); ctx.fill()
-    ctx.fillStyle = '#FF88AA'
-    ctx.beginPath(); ctx.ellipse(side * 7, -33, 3, 10, side * 0.15, 0, Math.PI * 2); ctx.fill()
+    ctx.fillStyle = finished ? '#FFD700' : '#FF3366'
+    ctx.beginPath(); ctx.ellipse(side * 8, -38, 5.5, 15, side * 0.15, 0, Math.PI * 2); ctx.fill()
+    ctx.fillStyle = finished ? '#FFED80' : '#FF88AA'
+    ctx.beginPath(); ctx.ellipse(side * 8, -37, 3.5, 11, side * 0.15, 0, Math.PI * 2); ctx.fill()
   }
 
   // Eyes
   for (const side of [-1, 1]) {
     ctx.fillStyle = '#fff'
-    ctx.beginPath(); ctx.arc(side * 5, -14, 4.5, 0, Math.PI * 2); ctx.fill()
+    ctx.beginPath(); ctx.arc(side * 5.5, -16, 5, 0, Math.PI * 2); ctx.fill()
     ctx.fillStyle = '#220011'
-    ctx.beginPath(); ctx.arc(side * 5, -14, 2.2, 0, Math.PI * 2); ctx.fill()
-    ctx.fillStyle = 'rgba(255,255,255,0.75)'
-    ctx.beginPath(); ctx.arc(side * 6, -15.5, 1.2, 0, Math.PI * 2); ctx.fill()
+    ctx.beginPath(); ctx.arc(side * 5.5, -16, 2.5, 0, Math.PI * 2); ctx.fill()
+    ctx.fillStyle = 'rgba(255,255,255,0.8)'
+    ctx.beginPath(); ctx.arc(side * 6.5, -17.5, 1.3, 0, Math.PI * 2); ctx.fill()
   }
 
   // Nose + whiskers
-  ctx.fillStyle = '#FFaacc'
-  ctx.beginPath(); ctx.arc(0, -8, 2.5, 0, Math.PI * 2); ctx.fill()
+  ctx.fillStyle = finished ? '#FFE080' : '#FFaacc'
+  ctx.beginPath(); ctx.arc(0, -9, 2.8, 0, Math.PI * 2); ctx.fill()
   ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 0.8
   for (const side of [-1, 1]) {
-    ctx.beginPath(); ctx.moveTo(side * 5, -8); ctx.lineTo(side * 22, -12); ctx.stroke()
-    ctx.beginPath(); ctx.moveTo(side * 5, -7); ctx.lineTo(side * 20, -3); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(side * 6, -9); ctx.lineTo(side * 24, -13); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(side * 6, -8); ctx.lineTo(side * 22, -4); ctx.stroke()
   }
 
   // Fluffy tail
-  ctx.fillStyle = '#FFccdd'
-  ctx.beginPath(); ctx.arc(0, 22, 7, 0, Math.PI * 2); ctx.fill()
+  ctx.fillStyle = finished ? '#FFED80' : '#FFccdd'
+  ctx.beginPath(); ctx.arc(0, 24, 8, 0, Math.PI * 2); ctx.fill()
 
   // Label
   ctx.textAlign = 'center'
-  if (isFinished) {
+  if (finished) {
     ctx.fillStyle = `rgba(0,229,160,${0.6 + 0.3 * Math.sin(frameCount * 0.03)})`
-    ctx.font = 'bold 13px Inter, sans-serif'
-    ctx.fillText('★ CAPTURADA ★', 0, -60)
+    ctx.font = 'bold 14px Inter, sans-serif'
+    ctx.fillText('\u2605 CAPTURADA \u2605', 0, -65)
   } else {
-    ctx.fillStyle = `rgba(255,51,102,${0.4 + 0.2 * Math.sin(frameCount * 0.04)})`
-    ctx.font = 'bold 11px Inter, sans-serif'
-    ctx.fillText('PRESA', 0, -55)
+    ctx.fillStyle = `rgba(255,51,102,${0.5 + 0.2 * Math.sin(frameCount * 0.04)})`
+    ctx.font = 'bold 12px Inter, sans-serif'
+    ctx.fillText('PRESA', 0, -60)
   }
 
   ctx.restore()
@@ -558,28 +571,33 @@ function drawRabbit(ctx: CanvasRenderingContext2D, x: number, y: number, pulse: 
 
 // ======================== DRAWING — HUD ========================
 
-function drawHUD(ctx: CanvasRenderingContext2D, W: number, H: number, progress: number) {
-  if (props.iteration <= 0) return
+function drawHUD(ctx: CanvasRenderingContext2D, W: number, H: number) {
+  if (displayedIteration <= 0 && !finished) return
 
-  const label = progress < 0.3 ? 'EXPLORACI\u00d3N' : progress < 0.65 ? 'TRANSICI\u00d3N' : 'SIEGE'
-  const [pr, pg, pb] = progress < 0.3 ? [100, 170, 255] : progress < 0.65 ? [220, 180, 80] : [255, 80, 80]
-  const E = (2 * (1 - progress)).toFixed(2)
+  const progress = currentProgress
+  const label = finished ? 'COMPLETADO' : progress < 0.3 ? 'EXPLORACI\u00d3N' : progress < 0.65 ? 'TRANSICI\u00d3N' : 'ASEDIO'
+  const [pr, pg, pb] = finished ? [0, 229, 160] : progress < 0.3 ? [80, 160, 255] : progress < 0.65 ? [255, 200, 60] : [255, 120, 40]
+  const E = finished ? '0.00' : (2 * (1 - progress)).toFixed(2)
 
-  ctx.fillStyle = 'rgba(0,0,0,0.55)'
-  ctx.beginPath(); ctx.roundRect(W - 185, 8, 173, 82, 10); ctx.fill()
+  ctx.fillStyle = 'rgba(0,0,0,0.6)'
+  ctx.beginPath(); ctx.roundRect(W - 195, 8, 183, 88, 10); ctx.fill()
   ctx.strokeStyle = `rgba(${pr},${pg},${pb},0.4)`; ctx.lineWidth = 1
-  ctx.beginPath(); ctx.roundRect(W - 185, 8, 173, 82, 10); ctx.stroke()
+  ctx.beginPath(); ctx.roundRect(W - 195, 8, 183, 88, 10); ctx.stroke()
 
   ctx.textAlign = 'right'
   ctx.fillStyle = `rgba(${pr},${pg},${pb},0.95)`
   ctx.font = 'bold 14px Inter, sans-serif'
   ctx.fillText(label, W - 22, 30)
 
-  ctx.fillStyle = 'rgba(255,255,255,0.45)'
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'
   ctx.font = '11px "JetBrains Mono", monospace'
   ctx.fillText(`E(t) = ${E}`, W - 22, 48)
-  ctx.fillText(`iter ${props.iteration} / ${props.maxIter}`, W - 22, 63)
+  ctx.fillText(`iter ${displayedIteration} / ${props.maxIter}`, W - 22, 63)
   ctx.fillText(`${paretoNorm.length} Pareto \u00b7 ${hawks.length} hawks`, W - 22, 78)
+  if (updateQueue.length > 0) {
+    ctx.fillStyle = 'rgba(255,255,255,0.25)'
+    ctx.fillText(`${updateQueue.length} en cola`, W - 22, 92)
+  }
 
   // Axis labels
   ctx.textAlign = 'center'
@@ -591,6 +609,18 @@ function drawHUD(ctx: CanvasRenderingContext2D, W: number, H: number, progress: 
   ctx.rotate(-Math.PI / 2)
   ctx.fillText('f\u2082 \u2014 Disparidad', 0, 0)
   ctx.restore()
+
+  // Completion banner
+  if (finished) {
+    const bannerA = 0.6 + 0.2 * Math.sin(frameCount * 0.025)
+    ctx.textAlign = 'center'
+    ctx.font = 'bold 18px Inter, sans-serif'
+    ctx.fillStyle = `rgba(0,229,160,${bannerA})`
+    ctx.fillText('OPTIMIZACI\u00d3N COMPLETADA', W / 2, H - 38)
+    ctx.font = '12px Inter, sans-serif'
+    ctx.fillStyle = 'rgba(255,255,255,0.35)'
+    ctx.fillText(`${paretoNorm.length} soluciones Pareto \u00b7 ${hawks.length} halcones`, W / 2, H - 18)
+  }
 }
 
 // ======================== MAIN LOOP ========================
@@ -604,27 +634,33 @@ function frame() {
   frameCount++
   const W = cvs.width / dpr
   const H = cvs.height / dpr
-  const progress = props.maxIter > 0 ? props.iteration / props.maxIter : 0
 
-  // Background
-  ctx.fillStyle = '#06061a'
-  ctx.fillRect(0, 0, W, H)
-  drawNebula(ctx, W, H, progress)
-  drawStarfield(ctx, W, H)
-  updateShootingStars(ctx, W, H)
-  drawGrid(ctx, W, H)
-  drawVignette(ctx, W, H)
+  // Failsafe: if hawks are empty, respawn
+  if (hawks.length === 0) spawnHawks(props.popSize || 20)
 
-  // Connections
+  // Process buffered updates at controlled rate
+  framesSinceUpdate++
+  if (updateQueue.length > 0 && framesSinceUpdate >= FRAMES_PER_UPDATE) {
+    // If queue is getting long, skip to catch up (but keep last few for smooth finish)
+    if (updateQueue.length > 10) {
+      const skip = updateQueue.length - 4
+      updateQueue.splice(0, skip)
+    }
+    processUpdate(updateQueue.shift()!)
+    framesSinceUpdate = 0
+  }
+
+  // ---- Draw everything ----
+  drawBackground(ctx, W, H)
   drawConstellations(ctx, W, H)
   drawParetoFront(ctx, W, H)
-  drawEnergyBeams(ctx, W, H, progress)
+  drawEnergyBeams(ctx, W, H)
 
   // Sparks
   sparks = sparks.filter(s => s.life > 0)
   sparks.forEach(s => {
     s.x += s.vx; s.y += s.vy
-    s.vy += 0.00012; s.vx *= 0.97; s.vy *= 0.97
+    s.vy += 0.0001; s.vx *= 0.97; s.vy *= 0.97
     s.life--
     const alpha = s.life / s.maxLife
     ctx.beginPath()
@@ -637,40 +673,37 @@ function frame() {
   hawks.forEach((h, idx) => {
     let effTx = h.tx, effTy = h.ty
 
-    // Orbital motion keeps siege hawks circling — never static
-    if (h.phase === 'siege') {
-      // After completion, use a much wider orbit so hawks stay clearly visible
-      const baseR = finished ? 0.09 : 0.045
-      const ampR = finished ? 0.035 : 0.02
-      const orbitR = baseR + ampR * Math.sin(frameCount * 0.008 + h.orbitOffset * 3)
-      const orbitSpeed = finished ? 0.012 : 0.02
-      const orbitA = frameCount * orbitSpeed + h.orbitOffset + idx * 0.4
+    // Orbital motion during siege/finished
+    if (h.phase === 'siege' || finished) {
+      const baseR = finished ? 0.1 : 0.055
+      const ampR = finished ? 0.04 : 0.025
+      const orbitR = baseR + ampR * Math.sin(frameCount * 0.007 + h.orbitOff * 3)
+      const speed = finished ? 0.01 : 0.015
+      const orbitA = frameCount * speed + h.orbitOff + idx * 0.45
       effTx = h.tx + Math.cos(orbitA) * orbitR
       effTy = h.ty + Math.sin(orbitA) * orbitR
     }
 
     const dx = effTx - h.x, dy = effTy - h.y
-    const dist = Math.sqrt(dx * dx + dy * dy)
 
-    if (h.phase === 'explore') {
-      h.vx += dx * 0.0012 + (Math.random() - 0.5) * 0.002
-      h.vy += dy * 0.0012 + (Math.random() - 0.5) * 0.002
-    } else if (h.phase === 'transition') {
-      h.vx += dx * 0.004 + (Math.random() - 0.5) * 0.001
-      h.vy += dy * 0.004 + (Math.random() - 0.5) * 0.001
-    } else {
-      h.vx += dx * 0.008
-      h.vy += dy * 0.008
-      if (Math.random() < 0.005) {
-        const levy = Math.pow(Math.random(), -0.5) * 0.02
-        h.vx += (Math.random() - 0.5) * levy
-        h.vy += (Math.random() - 0.5) * levy
-      }
+    // Smooth, deliberate motion — NOT snappy
+    const accel = h.phase === 'explore' ? 0.0008 : h.phase === 'transition' ? 0.002 : 0.005
+    const noise = h.phase === 'explore' ? 0.0015 : h.phase === 'transition' ? 0.0005 : 0
+
+    h.vx += dx * accel + (Math.random() - 0.5) * noise
+    h.vy += dy * accel + (Math.random() - 0.5) * noise
+
+    // Lévy flight in siege
+    if (h.phase === 'siege' && !finished && Math.random() < 0.004) {
+      const levy = Math.pow(Math.random(), -0.5) * 0.015
+      h.vx += (Math.random() - 0.5) * levy
+      h.vy += (Math.random() - 0.5) * levy
     }
 
-    h.vx *= 0.93; h.vy *= 0.93
+    // Damping — SLOWER than before for deliberate feel
+    h.vx *= 0.94; h.vy *= 0.94
     const speed = Math.sqrt(h.vx * h.vx + h.vy * h.vy)
-    const maxSpd = h.phase === 'siege' ? 0.014 : 0.009
+    const maxSpd = finished ? 0.008 : h.phase === 'siege' ? 0.012 : 0.007
     if (speed > maxSpd) { h.vx *= maxSpd / speed; h.vy *= maxSpd / speed }
 
     h.x += h.vx; h.y += h.vy
@@ -680,90 +713,72 @@ function frame() {
     if (h.y <= 0.02 || h.y >= 0.98) h.vy *= -0.5
 
     // Smooth heading
-    if (speed > 0.0006) {
+    if (speed > 0.0005) {
       const tgt = Math.atan2(h.vy, h.vx) + Math.PI / 2
       let diff = tgt - h.angle
       while (diff > Math.PI) diff -= Math.PI * 2
       while (diff < -Math.PI) diff += Math.PI * 2
-      h.angle += diff * 0.1
+      h.angle += diff * 0.08
     }
 
-    h.wing += h.wingSpeed + (h.phase === 'siege' ? 0.08 : 0)
+    h.wing += h.wingSpeed + (h.phase === 'siege' ? 0.06 : 0)
 
     // Trail
     h.trail.push({ x: h.x, y: h.y, age: 0 })
     h.trail.forEach(t => t.age++)
-    h.trail = h.trail.filter(t => t.age < 45)
+    h.trail = h.trail.filter(t => t.age < 55)
 
-    // Sparks near rabbit during siege
-    if (h.phase === 'siege' && dist < 0.12 && Math.random() < 0.12 && sparks.length < 300) {
-      const a = Math.random() * Math.PI * 2
-      const sp = 0.002 + Math.random() * 0.005
-      sparks.push({
-        x: h.x, y: h.y,
-        vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
-        life: 25 + Math.random() * 35, maxLife: 60,
-        r: 255, g: 180 + Math.floor(Math.random() * 75), b: 0,
-        size: 2.5 + Math.random() * 2.5,
-      })
+    // Sparks near rabbit
+    if (h.phase === 'siege' && !finished) {
+      const dRab = Math.sqrt(Math.pow(h.x - rabbitX, 2) + Math.pow(h.y - rabbitY, 2))
+      if (dRab < 0.15 && Math.random() < 0.1 && sparks.length < 250) {
+        const a = Math.random() * Math.PI * 2
+        const sp = 0.002 + Math.random() * 0.004
+        sparks.push({
+          x: h.x, y: h.y,
+          vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+          life: 30 + Math.random() * 40, maxLife: 70,
+          r: 255, g: 180 + Math.floor(Math.random() * 75), b: 0,
+          size: 2.5 + Math.random() * 2.5,
+        })
+      }
     }
 
-    drawHawk(ctx, h, W, H, finished)
+    drawHawk(ctx, h, W, H)
   })
 
-  // Rabbit — always on top
-  rabbitPulse = (rabbitPulse + 0.005) % 1
-  drawRabbit(ctx, rabbitX * W, rabbitY * H, rabbitPulse, progress, finished)
+  // Rabbit — always visible, drawn on top
+  rabbitPulse = (rabbitPulse + 0.004) % 1
+  drawRabbit(ctx, rabbitX * W, rabbitY * H, rabbitPulse)
 
-  // Completion shockwave
-  if (completionPulse > 0) {
-    completionPulse--
-    const p = 1 - completionPulse / 160
-    const maxR = Math.max(W, H) * 0.6
-    ctx.beginPath()
-    ctx.strokeStyle = `rgba(0,229,160,${0.5 * (1 - p)})`
-    ctx.lineWidth = 4 * (1 - p)
-    ctx.arc(rabbitX * W, rabbitY * H, maxR * p, 0, Math.PI * 2)
-    ctx.stroke()
-    if (p > 0.1) {
-      const p2 = (p - 0.1) / 0.9
+  // Completion shockwave (first ~2.5 sec after finishing)
+  if (finished && completionFrame > 0) {
+    const elapsed = frameCount - completionFrame
+    if (elapsed < 160) {
+      const p = elapsed / 160
+      const maxR = Math.max(W, H) * 0.65
       ctx.beginPath()
-      ctx.strokeStyle = `rgba(255,200,50,${0.4 * (1 - p2)})`
-      ctx.lineWidth = 3 * (1 - p2)
-      ctx.arc(rabbitX * W, rabbitY * H, maxR * 0.7 * p2, 0, Math.PI * 2)
+      ctx.strokeStyle = `rgba(0,229,160,${0.5 * (1 - p)})`
+      ctx.lineWidth = 5 * (1 - p)
+      ctx.arc(rabbitX * W, rabbitY * H, maxR * p, 0, Math.PI * 2)
       ctx.stroke()
+      if (p > 0.15) {
+        const p2 = (p - 0.15) / 0.85
+        ctx.beginPath()
+        ctx.strokeStyle = `rgba(255,215,0,${0.4 * (1 - p2)})`
+        ctx.lineWidth = 4 * (1 - p2)
+        ctx.arc(rabbitX * W, rabbitY * H, maxR * 0.65 * p2, 0, Math.PI * 2)
+        ctx.stroke()
+      }
     }
   }
 
-  // Persistent "COMPLETADO" banner after simulation ends
-  if (finished && completionPulse <= 0) {
-    const bannerAlpha = 0.6 + 0.15 * Math.sin(frameCount * 0.03)
-    ctx.textAlign = 'center'
-    ctx.font = 'bold 16px Inter, sans-serif'
-    ctx.fillStyle = `rgba(0,229,160,${bannerAlpha})`
-    ctx.fillText('OPTIMIZACIÓN COMPLETADA', W / 2, H - 32)
-    ctx.font = '11px Inter, sans-serif'
-    ctx.fillStyle = 'rgba(255,255,255,0.3)'
-    ctx.fillText(`${paretoNorm.length} soluciones Pareto · ${hawks.length} halcones`, W / 2, H - 14)
-  }
-
-  drawHUD(ctx, W, H, progress)
+  drawHUD(ctx, W, H)
 
   animId = requestAnimationFrame(frame)
 }
 
-// ======================== SETUP & LIFECYCLE ========================
-
-function setupCanvas() {
-  const cvs = canvasRef.value
-  if (!cvs) return
-  dpr = window.devicePixelRatio || 1
-  const rect = cvs.getBoundingClientRect()
-  cvs.width = rect.width * dpr
-  cvs.height = rect.height * dpr
-  const ctx = cvs.getContext('2d')
-  if (ctx) ctx.scale(dpr, dpr)
-}
+// ======================== LIFECYCLE ========================
 
 let resizeHandler: (() => void) | null = null
 
@@ -772,7 +787,7 @@ onMounted(() => {
   initStars(200)
   spawnHawks(props.popSize || 20)
   animId = requestAnimationFrame(frame)
-  resizeHandler = () => { setupCanvas(); initStars(200) }
+  resizeHandler = () => setupCanvas()
   window.addEventListener('resize', resizeHandler)
 })
 
@@ -789,23 +804,23 @@ onUnmounted(() => {
       class="w-full h-[600px] rounded-xl"
     />
     <div class="absolute top-3 left-3 flex flex-wrap gap-2 text-[10px] text-gray-400/80">
-      <span class="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded-md backdrop-blur-sm">
-        <span class="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_6px_rgba(96,165,250,0.8)]" />
+      <span class="flex items-center gap-1.5 bg-black/50 px-2 py-1 rounded-md backdrop-blur-sm">
+        <span class="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_6px_rgba(80,160,255,0.8)]" />
         Exploraci&oacute;n
       </span>
-      <span class="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded-md backdrop-blur-sm">
-        <span class="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_6px_rgba(220,180,80,0.8)]" />
+      <span class="flex items-center gap-1.5 bg-black/50 px-2 py-1 rounded-md backdrop-blur-sm">
+        <span class="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_6px_rgba(255,200,60,0.8)]" />
         Transici&oacute;n
       </span>
-      <span class="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded-md backdrop-blur-sm">
-        <span class="w-2 h-2 rounded-full bg-red-400 shadow-[0_0_6px_rgba(255,80,80,0.8)]" />
-        Siege
+      <span class="flex items-center gap-1.5 bg-black/50 px-2 py-1 rounded-md backdrop-blur-sm">
+        <span class="w-2 h-2 rounded-full bg-orange-400 shadow-[0_0_6px_rgba(255,120,40,0.8)]" />
+        Asedio
       </span>
-      <span class="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded-md backdrop-blur-sm">
+      <span class="flex items-center gap-1.5 bg-black/50 px-2 py-1 rounded-md backdrop-blur-sm">
         <span class="w-2 h-2 rounded-full bg-pink-500 shadow-[0_0_6px_rgba(255,51,102,0.8)]" />
         Presa
       </span>
-      <span class="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded-md backdrop-blur-sm">
+      <span class="flex items-center gap-1.5 bg-black/50 px-2 py-1 rounded-md backdrop-blur-sm">
         <span class="w-2 h-2 rounded-full bg-blue-600 shadow-[0_0_6px_rgba(0,100,255,0.8)]" />
         Frente Pareto
       </span>

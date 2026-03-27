@@ -33,7 +33,7 @@ defineProps<{
             class="px-3 py-2 font-mono text-xs whitespace-nowrap"
             :class="[
               ci === highlightCol ? 'bg-primary/5' : '',
-              ci === 0 ? 'text-gray-300 font-medium' : 'text-gray-400',
+              ci === 0 ? 'text-gray-300 font-medium' : cell === '0' || cell === 0 ? 'text-gray-600' : 'text-gray-400',
             ]"
           >
             {{ cell }}

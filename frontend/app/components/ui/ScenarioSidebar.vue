@@ -61,7 +61,7 @@ watch(scenario, () => {
         <div class="bg-white/[0.04] rounded-lg px-3 py-2.5">
           <p class="text-[10px] text-gray-500 uppercase">f₁ espera</p>
           <p class="text-lg font-bold font-mono text-accent-yellow">
-            {{ allocation.fitness.f1.toFixed(3) }}
+            {{ allocation.fitness.f1.toFixed(2) }}
             <span class="text-xs text-gray-500">años</span>
           </p>
         </div>
@@ -69,7 +69,7 @@ watch(scenario, () => {
         <div class="bg-white/[0.04] rounded-lg px-3 py-2.5">
           <p class="text-[10px] text-gray-500 uppercase">f₂ disparidad</p>
           <p class="text-lg font-bold font-mono text-accent-green">
-            {{ allocation.fitness.f2.toFixed(3) }}
+            {{ allocation.fitness.f2.toFixed(2) }}
             <span class="text-xs text-gray-500">años</span>
           </p>
         </div>

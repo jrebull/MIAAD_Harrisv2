@@ -61,7 +61,7 @@ const option = computed<EChartsOption>(() => {
       top: 'center',
       itemHeight: 200,
       textStyle: { color: CHART_COLORS.textMuted, fontSize: 10 },
-      inRange: { color: ['#0a0e1a', '#0d2554', '#003CA6', '#1a6fd4', '#FFD600', '#FF3366'] },
+      inRange: { color: ['#1a2040', '#1d3a6e', '#1a6fd4', '#4db8ff', '#FFD600', '#FF3366'] },
     },
     series: [{
       type: 'heatmap',
@@ -75,7 +75,7 @@ const option = computed<EChartsOption>(() => {
         textShadowColor: 'rgba(0,0,0,0.5)',
         formatter: (p: any) => {
           const v = p.data[2]
-          return v > 0 ? v.toLocaleString() : ''
+          return v > 0 ? v.toLocaleString() : '0'
         },
       },
       emphasis: {

@@ -277,6 +277,57 @@ archive = []                                # Archivo Pareto vac&iacute;o</pre>
         </div>
       </div>
 
+      <!-- Detailed SPV explanation -->
+      <div class="bg-dark-bg1 rounded-xl p-5 border border-primary/20 space-y-4">
+        <h3 class="text-sm font-bold text-primary-300">&iquest;Por qu&eacute; valores de 0 a 1? &iquest;Por qu&eacute; 105 dimensiones?</h3>
+        <div class="text-xs text-gray-400 space-y-2 leading-relaxed">
+          <p>
+            Cada <strong class="text-white">halc&oacute;n</strong> es un vector de <strong class="text-accent-yellow">105 n&uacute;meros reales &isin; [0, 1]</strong>.
+            Los 105 valores corresponden a los 105 grupos del problema: <strong class="text-white">21 pa&iacute;ses &times; 5 categor&iacute;as EB</strong>.
+          </p>
+          <div class="font-mono text-[11px] bg-black/40 rounded p-3 space-y-1.5">
+            <p class="text-gray-500"># Ejemplo: un halc&oacute;n con 105 valores</p>
+            <p>
+              <span class="text-gray-500">Pos 0</span> <span class="text-primary-300">(China, EB-1)</span> &rarr; <span class="text-accent-yellow">0.71</span>
+              <span class="text-gray-600 ml-2">&larr; prioridad baja (valor alto)</span>
+            </p>
+            <p>
+              <span class="text-gray-500">Pos 1</span> <span class="text-primary-300">(China, EB-2)</span> &rarr; <span class="text-accent-green">0.12</span>
+              <span class="text-gray-600 ml-2">&larr; prioridad alta (valor bajo)</span>
+            </p>
+            <p>
+              <span class="text-gray-500">Pos 2</span> <span class="text-primary-300">(China, EB-3)</span> &rarr; <span class="text-accent-yellow">0.48</span>
+              <span class="text-gray-600 ml-2">&larr; prioridad media</span>
+            </p>
+            <p class="text-gray-500">... (105 posiciones en total)</p>
+            <p>
+              <span class="text-gray-500">Pos 104</span> <span class="text-primary-300">(Otros, EB-5)</span> &rarr; <span class="text-accent-red">0.95</span>
+              <span class="text-gray-600 ml-2">&larr; prioridad muy baja</span>
+            </p>
+          </div>
+          <p>
+            Los valores <strong class="text-white">NO representan visas</strong>. Un valor como 0.71 indica la
+            <em>prioridad relativa</em> del grupo. Al aplicar <strong class="text-accent-yellow">argsort</strong>,
+            los grupos con valores m&aacute;s bajos reciben visas primero:
+          </p>
+          <div class="font-mono text-[11px] bg-black/40 rounded p-3 space-y-1">
+            <p>H = [<span class="text-accent-yellow">0.71</span>, <span class="text-accent-green">0.12</span>, <span class="text-accent-yellow">0.48</span>, <span class="text-accent-red">0.95</span>, ...]</p>
+            <p>&pi; = argsort(H) = [<span class="text-accent-green">1</span>, 2, 0, 3, ...]</p>
+            <p class="text-gray-500">&darr;</p>
+            <p class="text-white">Grupo 1 (China, EB-2) recibe visas primero &rarr; 0.12 es el valor m&aacute;s bajo</p>
+            <p class="text-white">Grupo 2 (China, EB-3) recibe visas segundo &rarr; 0.48</p>
+            <p class="text-white">Grupo 0 (China, EB-1) recibe visas tercero &rarr; 0.71</p>
+            <p class="text-gray-500">... y as&iacute; sucesivamente hasta agotar las 140,000 visas</p>
+          </div>
+          <p>
+            <strong class="text-gray-300">&iquest;Por qu&eacute; [0, 1] y no enteros?</strong> Porque MOHHO es una metaheur&iacute;stica
+            <em>continua</em>: sus 6 operadores (exploraci&oacute;n, asedio, vuelo de L&eacute;vy) mueven los halcones
+            en un espacio continuo. SPV es el puente que transforma ese espacio continuo
+            en una asignaci&oacute;n discreta v&aacute;lida.
+          </p>
+        </div>
+      </div>
+
       <p class="text-xs text-gray-500 leading-relaxed bg-dark-bg1 rounded-lg p-4">
         <strong class="text-gray-400">Propiedad clave:</strong>
         Vecinos cercanos en [0,1]<sup>105</sup> producen permutaciones similares (pocos intercambios),
