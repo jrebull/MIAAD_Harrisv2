@@ -18,7 +18,9 @@ function handleStart() {
     <div class="card">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
         <div>
-          <label class="text-xs text-gray-500 uppercase">Población</label>
+          <label class="text-xs text-gray-500 uppercase flex items-center gap-1.5">
+            <Icon name="hawk" :size="13" /> Población
+          </label>
           <input
             v-model.number="popSize"
             type="range" min="10" max="80" step="5"
@@ -49,10 +51,10 @@ function handleStart() {
         <div>
           <button
             v-if="!state.running"
-            class="btn-primary w-full"
+            class="btn-primary w-full flex items-center justify-center gap-2"
             @click="handleStart"
           >
-            Iniciar Simulación
+            <Icon name="hawk" :size="16" /> Iniciar Simulación
           </button>
           <button
             v-else
@@ -85,12 +87,22 @@ function handleStart() {
       <KpiCard label="Soluciones Pareto" :value="state.archiveSize" />
       <KpiCard label="Hipervolumen" :value="state.hv.toLocaleString()" />
       <KpiCard
-        label="Estado"
-        :value="state.running ? 'Corriendo...' : 'Completado'"
+        label="Fase"
+        :value="progress < 30 ? 'Exploración' : progress < 70 ? 'Transición' : 'Siege'"
       />
     </section>
 
-    <!-- Live charts -->
+    <!-- Hawk Hunt animation -->
+    <div class="card p-0 overflow-hidden">
+      <HawkHunt
+        :pareto-front="state.paretoFront"
+        :iteration="state.iteration"
+        :max-iter="state.maxIter"
+        :running="state.running"
+      />
+    </div>
+
+    <!-- Live data charts -->
     <div v-if="state.iteration > 0" class="card">
       <SimulationLive
         :pareto-front="state.paretoFront"
@@ -101,13 +113,27 @@ function handleStart() {
     </div>
 
     <!-- Instructions when idle -->
-    <div v-if="state.iteration === 0" class="card text-center py-16">
-      <p class="text-4xl mb-4">🦅</p>
+    <div v-if="state.iteration === 0 && !state.running" class="card text-center py-12">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/20 to-accent-yellow/20 flex items-center justify-center">
+        <Icon name="hawk" :size="32" class="text-accent-yellow" />
+      </div>
       <h3 class="text-lg font-bold text-white mb-2">Listo para simular</h3>
-      <p class="text-sm text-gray-400 max-w-md mx-auto">
-        Configura los parámetros y presiona "Iniciar Simulación" para observar
-        el algoritmo MOHHO optimizando en tiempo real via WebSocket.
+      <p class="text-sm text-gray-400 max-w-lg mx-auto leading-relaxed">
+        Configura los parámetros y presiona <strong class="text-white">"Iniciar Simulación"</strong> para observar
+        el algoritmo MOHHO optimizando en tiempo real. Los halcones de Harris convergerán
+        sobre el conejo (solución líder) mientras construyen el frente de Pareto.
       </p>
+      <div class="mt-6 flex justify-center gap-6 text-xs text-gray-500">
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-blue-400" /> Exploración
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-accent-yellow" /> Siege
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-accent-red" /> Presa
+        </div>
+      </div>
     </div>
   </div>
 </template>

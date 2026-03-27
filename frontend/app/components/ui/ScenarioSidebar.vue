@@ -21,23 +21,26 @@ watch(scenario, () => {
         <button
           v-for="s in scenarios"
           :key="s.id"
-          class="w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200"
+          class="w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 flex items-start gap-2.5"
           :class="scenario === s.id
             ? 'bg-primary/20 text-white border border-primary/40'
             : 'text-gray-400 hover:text-white hover:bg-white/5'"
           @click="setScenario(s.id)"
         >
-          <span class="mr-2">{{ s.icon }}</span>
-          <span class="font-medium">{{ s.name }}</span>
-          <span class="block text-[10px] text-gray-500 ml-7">{{ s.description }}</span>
+          <Icon :name="s.icon" :size="16" class="mt-0.5 shrink-0 opacity-80" />
+          <div>
+            <span class="font-medium">{{ s.name }}</span>
+            <span class="block text-[10px] text-gray-500">{{ s.description }}</span>
+          </div>
         </button>
       </div>
     </div>
 
     <!-- Active scenario metrics -->
     <div v-if="allocation && !loading">
-      <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-        {{ currentScenario.icon }} {{ currentScenario.name }}
+      <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+        <Icon :name="currentScenario.icon" :size="14" />
+        {{ currentScenario.name }}
       </h3>
       <div class="space-y-2">
         <div class="bg-white/[0.04] rounded-lg px-3 py-2.5">

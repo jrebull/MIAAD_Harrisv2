@@ -7,11 +7,11 @@ interface Scenario {
 }
 
 const scenarios: Scenario[] = [
-  { id: 'humanitario', name: 'Humanitario', icon: '🦅', description: 'Min espera (f₁)', objective: 'min_f1' },
-  { id: 'equilibrio', name: 'Equilibrio', icon: '⚖️', description: 'Balance (knee)', objective: 'knee' },
-  { id: 'equidad', name: 'Equidad', icon: '🤝', description: 'Min brecha (f₂)', objective: 'min_f2' },
-  { id: 'max_utilizacion', name: 'Máx. Utilización', icon: '💯', description: 'Min desperdicio (f₃)', objective: 'min_f3' },
-  { id: 'fifo', name: 'FIFO', icon: '📋', description: 'Sistema actual', objective: 'baseline' },
+  { id: 'humanitario', name: 'Humanitario', icon: 'heart', description: 'Min espera (f₁)', objective: 'min_f1' },
+  { id: 'equilibrio', name: 'Equilibrio', icon: 'scale', description: 'Balance (knee)', objective: 'knee' },
+  { id: 'equidad', name: 'Equidad', icon: 'handshake', description: 'Min brecha (f₂)', objective: 'min_f2' },
+  { id: 'max_utilizacion', name: 'Máx. Utilización', icon: 'zap', description: 'Min desperdicio (f₃)', objective: 'min_f3' },
+  { id: 'fifo', name: 'FIFO', icon: 'list', description: 'Sistema actual', objective: 'baseline' },
 ]
 
 export const useScenario = () => {
