@@ -3,8 +3,9 @@
 import csv
 import json
 import os
+from functools import lru_cache
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, Query
 
 from app.config import DATA_DIR
 from app.core.config import V
@@ -13,10 +14,13 @@ from app.core.models import ParetoPoint, Fitness
 router = APIRouter()
 
 
-def _load_pareto_csv() -> tuple[list[ParetoPoint], ParetoPoint | None]:
+@lru_cache(maxsize=1)
+def _load_pareto_csv() -> tuple[tuple[dict, ...], dict | None]:
     pts: list[ParetoPoint] = []
     baseline: ParetoPoint | None = None
     path = os.path.join(DATA_DIR, "pareto_front.csv")
+    if not os.path.exists(path):
+        raise HTTPException(status_code=500, detail="Archivo pareto_front.csv no encontrado")
     with open(path) as f:
         reader = csv.DictReader(f)
         for row in reader:
@@ -31,26 +35,36 @@ def _load_pareto_csv() -> tuple[list[ParetoPoint], ParetoPoint | None]:
             else:
                 pts.append(p)
     pts.sort(key=lambda p: p.f1)
-    return pts, baseline
+    return (
+        tuple(p.model_dump() for p in pts),
+        baseline.model_dump() if baseline else None,
+    )
 
 
 @router.get("/api/pareto")
 def get_pareto():
     pts, baseline = _load_pareto_csv()
     return {
-        "points": [p.model_dump() for p in pts],
-        "baseline": baseline.model_dump() if baseline else None,
+        "points": list(pts),
+        "baseline": baseline,
         "count": len(pts),
     }
 
 
-@router.get("/api/pareto/run/{run_idx}")
-def get_pareto_run(run_idx: int):
+@lru_cache(maxsize=30)
+def _load_run(run_idx: int) -> dict:
     path = os.path.join(DATA_DIR, f"run_{run_idx:02d}.json")
     if not os.path.exists(path):
-        return {"error": f"Run {run_idx} not found"}
+        raise HTTPException(status_code=404, detail=f"Corrida {run_idx} no encontrada")
     with open(path) as f:
-        data = json.load(f)
+        return json.load(f)
+
+
+@router.get("/api/pareto/run/{run_idx}")
+def get_pareto_run(run_idx: int):
+    if run_idx < 0 or run_idx > 99:
+        raise HTTPException(status_code=400, detail="Índice de corrida debe ser entre 0 y 99")
+    data = _load_run(run_idx)
     points = [
         ParetoPoint(
             f1=p["f1"], f2=p["f2"], f3=p["f3"],

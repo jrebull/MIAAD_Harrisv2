@@ -13,12 +13,15 @@ export default defineNuxtConfig({
   ],
 
   app: {
+    pageTransition: { name: 'page', mode: 'out-in' },
     head: {
       title: 'Visa Predict AI — MOHHO Optimizer',
+      htmlAttrs: { lang: 'es', class: 'dark' },
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: 'Multi-Objective Harris Hawks Optimization for US EB Visa Allocation' },
+        { name: 'theme-color', content: '#0a0a1a' },
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },

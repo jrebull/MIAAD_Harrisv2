@@ -19,10 +19,17 @@ async def simulation_ws(websocket: WebSocket):
 
     try:
         raw = await websocket.receive_text()
-        params = json.loads(raw)
+        try:
+            params = json.loads(raw)
+        except (json.JSONDecodeError, TypeError):
+            await websocket.send_text(json.dumps({
+                "type": "error", "message": "JSON inválido en parámetros"
+            }))
+            await websocket.close()
+            return
         pop_size = min(max(int(params.get("pop_size", 30)), 10), 80)
         max_iter = min(max(int(params.get("max_iter", 100)), 20), 500)
-        seed = int(params.get("seed", 42))
+        seed = max(int(params.get("seed", 42)), 0)
 
         problem = VisaProblem()
         msg_queue: queue.Queue[dict | None] = queue.Queue()

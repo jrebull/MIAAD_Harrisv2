@@ -1,11 +1,13 @@
 """Scenario and data endpoints."""
 
 import json
+import logging
 import os
+from functools import lru_cache
 
 import numpy as np
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from app.config import DATA_DIR
 from app.core.config import COUNTRIES, CATEGORIES, CATS_DESC, FLAGS, V
@@ -17,6 +19,8 @@ from app.core.models import (
     GroupInfo, AllocationResponse, AllocationRow, Fitness,
     ImpactResponse, ImpactRow,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -30,20 +34,28 @@ def get_problem() -> VisaProblem:
     return _problem
 
 
+@lru_cache(maxsize=1)
 def _load_summary() -> dict:
-    with open(os.path.join(DATA_DIR, "summary.json")) as f:
+    path = os.path.join(DATA_DIR, "summary.json")
+    if not os.path.exists(path):
+        raise HTTPException(status_code=500, detail="Archivo summary.json no encontrado")
+    with open(path) as f:
         return json.load(f)
 
 
-def _load_pareto() -> list[tuple[float, float, float]]:
+@lru_cache(maxsize=1)
+def _load_pareto() -> tuple[tuple[float, float, float], ...]:
     import csv
     pts = []
-    with open(os.path.join(DATA_DIR, "pareto_front.csv")) as f:
+    path = os.path.join(DATA_DIR, "pareto_front.csv")
+    if not os.path.exists(path):
+        raise HTTPException(status_code=500, detail="Archivo pareto_front.csv no encontrado")
+    with open(path) as f:
         reader = csv.DictReader(f)
         for row in reader:
             if row["type"] == "pareto":
                 pts.append((float(row["f1"]), float(row["f2"]), float(row["f3"])))
-    return sorted(pts, key=lambda p: p[0])
+    return tuple(sorted(pts, key=lambda p: p[0]))
 
 
 def _find_knee(front: list[tuple[float, float, float]]) -> tuple[float, float, float]:
@@ -84,13 +96,32 @@ def _find_knee(front: list[tuple[float, float, float]]) -> tuple[float, float, f
     return pts[knee_idx]
 
 
+_allocation_cache: dict[str, tuple[list[list[int]], tuple[float, float, float], int]] = {}
+
+
 def _compute_mohho_allocation(
-    target_f1: float, target_f2: float, target_f3: float = -1.0
+    target_f1: float, target_f2: float, target_f3: float = -1.0,
+    cache_key: str | None = None,
 ) -> tuple[list[list[int]], tuple[float, float, float], int]:
     """Find MOHHO allocation closest to target fitness via Monte Carlo."""
+    if cache_key and cache_key in _allocation_cache:
+        logger.info("Cache hit for allocation '%s'", cache_key)
+        return _allocation_cache[cache_key]
+
     problem = get_problem()
     rng = np.random.default_rng(42)
-    f1_range, f2_range, f3_range = 0.35, 10.0, 18000.0
+
+    # Compute actual ranges from Pareto front for proper normalization
+    pareto = _load_pareto()
+    if pareto:
+        f1_vals = [p[0] for p in pareto]
+        f2_vals = [p[1] for p in pareto]
+        f3_vals = [p[2] for p in pareto]
+        f1_range = max(max(f1_vals) - min(f1_vals), 0.01)
+        f2_range = max(max(f2_vals) - min(f2_vals), 0.01)
+        f3_range = max(max(f3_vals) - min(f3_vals), 1.0)
+    else:
+        f1_range, f2_range, f3_range = 1.0, 10.0, 18000.0
 
     best_alloc: dict[int, int] | None = None
     best_dist = float("inf")
@@ -117,7 +148,13 @@ def _compute_mohho_allocation(
         matrix[ci][ji] = best_alloc[g["index"]]
 
     used = V - int(best_fit[2])
-    return matrix, best_fit, used
+    result = (matrix, best_fit, used)
+
+    if cache_key:
+        _allocation_cache[cache_key] = result
+        logger.info("Cached allocation '%s' (dist=%.6f)", cache_key, best_dist)
+
+    return result
 
 
 @router.get("/api/scenarios")
@@ -171,8 +208,14 @@ def get_groups():
     }
 
 
+VALID_SCENARIOS = {"humanitario", "equilibrio", "equidad", "max_utilizacion", "fifo"}
+
+
 @router.get("/api/allocation/{scenario}")
 def get_allocation(scenario: str):
+    if scenario not in VALID_SCENARIOS:
+        raise HTTPException(status_code=400, detail=f"Escenario inválido: {scenario}. Válidos: {', '.join(sorted(VALID_SCENARIOS))}")
+
     problem = get_problem()
     pareto = _load_pareto()
     summary = _load_summary()
@@ -198,8 +241,11 @@ def get_allocation(scenario: str):
         else:
             target = summary["best_f1"]
 
-        matrix, fit, used = _compute_mohho_allocation(target[0], target[1],
-                                                       target[2] if len(target) > 2 else -1.0)
+        matrix, fit, used = _compute_mohho_allocation(
+            target[0], target[1],
+            target[2] if len(target) > 2 else -1.0,
+            cache_key=scenario,
+        )
 
     rows = []
     for i, country in enumerate(COUNTRIES):
@@ -225,6 +271,11 @@ def get_allocation(scenario: str):
 
 @router.get("/api/impact/{scenario}")
 def get_impact(scenario: str):
+    if scenario not in VALID_SCENARIOS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Escenario inválido: {scenario}. Válidos: {', '.join(sorted(VALID_SCENARIOS))}",
+        )
     problem = get_problem()
     fifo_alloc, _ = run_baseline(problem)
 

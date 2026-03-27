@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CHART_COLORS, baseChartOption, type EChartsOption } from '~/composables/useEcharts'
+import { CHART_COLORS, baseChartOption, baseTooltip, type EChartsOption } from '~/composables/useEcharts'
 import type { ConvergenceData, RunsHVData, SummaryData, ParetoRunData, RunHV } from '~/composables/useOptimizer'
 import { formatNumber } from '~/utils/formatters'
 
@@ -43,10 +43,14 @@ const hvBarsOption = computed<EChartsOption>(() => {
       left: 'center',
     },
     tooltip: {
+      ...baseTooltip,
       trigger: 'axis',
-      backgroundColor: 'rgba(10,10,26,0.9)',
-      borderColor: CHART_COLORS.primary,
-      textStyle: { color: CHART_COLORS.text },
+      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(0,60,166,0.06)' } },
+      formatter: (params: any) => {
+        const p = Array.isArray(params) ? params[0] : params
+        const r = runs[p.dataIndex]
+        return `<b>Corrida #${r.run}</b><br><span style="opacity:0.6">HV final:</span> <b>${p.value.toLocaleString()}</b><br><span style="opacity:0.6">Pareto:</span> ${r.num_pareto} soluciones<br><span style="opacity:0.6">Seed:</span> ${r.seed}`
+      },
     },
     xAxis: {
       type: 'category',
@@ -56,7 +60,7 @@ const hvBarsOption = computed<EChartsOption>(() => {
     yAxis: {
       type: 'value',
       axisLabel: { color: CHART_COLORS.textMuted },
-      splitLine: { lineStyle: { color: CHART_COLORS.grid } },
+      splitLine: { lineStyle: { color: CHART_COLORS.grid, type: 'dashed' } },
     },
     series: [{
       type: 'bar',
@@ -72,8 +76,11 @@ const hvBarsOption = computed<EChartsOption>(() => {
             ],
           },
           opacity: 0.5 + 0.5 * (1 - i / runs.length),
+          borderRadius: [4, 4, 0, 0],
         },
       })),
+      animationDuration: 800,
+      animationDelay: (idx: number) => idx * 30,
     }],
   }
 })
@@ -101,7 +108,18 @@ const paretoSizeOption = computed<EChartsOption>(() => {
     series: [{
       type: 'bar',
       data: runs.map((r: RunHV) => r.num_pareto),
-      itemStyle: { color: CHART_COLORS.yellow, opacity: 0.7 },
+      itemStyle: {
+        color: {
+          type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+          colorStops: [
+            { offset: 0, color: CHART_COLORS.yellow },
+            { offset: 1, color: 'rgba(255,214,0,0.3)' },
+          ],
+        },
+        borderRadius: [4, 4, 0, 0],
+      },
+      animationDuration: 800,
+      animationDelay: (idx: number) => idx * 30,
     }],
   }
 })
@@ -117,11 +135,9 @@ const runParetoOption = computed<EChartsOption>(() => {
       left: 'center',
     },
     tooltip: {
+      ...baseTooltip,
       trigger: 'item',
-      backgroundColor: 'rgba(10,10,26,0.9)',
-      borderColor: CHART_COLORS.primary,
-      textStyle: { color: CHART_COLORS.text, fontSize: 11 },
-      formatter: (p: any) => `f₁: ${p.value[0].toFixed(4)}<br>f₂: ${p.value[1].toFixed(4)}`,
+      formatter: (p: any) => `<span style="opacity:0.6">f\u2081:</span> <b>${p.value[0].toFixed(4)}</b><br><span style="opacity:0.6">f\u2082:</span> <b>${p.value[1].toFixed(4)}</b>`,
     },
     xAxis: {
       type: 'value',
@@ -144,8 +160,20 @@ const runParetoOption = computed<EChartsOption>(() => {
     series: [{
       type: 'scatter',
       data: pts.map(p => [p.f1, p.f2]),
-      symbolSize: 8,
-      itemStyle: { color: CHART_COLORS.green, opacity: 0.8 },
+      symbolSize: 10,
+      itemStyle: {
+        color: {
+          type: 'radial', x: 0.5, y: 0.5, r: 0.5,
+          colorStops: [
+            { offset: 0, color: CHART_COLORS.green },
+            { offset: 1, color: 'rgba(0,229,160,0.4)' },
+          ],
+        },
+        borderColor: 'rgba(255,255,255,0.15)',
+        borderWidth: 1,
+      },
+      emphasis: { itemStyle: { shadowBlur: 12, shadowColor: CHART_COLORS.green, borderColor: '#fff' } },
+      animationDelay: (idx: number) => idx * 5,
     }],
   }
 })

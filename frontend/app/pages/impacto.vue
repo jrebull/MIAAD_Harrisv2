@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CHART_COLORS, baseChartOption, type EChartsOption } from '~/composables/useEcharts'
+import { CHART_COLORS, baseChartOption, baseTooltip, type EChartsOption } from '~/composables/useEcharts'
 import type { ImpactData, ImpactRow } from '~/composables/useOptimizer'
 import { formatNumber, formatDelta } from '~/utils/formatters'
 
@@ -29,17 +29,22 @@ const deltaOption = computed<EChartsOption>(() => {
       left: 'center',
     },
     tooltip: {
+      ...baseTooltip,
       trigger: 'axis',
-      axisPointer: { type: 'shadow' },
-      backgroundColor: 'rgba(10,10,26,0.9)',
-      borderColor: CHART_COLORS.primary,
-      textStyle: { color: CHART_COLORS.text },
+      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(0,60,166,0.06)' } },
+      formatter: (params: any) => {
+        const p = Array.isArray(params) ? params[0] : params
+        const r = rows[p.dataIndex]
+        const arrow = r.delta >= 0 ? '\u25b2' : '\u25bc'
+        const color = r.delta >= 0 ? CHART_COLORS.green : CHART_COLORS.red
+        return `<b>${r.flag} ${r.country}</b><br><span style="opacity:0.6">Delta:</span> <span style="color:${color};font-weight:700">${arrow} ${formatDelta(r.delta)}</span> visas`
+      },
     },
-    grid: { left: 120, right: 16, top: 48, bottom: 16 },
+    grid: { left: 120, right: 50, top: 48, bottom: 16 },
     xAxis: {
       type: 'value',
       axisLabel: { color: CHART_COLORS.textMuted },
-      splitLine: { lineStyle: { color: CHART_COLORS.grid } },
+      splitLine: { lineStyle: { color: CHART_COLORS.grid, type: 'dashed' } },
     },
     yAxis: {
       type: 'category',
@@ -51,7 +56,18 @@ const deltaOption = computed<EChartsOption>(() => {
       type: 'bar',
       data: rows.map((r: ImpactRow) => ({
         value: r.delta,
-        itemStyle: { color: r.delta >= 0 ? CHART_COLORS.green : CHART_COLORS.red },
+        itemStyle: {
+          color: {
+            type: 'linear',
+            x: r.delta >= 0 ? 0 : 1, y: 0,
+            x2: r.delta >= 0 ? 1 : 0, y2: 0,
+            colorStops: [
+              { offset: 0, color: r.delta >= 0 ? CHART_COLORS.green : CHART_COLORS.red },
+              { offset: 1, color: r.delta >= 0 ? 'rgba(0,229,160,0.3)' : 'rgba(255,51,102,0.3)' },
+            ],
+          },
+          borderRadius: r.delta >= 0 ? [0, 4, 4, 0] : [4, 0, 0, 4],
+        },
       })),
       label: {
         show: true,
@@ -60,6 +76,8 @@ const deltaOption = computed<EChartsOption>(() => {
         fontSize: 9,
         formatter: (p: any) => formatDelta(p.value),
       },
+      animationDuration: 800,
+      animationDelay: (idx: number) => idx * 40,
     }],
   }
 })
@@ -75,17 +93,16 @@ const comparisonOption = computed<EChartsOption>(() => {
       left: 'center',
     },
     tooltip: {
+      ...baseTooltip,
       trigger: 'axis',
-      backgroundColor: 'rgba(10,10,26,0.9)',
-      borderColor: CHART_COLORS.primary,
-      textStyle: { color: CHART_COLORS.text },
+      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(0,60,166,0.04)' } },
     },
-    legend: { top: 8, right: 16, textStyle: { color: CHART_COLORS.textMuted } },
+    legend: { top: 8, right: 16, textStyle: { color: CHART_COLORS.textMuted }, itemStyle: { borderWidth: 0 } },
     grid: { left: 120, right: 16, top: 56, bottom: 16 },
     xAxis: {
       type: 'value',
       axisLabel: { color: CHART_COLORS.textMuted },
-      splitLine: { lineStyle: { color: CHART_COLORS.grid } },
+      splitLine: { lineStyle: { color: CHART_COLORS.grid, type: 'dashed' } },
     },
     yAxis: {
       type: 'category',
@@ -98,13 +115,22 @@ const comparisonOption = computed<EChartsOption>(() => {
         name: 'FIFO',
         type: 'bar',
         data: rows.map((r: ImpactRow) => r.fifo_visas),
-        itemStyle: { color: CHART_COLORS.red, opacity: 0.6 },
+        itemStyle: { color: CHART_COLORS.red, opacity: 0.5, borderRadius: [0, 2, 2, 0] },
       },
       {
         name: scenario.value,
         type: 'bar',
         data: rows.map((r: ImpactRow) => r.scenario_visas),
-        itemStyle: { color: CHART_COLORS.primary },
+        itemStyle: {
+          color: {
+            type: 'linear', x: 0, y: 0, x2: 1, y2: 0,
+            colorStops: [
+              { offset: 0, color: CHART_COLORS.primary },
+              { offset: 1, color: CHART_COLORS.primaryLight },
+            ],
+          },
+          borderRadius: [0, 2, 2, 0],
+        },
       },
     ],
   }
