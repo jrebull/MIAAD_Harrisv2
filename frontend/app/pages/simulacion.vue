@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import type { AllocationData } from '~/composables/useOptimizer'
+import { formatNumber } from '~/utils/formatters'
+
 const { state, start, stop, seekTo, progress } = useSimulation()
+const { fetchCustomAllocation } = useOptimizer()
 
 const popSize = ref(30)
 const maxIter = ref(100)
@@ -7,8 +11,14 @@ const seed = ref(42)
 const scrubIdx = ref(0)
 const scrubbing = ref(false)
 
+// Allocation for selected iteration
+const simAllocation = ref<AllocationData | null>(null)
+const allocLoading = ref(false)
+const categories = ['EB-1', 'EB-2', 'EB-3', 'EB-4', 'EB-5']
+
 function handleStart() {
   scrubbing.value = false
+  simAllocation.value = null
   start(popSize.value, maxIter.value, seed.value)
 }
 
@@ -25,11 +35,31 @@ function toggleScrub() {
   }
 }
 
+// Fetch allocation for the best solution in the current Pareto front
+async function loadAllocation() {
+  if (!state.value.paretoFront.length) return
+  // Use the first Pareto solution (leader / best balanced)
+  const best = state.value.paretoFront[0]
+  allocLoading.value = true
+  try {
+    simAllocation.value = await fetchCustomAllocation(best.f1, best.f2, best.f3)
+  } catch (e) {
+    console.error('Failed to fetch custom allocation:', e)
+  } finally {
+    allocLoading.value = false
+  }
+}
+
 // Keep scrubber at end while running
 watch(() => state.value.history.length, (len) => {
   if (!scrubbing.value) {
     scrubIdx.value = len - 1
   }
+})
+
+// Auto-fetch allocation when simulation completes
+watch(() => state.value.completed, (done) => {
+  if (done) loadAllocation()
 })
 </script>
 
@@ -127,6 +157,14 @@ watch(() => state.value.history.length, (len) => {
             &mdash; HV: {{ state.history[scrubIdx]?.hv.toLocaleString() || 0 }}
             &mdash; {{ state.history[scrubIdx]?.paretoFront.length || 0 }} soluciones
           </span>
+          <button
+            v-if="scrubbing"
+            class="text-xs px-3 py-1 rounded-md bg-primary/20 text-primary-300 hover:bg-primary/30 transition-colors"
+            :disabled="allocLoading"
+            @click="loadAllocation"
+          >
+            {{ allocLoading ? 'Calculando...' : 'Ver Asignaci\u00f3n' }}
+          </button>
         </div>
       </div>
     </div>
@@ -138,7 +176,7 @@ watch(() => state.value.history.length, (len) => {
       <KpiCard label="Hipervolumen" :value="state.hv.toLocaleString()" color="text-accent-yellow" />
       <KpiCard
         label="Fase"
-        :value="progress < 30 ? 'Exploraci\u00f3n' : progress < 70 ? 'Transici\u00f3n' : 'Siege'"
+        :value="progress < 30 ? 'Exploraci\u00f3n' : progress < 70 ? 'Transici\u00f3n' : 'Asedio'"
         :color="progress < 30 ? 'text-blue-400' : progress < 70 ? 'text-accent-yellow' : 'text-accent-red'"
       />
     </section>
@@ -168,6 +206,58 @@ watch(() => state.value.history.length, (len) => {
       </div>
     </ClientOnly>
 
+    <!-- ===== ALLOCATION TABLE (after simulation / on scrub) ===== -->
+    <template v-if="simAllocation">
+      <div class="card">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-bold text-white">
+            Asignaci&oacute;n de Visas &mdash; Soluci&oacute;n L&iacute;der
+          </h2>
+          <div class="flex items-center gap-4 text-xs font-mono">
+            <span class="text-accent-yellow">f&sub1; = {{ simAllocation.fitness.f1.toFixed(2) }}</span>
+            <span class="text-accent-green">f&sub2; = {{ simAllocation.fitness.f2.toFixed(2) }}</span>
+            <span class="text-accent-red">f&sub3; = {{ simAllocation.fitness.f3.toLocaleString() }}</span>
+            <span class="text-primary-300">{{ simAllocation.visas_used.toLocaleString() }} visas ({{ simAllocation.utilization }}%)</span>
+          </div>
+        </div>
+        <div class="h-2 bg-white/10 rounded-full overflow-hidden mb-4">
+          <div
+            class="h-full bg-gradient-to-r from-primary to-accent-green rounded-full"
+            :style="{ width: simAllocation.utilization + '%' }"
+          />
+        </div>
+      </div>
+
+      <!-- Heatmap -->
+      <ClientOnly>
+        <div class="card">
+          <ImpactHeatmap
+            :countries="simAllocation.rows.map(r => r.flag + ' ' + r.country)"
+            :categories="categories"
+            :matrix="simAllocation.matrix"
+            title="Asignaci\u00f3n: Soluci\u00f3n L\u00edder del Frente Pareto"
+          />
+        </div>
+      </ClientOnly>
+
+      <!-- Data table -->
+      <details class="card" open>
+        <summary class="cursor-pointer text-sm text-gray-400 hover:text-white transition-colors">
+          Tabla de asignaci&oacute;n por pa&iacute;s
+        </summary>
+        <div class="mt-4">
+          <DataTable
+            :headers="['Pa\u00eds', ...categories, 'Total']"
+            :rows="simAllocation.rows.map(r => [
+              r.flag + ' ' + r.country,
+              ...categories.map(c => formatNumber(r.categories[c] || 0)),
+              formatNumber(r.total)
+            ])"
+          />
+        </div>
+      </details>
+    </template>
+
     <!-- Instructions when idle -->
     <div v-if="state.iteration === 0 && !state.running" class="card text-center py-12">
       <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/20 to-accent-yellow/20 flex items-center justify-center">
@@ -179,18 +269,7 @@ watch(() => state.value.history.length, (len) => {
         el algoritmo MOHHO optimizando en tiempo real. Los halcones de Harris converger&aacute;n
         sobre el conejo (soluci&oacute;n l&iacute;der) mientras construyen el frente de Pareto.
       </p>
-      <p class="text-xs text-gray-500 mt-3">Al terminar, podr&aacute;s explorar cada iteraci&oacute;n paso a paso con el scrubber.</p>
-      <div class="mt-6 flex justify-center gap-6 text-xs text-gray-500">
-        <div class="flex items-center gap-1.5">
-          <span class="w-2.5 h-2.5 rounded-full bg-blue-400" /> Exploraci&oacute;n
-        </div>
-        <div class="flex items-center gap-1.5">
-          <span class="w-2.5 h-2.5 rounded-full bg-accent-yellow" /> Siege
-        </div>
-        <div class="flex items-center gap-1.5">
-          <span class="w-2.5 h-2.5 rounded-full bg-accent-red" /> Presa
-        </div>
-      </div>
+      <p class="text-xs text-gray-500 mt-3">Al terminar, ver&aacute;s la tabla completa de asignaci&oacute;n de visas y podr&aacute;s explorar cada iteraci&oacute;n.</p>
     </div>
   </div>
 </template>

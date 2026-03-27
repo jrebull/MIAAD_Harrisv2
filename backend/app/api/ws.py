@@ -4,6 +4,7 @@ import asyncio
 import json
 import queue
 import threading
+import time
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
@@ -11,6 +12,10 @@ from app.core.problem import VisaProblem
 from app.core.mohho import run_mohho, compute_hypervolume, Fitness3
 
 router = APIRouter()
+
+# Minimum interval (seconds) between sending messages to the client.
+# This ensures the frontend animation plays at a visible, dramatic pace.
+MIN_SEND_INTERVAL = 0.35  # ~3 messages per second
 
 
 @router.websocket("/ws/simulation")
@@ -60,15 +65,41 @@ async def simulation_ws(websocket: WebSocket):
         thread = threading.Thread(target=run_optimization, daemon=True)
         thread.start()
 
-        # Stream messages as they arrive from the computation thread
+        last_send = 0.0
+
+        # Stream messages at a controlled pace
         while True:
+            # Wait for at least one message
             while msg_queue.empty():
-                await asyncio.sleep(0.05)
+                await asyncio.sleep(0.03)
 
             msg = msg_queue.get()
             if msg is None:
                 break
-            await websocket.send_text(json.dumps(msg))
+
+            # Throttle: wait until MIN_SEND_INTERVAL has passed since last send
+            now = time.monotonic()
+            wait = MIN_SEND_INTERVAL - (now - last_send)
+            if wait > 0:
+                await asyncio.sleep(wait)
+
+            # If multiple messages queued up during the wait, skip to the latest
+            latest = msg
+            while not msg_queue.empty():
+                peek = msg_queue.get()
+                if peek is None:
+                    # Sentinel found while skipping — send latest, then break
+                    await websocket.send_text(json.dumps(latest))
+                    last_send = time.monotonic()
+                    latest = None
+                    break
+                latest = peek
+
+            if latest is None:
+                break  # Sentinel was hit
+
+            await websocket.send_text(json.dumps(latest))
+            last_send = time.monotonic()
 
         await websocket.send_text(json.dumps({"type": "complete"}))
 

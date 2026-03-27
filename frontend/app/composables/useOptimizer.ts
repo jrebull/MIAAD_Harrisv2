@@ -151,6 +151,10 @@ export const useOptimizer = () => {
     return await get<ImpactData>(`/api/impact/${sc || scenario.value}`)
   }
 
+  async function fetchCustomAllocation(f1: number, f2: number, f3: number): Promise<AllocationData> {
+    return await get<AllocationData>(`/api/allocation/custom?f1=${f1}&f2=${f2}&f3=${f3}`)
+  }
+
   return {
     allocation,
     loading,
@@ -162,5 +166,6 @@ export const useOptimizer = () => {
     fetchRunsHV,
     fetchParetoRun,
     fetchImpact,
+    fetchCustomAllocation,
   }
 }

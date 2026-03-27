@@ -211,6 +211,67 @@ def get_groups():
 VALID_SCENARIOS = {"humanitario", "equilibrio", "equidad", "max_utilizacion", "fifo"}
 
 
+@router.get("/api/allocation/custom")
+def get_custom_allocation(f1: float, f2: float, f3: float = -1.0):
+    """Compute allocation for arbitrary fitness target (fast: 5000 samples)."""
+    problem = get_problem()
+
+    rng = np.random.default_rng(42)
+    pareto = _load_pareto()
+    if pareto:
+        f1_range = max(max(p[0] for p in pareto) - min(p[0] for p in pareto), 0.01)
+        f2_range = max(max(p[1] for p in pareto) - min(p[1] for p in pareto), 0.01)
+        f3_range = max(max(p[2] for p in pareto) - min(p[2] for p in pareto), 1.0)
+    else:
+        f1_range, f2_range, f3_range = 1.0, 10.0, 18000.0
+
+    best_alloc = None
+    best_dist = float("inf")
+    best_fit = (0.0, 0.0, 0.0)
+
+    for _ in range(5_000):
+        hawk = rng.uniform(0, 1, size=len(problem.groups))
+        perm = list(np.argsort(hawk, kind="stable"))
+        alloc = decode(perm, problem.groups, problem.total_visas,
+                       problem.country_caps, problem.category_caps)
+        fit = problem.evaluate(alloc)
+        d = ((fit[0] - f1) / f1_range) ** 2 + ((fit[1] - f2) / f2_range) ** 2
+        if f3 >= 0:
+            d += ((fit[2] - f3) / f3_range) ** 2
+        if d < best_dist:
+            best_dist = d
+            best_alloc = alloc
+            best_fit = fit
+
+    matrix = [[0] * len(CATEGORIES) for _ in range(len(COUNTRIES))]
+    for g in problem.groups:
+        ci = COUNTRIES.index(g["country"])
+        ji = CATEGORIES.index(g["category"])
+        matrix[ci][ji] = best_alloc[g["index"]]
+
+    used = V - int(best_fit[2])
+    rows = []
+    for i, country in enumerate(COUNTRIES):
+        cats = {}
+        for j, cat in enumerate(CATEGORIES):
+            cats[cat] = matrix[i][j]
+        rows.append(AllocationRow(
+            country=country,
+            flag=FLAGS.get(country, ""),
+            categories=cats,
+            total=sum(matrix[i]),
+        ))
+
+    return AllocationResponse(
+        scenario="custom",
+        fitness=Fitness(f1=best_fit[0], f2=best_fit[1], f3=best_fit[2]),
+        visas_used=used,
+        utilization=round(used / V * 100, 1),
+        rows=rows,
+        matrix=matrix,
+    )
+
+
 @router.get("/api/allocation/{scenario}")
 def get_allocation(scenario: str):
     if scenario not in VALID_SCENARIOS:

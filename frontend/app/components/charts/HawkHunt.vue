@@ -59,12 +59,13 @@ interface QueuedUpdate {
 let updateQueue: QueuedUpdate[] = []
 let currentProgress = 0
 let displayedIteration = 0
-const FRAMES_PER_UPDATE = 15 // ~250ms at 60fps → deliberate, dramatic pace
+const FRAMES_PER_UPDATE = 24 // ~400ms at 60fps → slow, dramatic pace
 let framesSinceUpdate = 0
 
 // Completion state
 let finished = false
 let completionFrame = 0
+let resetFlash = 0 // bright flash when re-running
 
 // ======================== HELPERS ========================
 
@@ -134,6 +135,7 @@ function fullReset() {
   displayedIteration = 0
   finished = false
   completionFrame = 0
+  resetFlash = 40 // White flash for ~0.7s to signal restart
 }
 
 // ======================== CANVAS MANAGEMENT ========================
@@ -638,14 +640,24 @@ function frame() {
   // Failsafe: if hawks are empty, respawn
   if (hawks.length === 0) spawnHawks(props.popSize || 20)
 
-  // Process buffered updates at controlled rate
+  // Reset flash — bright overlay that fades out to signal restart
+  if (resetFlash > 0) {
+    resetFlash--
+    const alpha = (resetFlash / 40) * 0.6
+    ctx.fillStyle = `rgba(80,160,255,${alpha})`
+    ctx.fillRect(0, 0, W, H)
+    // Show "REINICIANDO..." during flash
+    if (resetFlash > 15) {
+      ctx.textAlign = 'center'
+      ctx.font = 'bold 22px Inter, sans-serif'
+      ctx.fillStyle = `rgba(255,255,255,${alpha * 1.5})`
+      ctx.fillText('REINICIANDO...', W / 2, H / 2)
+    }
+  }
+
+  // Process buffered updates at controlled rate — NEVER skip
   framesSinceUpdate++
   if (updateQueue.length > 0 && framesSinceUpdate >= FRAMES_PER_UPDATE) {
-    // If queue is getting long, skip to catch up (but keep last few for smooth finish)
-    if (updateQueue.length > 10) {
-      const skip = updateQueue.length - 4
-      updateQueue.splice(0, skip)
-    }
     processUpdate(updateQueue.shift()!)
     framesSinceUpdate = 0
   }
