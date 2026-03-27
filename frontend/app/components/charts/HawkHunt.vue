@@ -114,13 +114,28 @@ function fullReset() {
   rabbitX = 0.5; rabbitY = 0.5
   frameCount = 0
   completionPulse = 0
+  finished = false
 }
+
+// ======================== DERIVED STATE ========================
+
+/** True once the simulation finishes (not running but has data) */
+let finished = false
 
 // ======================== WATCHERS ========================
 
 watch(() => props.running, (isRunning) => {
-  if (isRunning) fullReset()
-  else if (props.iteration > 0) completionPulse = 120
+  if (isRunning) {
+    finished = false
+    fullReset()
+  } else if (props.iteration > 0) {
+    finished = true
+    completionPulse = 160
+    // Expand hawks into a wider victory orbit so they stay clearly visible
+    hawks.forEach(h => {
+      h.phase = 'siege'
+    })
+  }
 })
 
 watch(() => props.popSize, (n) => {
@@ -297,7 +312,7 @@ function drawEnergyBeams(ctx: CanvasRenderingContext2D, W: number, H: number, pr
 
 // ======================== DRAWING — HAWK ========================
 
-function drawHawk(ctx: CanvasRenderingContext2D, h: Hawk, W: number, H: number) {
+function drawHawk(ctx: CanvasRenderingContext2D, h: Hawk, W: number, H: number, isFinished: boolean) {
   const px = h.x * W, py = h.y * H
 
   // Energy trail
@@ -327,14 +342,22 @@ function drawHawk(ctx: CanvasRenderingContext2D, h: Hawk, W: number, H: number) 
   const bodyLen = s * 1.2
   const [cr, cg, cb] = phaseRGB(h.phase)
 
-  // Siege aura
+  // Siege/victory aura
   if (h.phase === 'siege') {
-    const ap = 0.08 + 0.06 * Math.sin(frameCount * 0.06 + h.orbitOffset)
-    const ag = ctx.createRadialGradient(0, 0, s * 0.3, 0, 0, s * 1.8)
-    ag.addColorStop(0, `rgba(${cr},${cg},${cb},${ap})`)
+    const auraR = isFinished ? s * 2.2 : s * 1.8
+    const ap = isFinished
+      ? 0.12 + 0.06 * Math.sin(frameCount * 0.04 + h.orbitOffset)
+      : 0.08 + 0.06 * Math.sin(frameCount * 0.06 + h.orbitOffset)
+    const ag = ctx.createRadialGradient(0, 0, s * 0.3, 0, 0, auraR)
+    if (isFinished) {
+      ag.addColorStop(0, `rgba(0,229,160,${ap})`)
+      ag.addColorStop(0.6, `rgba(${cr},${cg},${cb},${ap * 0.4})`)
+    } else {
+      ag.addColorStop(0, `rgba(${cr},${cg},${cb},${ap})`)
+    }
     ag.addColorStop(1, 'transparent')
     ctx.fillStyle = ag
-    ctx.beginPath(); ctx.arc(0, 0, s * 1.8, 0, Math.PI * 2); ctx.fill()
+    ctx.beginPath(); ctx.arc(0, 0, auraR, 0, Math.PI * 2); ctx.fill()
   }
 
   ctx.shadowColor = `rgb(${cr},${cg},${cb})`
@@ -419,41 +442,63 @@ function drawHawk(ctx: CanvasRenderingContext2D, h: Hawk, W: number, H: number) 
 
 // ======================== DRAWING — RABBIT ========================
 
-function drawRabbit(ctx: CanvasRenderingContext2D, x: number, y: number, pulse: number, progress: number) {
+function drawRabbit(ctx: CanvasRenderingContext2D, x: number, y: number, pulse: number, progress: number, isFinished: boolean) {
   ctx.save()
   ctx.translate(x, y)
 
-  // Target crosshair during siege
-  if (progress > 0.55) {
-    const ca = (progress - 0.55) / 0.45 * 0.3
-    ctx.strokeStyle = `rgba(255,51,102,${ca})`
-    ctx.lineWidth = 1
-    ctx.setLineDash([5, 5])
-    ctx.beginPath(); ctx.moveTo(-55, 0); ctx.lineTo(-22, 0); ctx.stroke()
-    ctx.beginPath(); ctx.moveTo(22, 0); ctx.lineTo(55, 0); ctx.stroke()
-    ctx.beginPath(); ctx.moveTo(0, -55); ctx.lineTo(0, -35); ctx.stroke()
-    ctx.beginPath(); ctx.moveTo(0, 28); ctx.lineTo(0, 55); ctx.stroke()
-    ctx.beginPath(); ctx.arc(0, 0, 45, 0, Math.PI * 2); ctx.stroke()
-    ctx.setLineDash([])
+  // After completion: golden victory aura instead of danger crosshair
+  if (isFinished) {
+    const ga = 0.15 + 0.08 * Math.sin(frameCount * 0.025)
+    const victoryGlow = ctx.createRadialGradient(0, 0, 10, 0, 0, 90)
+    victoryGlow.addColorStop(0, `rgba(255,200,50,${ga})`)
+    victoryGlow.addColorStop(0.5, `rgba(0,229,160,${ga * 0.4})`)
+    victoryGlow.addColorStop(1, 'transparent')
+    ctx.fillStyle = victoryGlow
+    ctx.beginPath(); ctx.arc(0, 0, 90, 0, Math.PI * 2); ctx.fill()
+
+    // Victory rings (golden, slower)
+    for (let i = 0; i < 3; i++) {
+      const p = (pulse * 0.5 + i / 3) % 1
+      const r = 25 + p * 65
+      ctx.beginPath()
+      ctx.strokeStyle = `rgba(255,200,50,${0.4 * (1 - p)})`
+      ctx.lineWidth = 3 * (1 - p)
+      ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke()
+    }
+  } else {
+    // Target crosshair during siege
+    if (progress > 0.55) {
+      const ca = (progress - 0.55) / 0.45 * 0.3
+      ctx.strokeStyle = `rgba(255,51,102,${ca})`
+      ctx.lineWidth = 1
+      ctx.setLineDash([5, 5])
+      ctx.beginPath(); ctx.moveTo(-55, 0); ctx.lineTo(-22, 0); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(22, 0); ctx.lineTo(55, 0); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(0, -55); ctx.lineTo(0, -35); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(0, 28); ctx.lineTo(0, 55); ctx.stroke()
+      ctx.beginPath(); ctx.arc(0, 0, 45, 0, Math.PI * 2); ctx.stroke()
+      ctx.setLineDash([])
+    }
+
+    // Danger rings
+    const ringCount = 3 + Math.floor(progress * 4)
+    for (let i = 0; i < ringCount; i++) {
+      const p = (pulse + i / ringCount) % 1
+      const r = 20 + p * 75
+      ctx.beginPath()
+      ctx.strokeStyle = `rgba(255,51,102,${0.5 * (1 - p) * (0.4 + progress * 0.6)})`
+      ctx.lineWidth = 4 * (1 - p)
+      ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke()
+    }
   }
 
-  // Danger rings
-  const ringCount = 3 + Math.floor(progress * 4)
-  for (let i = 0; i < ringCount; i++) {
-    const p = (pulse + i / ringCount) % 1
-    const r = 20 + p * 75
-    ctx.beginPath()
-    ctx.strokeStyle = `rgba(255,51,102,${0.5 * (1 - p) * (0.4 + progress * 0.6)})`
-    ctx.lineWidth = 4 * (1 - p)
-    ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke()
-  }
-
-  // Ground glow
-  const gg = ctx.createRadialGradient(0, 5, 0, 0, 5, 50)
-  gg.addColorStop(0, 'rgba(255,51,102,0.3)')
+  // Ground glow — bigger after completion
+  const glowR = isFinished ? 70 : 50
+  const gg = ctx.createRadialGradient(0, 5, 0, 0, 5, glowR)
+  gg.addColorStop(0, isFinished ? 'rgba(255,200,50,0.35)' : 'rgba(255,51,102,0.3)')
   gg.addColorStop(1, 'transparent')
   ctx.fillStyle = gg
-  ctx.beginPath(); ctx.arc(0, 5, 50, 0, Math.PI * 2); ctx.fill()
+  ctx.beginPath(); ctx.arc(0, 5, glowR, 0, Math.PI * 2); ctx.fill()
 
   // Body
   ctx.shadowColor = '#FF3366'; ctx.shadowBlur = 30
@@ -498,9 +543,15 @@ function drawRabbit(ctx: CanvasRenderingContext2D, x: number, y: number, pulse: 
 
   // Label
   ctx.textAlign = 'center'
-  ctx.fillStyle = `rgba(255,51,102,${0.4 + 0.2 * Math.sin(frameCount * 0.04)})`
-  ctx.font = 'bold 11px Inter, sans-serif'
-  ctx.fillText('PRESA', 0, -55)
+  if (isFinished) {
+    ctx.fillStyle = `rgba(0,229,160,${0.6 + 0.3 * Math.sin(frameCount * 0.03)})`
+    ctx.font = 'bold 13px Inter, sans-serif'
+    ctx.fillText('★ CAPTURADA ★', 0, -60)
+  } else {
+    ctx.fillStyle = `rgba(255,51,102,${0.4 + 0.2 * Math.sin(frameCount * 0.04)})`
+    ctx.font = 'bold 11px Inter, sans-serif'
+    ctx.fillText('PRESA', 0, -55)
+  }
 
   ctx.restore()
 }
@@ -588,8 +639,12 @@ function frame() {
 
     // Orbital motion keeps siege hawks circling — never static
     if (h.phase === 'siege') {
-      const orbitR = 0.045 + 0.02 * Math.sin(frameCount * 0.008 + h.orbitOffset * 3)
-      const orbitA = frameCount * 0.02 + h.orbitOffset + idx * 0.4
+      // After completion, use a much wider orbit so hawks stay clearly visible
+      const baseR = finished ? 0.09 : 0.045
+      const ampR = finished ? 0.035 : 0.02
+      const orbitR = baseR + ampR * Math.sin(frameCount * 0.008 + h.orbitOffset * 3)
+      const orbitSpeed = finished ? 0.012 : 0.02
+      const orbitA = frameCount * orbitSpeed + h.orbitOffset + idx * 0.4
       effTx = h.tx + Math.cos(orbitA) * orbitR
       effTy = h.ty + Math.sin(orbitA) * orbitR
     }
@@ -653,17 +708,17 @@ function frame() {
       })
     }
 
-    drawHawk(ctx, h, W, H)
+    drawHawk(ctx, h, W, H, finished)
   })
 
   // Rabbit — always on top
   rabbitPulse = (rabbitPulse + 0.005) % 1
-  drawRabbit(ctx, rabbitX * W, rabbitY * H, rabbitPulse, progress)
+  drawRabbit(ctx, rabbitX * W, rabbitY * H, rabbitPulse, progress, finished)
 
   // Completion shockwave
   if (completionPulse > 0) {
     completionPulse--
-    const p = 1 - completionPulse / 120
+    const p = 1 - completionPulse / 160
     const maxR = Math.max(W, H) * 0.6
     ctx.beginPath()
     ctx.strokeStyle = `rgba(0,229,160,${0.5 * (1 - p)})`
@@ -678,6 +733,18 @@ function frame() {
       ctx.arc(rabbitX * W, rabbitY * H, maxR * 0.7 * p2, 0, Math.PI * 2)
       ctx.stroke()
     }
+  }
+
+  // Persistent "COMPLETADO" banner after simulation ends
+  if (finished && completionPulse <= 0) {
+    const bannerAlpha = 0.6 + 0.15 * Math.sin(frameCount * 0.03)
+    ctx.textAlign = 'center'
+    ctx.font = 'bold 16px Inter, sans-serif'
+    ctx.fillStyle = `rgba(0,229,160,${bannerAlpha})`
+    ctx.fillText('OPTIMIZACIÓN COMPLETADA', W / 2, H - 32)
+    ctx.font = '11px Inter, sans-serif'
+    ctx.fillStyle = 'rgba(255,255,255,0.3)'
+    ctx.fillText(`${paretoNorm.length} soluciones Pareto · ${hawks.length} halcones`, W / 2, H - 14)
   }
 
   drawHUD(ctx, W, H, progress)

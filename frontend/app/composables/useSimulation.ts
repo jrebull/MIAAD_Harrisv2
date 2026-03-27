@@ -97,7 +97,11 @@ export const useSimulation = () => {
     }
 
     ws.onclose = () => {
-      state.value.running = false
+      // Only set running=false if not already completed —
+      // prevents stale onclose from interfering with completion state
+      if (!state.value.completed) {
+        state.value.running = false
+      }
     }
   }
 
