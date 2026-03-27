@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import VChart from 'vue-echarts'
 import { CHART_COLORS, baseChartOption, type EChartsOption } from '~/composables/useEcharts'
 
 const props = defineProps<{

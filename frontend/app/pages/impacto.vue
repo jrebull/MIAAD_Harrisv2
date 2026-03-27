@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import VChart from 'vue-echarts'
 import { CHART_COLORS, baseChartOption, type EChartsOption } from '~/composables/useEcharts'
 import type { ImpactData, ImpactRow } from '~/composables/useOptimizer'
 import { formatNumber, formatDelta } from '~/utils/formatters'
@@ -121,12 +120,14 @@ const comparisonOption = computed<EChartsOption>(() => {
     </div>
 
     <template v-else-if="impact">
-      <div class="card">
-        <VChart :option="comparisonOption" autoresize class="w-full h-[600px]" />
-      </div>
-      <div class="card">
-        <VChart :option="deltaOption" autoresize class="w-full h-[600px]" />
-      </div>
+      <ClientOnly>
+        <div class="card">
+          <VChart :option="comparisonOption" autoresize class="w-full h-[600px]" />
+        </div>
+        <div class="card">
+          <VChart :option="deltaOption" autoresize class="w-full h-[600px]" />
+        </div>
+      </ClientOnly>
 
       <!-- Impact table -->
       <details class="card">

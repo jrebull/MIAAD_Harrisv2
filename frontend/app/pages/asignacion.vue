@@ -36,23 +36,27 @@ onMounted(() => {
       </div>
 
       <!-- Heatmap -->
-      <div class="card">
-        <ImpactHeatmap
-          :countries="allocation.rows.map(r => r.flag + ' ' + r.country)"
-          :categories="categories"
-          :matrix="allocation.matrix"
-          :title="'Asignación: ' + scenario"
-        />
-      </div>
+      <ClientOnly>
+        <div class="card">
+          <ImpactHeatmap
+            :countries="allocation.rows.map(r => r.flag + ' ' + r.country)"
+            :categories="categories"
+            :matrix="allocation.matrix"
+            :title="'Asignación: ' + scenario"
+          />
+        </div>
+      </ClientOnly>
 
       <!-- Stacked bar chart -->
-      <div class="card">
-        <AllocationBar
-          :countries="allocation.rows.map(r => r.flag + ' ' + r.country)"
-          :categories="categories"
-          :matrix="allocation.matrix"
-        />
-      </div>
+      <ClientOnly>
+        <div class="card">
+          <AllocationBar
+            :countries="allocation.rows.map(r => r.flag + ' ' + r.country)"
+            :categories="categories"
+            :matrix="allocation.matrix"
+          />
+        </div>
+      </ClientOnly>
 
       <!-- Data table -->
       <details class="card">

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import VChart from 'vue-echarts'
 import { CHART_COLORS, baseChartOption, type EChartsOption } from '~/composables/useEcharts'
 import type { ConvergenceData, RunsHVData, SummaryData, ParetoRunData, RunHV } from '~/composables/useOptimizer'
 import { formatNumber } from '~/utils/formatters'
@@ -172,23 +171,27 @@ const runParetoOption = computed<EChartsOption>(() => {
     </section>
 
     <!-- Main convergence chart -->
-    <div v-if="convergence" class="card">
-      <ConvergenceLine
-        :iterations="convergence.iterations"
-        :hv-mean="convergence.hv_mean"
-        :hv-std="convergence.hv_std"
-      />
-    </div>
+    <ClientOnly>
+      <div v-if="convergence" class="card">
+        <ConvergenceLine
+          :iterations="convergence.iterations"
+          :hv-mean="convergence.hv_mean"
+          :hv-std="convergence.hv_std"
+        />
+      </div>
+    </ClientOnly>
 
     <!-- Per-run charts -->
-    <div v-if="runsHV" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <div class="card">
-        <VChart :option="hvBarsOption" autoresize class="w-full h-[400px]" />
+    <ClientOnly>
+      <div v-if="runsHV" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card">
+          <VChart :option="hvBarsOption" autoresize class="w-full h-[400px]" />
+        </div>
+        <div class="card">
+          <VChart :option="paretoSizeOption" autoresize class="w-full h-[400px]" />
+        </div>
       </div>
-      <div class="card">
-        <VChart :option="paretoSizeOption" autoresize class="w-full h-[400px]" />
-      </div>
-    </div>
+    </ClientOnly>
 
     <!-- Per-run Pareto front explorer -->
     <div v-if="runsHV" class="card space-y-4">
@@ -204,9 +207,11 @@ const runParetoOption = computed<EChartsOption>(() => {
           #{{ r.run }}
         </button>
       </div>
-      <div v-if="selectedRunData" class="mt-2">
-        <VChart :option="runParetoOption" autoresize class="w-full h-[400px]" />
-      </div>
+      <ClientOnly>
+        <div v-if="selectedRunData" class="mt-2">
+          <VChart :option="runParetoOption" autoresize class="w-full h-[400px]" />
+        </div>
+      </ClientOnly>
     </div>
   </div>
 </template>

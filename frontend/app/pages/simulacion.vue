@@ -93,24 +93,28 @@ function handleStart() {
     </section>
 
     <!-- Hawk Hunt animation -->
-    <div class="card p-0 overflow-hidden">
-      <HawkHunt
-        :pareto-front="state.paretoFront"
-        :iteration="state.iteration"
-        :max-iter="state.maxIter"
-        :running="state.running"
-      />
-    </div>
+    <ClientOnly>
+      <div class="card p-0 overflow-hidden">
+        <HawkHunt
+          :pareto-front="state.paretoFront"
+          :iteration="state.iteration"
+          :max-iter="state.maxIter"
+          :running="state.running"
+        />
+      </div>
+    </ClientOnly>
 
     <!-- Live data charts -->
-    <div v-if="state.iteration > 0" class="card">
-      <SimulationLive
-        :pareto-front="state.paretoFront"
-        :hv-history="state.hvHistory"
-        :iteration="state.iteration"
-        :max-iter="state.maxIter"
-      />
-    </div>
+    <ClientOnly>
+      <div v-if="state.iteration > 0" class="card">
+        <SimulationLive
+          :pareto-front="state.paretoFront"
+          :hv-history="state.hvHistory"
+          :iteration="state.iteration"
+          :max-iter="state.maxIter"
+        />
+      </div>
+    </ClientOnly>
 
     <!-- Instructions when idle -->
     <div v-if="state.iteration === 0 && !state.running" class="card text-center py-12">

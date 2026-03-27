@@ -37,14 +37,16 @@ function handleSelect(point: ParetoPoint) {
       </div>
     </div>
 
-    <div v-if="pareto" class="card">
-      <ParetoScatter
-        :points="pareto.points"
-        :baseline="pareto.baseline"
-        :projection="projection"
-        @select="handleSelect"
-      />
-    </div>
+    <ClientOnly>
+      <div v-if="pareto" class="card">
+        <ParetoScatter
+          :points="pareto.points"
+          :baseline="pareto.baseline"
+          :projection="projection"
+          @select="handleSelect"
+        />
+      </div>
+    </ClientOnly>
 
     <!-- KPI row -->
     <section v-if="summary" class="grid grid-cols-2 md:grid-cols-4 gap-4">
