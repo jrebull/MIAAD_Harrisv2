@@ -8,8 +8,14 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'select', point: { f1: number; f2: number; f3: number }): void
+  (e: 'select', point: { f1: number; f2: number; f3: number; visas_used: number }): void
 }>()
+
+function axisPadding(vals: number[], pad = 0.08) {
+  const mn = Math.min(...vals), mx = Math.max(...vals)
+  const range = mx - mn || 1
+  return { min: mn - range * pad, max: mx + range * pad }
+}
 
 const option = computed<EChartsOption>(() => {
   const proj = props.projection || 'f1f2'
@@ -17,6 +23,14 @@ const option = computed<EChartsOption>(() => {
   const yKey = proj === 'f1f2' ? 'f2' : 'f3'
   const xLabel = xKey === 'f1' ? 'f\u2081 \u2014 Carga de espera (a\u00f1os)' : 'f\u2082 \u2014 Disparidad (a\u00f1os)'
   const yLabel = yKey === 'f2' ? 'f\u2082 \u2014 Disparidad (a\u00f1os)' : 'f\u2083 \u2014 Visas desperdiciadas'
+
+  // Collect all values for axis bounds (including baseline)
+  const allPoints = [...props.points]
+  if (props.baseline) allPoints.push(props.baseline as any)
+  const xVals = allPoints.map(p => p[xKey as keyof typeof p] as number)
+  const yVals = allPoints.map(p => p[yKey as keyof typeof p] as number)
+  const xBounds = axisPadding(xVals, 0.06)
+  const yBounds = axisPadding(yVals, 0.06)
 
   const data = props.points.map(p => [
     p[xKey as keyof typeof p],
@@ -30,30 +44,34 @@ const option = computed<EChartsOption>(() => {
       name: 'Frente de Pareto',
       type: 'scatter',
       data,
-      symbolSize: 9,
+      symbolSize: (val: number[]) => {
+        // Size by visa utilization
+        const u = val[2] / 140000
+        return 6 + u * 10
+      },
       itemStyle: {
         color: {
-          type: 'radial',
-          x: 0.5, y: 0.5, r: 0.5,
+          type: 'linear', x: 0, y: 0, x2: 1, y2: 1,
           colorStops: [
-            { offset: 0, color: CHART_COLORS.primaryLight },
-            { offset: 1, color: CHART_COLORS.primary },
+            { offset: 0, color: '#60a5fa' },
+            { offset: 0.5, color: CHART_COLORS.primary },
+            { offset: 1, color: CHART_COLORS.green },
           ],
         },
-        opacity: 0.85,
-        borderColor: 'rgba(255,255,255,0.15)',
+        opacity: 0.9,
+        borderColor: 'rgba(255,255,255,0.25)',
         borderWidth: 1,
       },
       emphasis: {
         itemStyle: {
-          shadowBlur: 16,
-          shadowColor: 'rgba(0,60,166,0.6)',
+          shadowBlur: 20,
+          shadowColor: 'rgba(96,165,250,0.7)',
           borderColor: '#fff',
           borderWidth: 2,
         },
-        scale: 1.8,
+        scale: 1.6,
       },
-      animationDelay: (idx: number) => idx * 3,
+      animationDelay: (idx: number) => idx * 4,
     },
   ]
 
@@ -67,16 +85,17 @@ const option = computed<EChartsOption>(() => {
         props.baseline.visas_used,
         props.baseline.f1, props.baseline.f2, props.baseline.f3,
       ]],
-      symbolSize: 20,
-      itemStyle: { color: CHART_COLORS.red, shadowBlur: 12, shadowColor: CHART_COLORS.red },
+      symbolSize: 22,
+      itemStyle: { color: CHART_COLORS.red, shadowBlur: 16, shadowColor: CHART_COLORS.red },
       rippleEffect: { brushType: 'stroke', scale: 4, period: 3 },
+      zlevel: 1,
     })
   }
 
   return {
     ...baseChartOption,
     title: {
-      text: `Frente de Pareto \u2014 ${xKey === 'f1' ? 'f\u2081' : 'f\u2082'} vs ${yKey === 'f2' ? 'f\u2082' : 'f\u2083'}`,
+      text: `Frente de Pareto \u2014 ${xKey === 'f1' ? 'f\u2081' : 'f\u2082'} vs ${yKey === 'f2' ? 'f\u2082' : 'f\u2083'} (${props.points.length} soluciones)`,
       textStyle: { color: CHART_COLORS.text, fontSize: 14, fontWeight: 600 },
       left: 'center',
     },
@@ -85,8 +104,8 @@ const option = computed<EChartsOption>(() => {
       trigger: 'item',
       formatter: (p: any) => {
         const d = p.data
-        const label = p.seriesName === 'FIFO (Baseline)' ? '<span style="color:#FF3366;font-weight:700">FIFO Baseline</span><br>' : ''
-        return `${label}<span style="opacity:0.6">f\u2081:</span> <b>${d[3].toFixed(4)}</b> a\u00f1os<br><span style="opacity:0.6">f\u2082:</span> <b>${d[4].toFixed(4)}</b> a\u00f1os<br><span style="opacity:0.6">f\u2083:</span> <b>${d[5].toLocaleString()}</b><br><span style="opacity:0.6">Visas:</span> <span style="color:${CHART_COLORS.green}">${d[2].toLocaleString()}</span>`
+        const label = p.seriesName === 'FIFO (Baseline)' ? '<span style="color:#FF3366;font-weight:700;font-size:13px">FIFO Baseline</span><br>' : ''
+        return `${label}<span style="opacity:0.5">f\u2081:</span> <b>${d[3].toFixed(4)}</b> a\u00f1os<br><span style="opacity:0.5">f\u2082:</span> <b>${d[4].toFixed(4)}</b> a\u00f1os<br><span style="opacity:0.5">f\u2083:</span> <b>${Math.round(d[5]).toLocaleString()}</b> desperdicio<br><span style="opacity:0.5">Visas:</span> <span style="color:${CHART_COLORS.green};font-weight:700">${d[2].toLocaleString()}</span>`
       },
     },
     legend: {
@@ -101,16 +120,20 @@ const option = computed<EChartsOption>(() => {
       nameLocation: 'center',
       nameGap: 32,
       nameTextStyle: { color: CHART_COLORS.textMuted, fontSize: 11 },
-      axisLine: { lineStyle: { color: CHART_COLORS.grid } },
+      min: xBounds.min,
+      max: xBounds.max,
+      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
       splitLine: { lineStyle: { color: CHART_COLORS.grid, type: 'dashed' } },
       axisLabel: { color: CHART_COLORS.textMuted },
     },
     yAxis: {
       name: yLabel,
       nameLocation: 'center',
-      nameGap: 55,
+      nameGap: 60,
       nameTextStyle: { color: CHART_COLORS.textMuted, fontSize: 11 },
-      axisLine: { lineStyle: { color: CHART_COLORS.grid } },
+      min: yBounds.min,
+      max: yBounds.max,
+      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
       splitLine: { lineStyle: { color: CHART_COLORS.grid, type: 'dashed' } },
       axisLabel: { color: CHART_COLORS.textMuted },
     },
@@ -124,7 +147,7 @@ const option = computed<EChartsOption>(() => {
 
 function handleClick(params: any) {
   if (params.data) {
-    emit('select', { f1: params.data[3], f2: params.data[4], f3: params.data[5] })
+    emit('select', { f1: params.data[3], f2: params.data[4], f3: params.data[5], visas_used: params.data[2] })
   }
 }
 </script>
@@ -133,7 +156,7 @@ function handleClick(params: any) {
   <VChart
     :option="option"
     autoresize
-    class="w-full h-[500px]"
+    class="w-full h-[550px]"
     @click="handleClick"
   />
 </template>

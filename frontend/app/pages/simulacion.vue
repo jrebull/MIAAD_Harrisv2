@@ -1,25 +1,48 @@
 <script setup lang="ts">
-const { state, start, stop, progress } = useSimulation()
+const { state, start, stop, seekTo, progress } = useSimulation()
 
 const popSize = ref(30)
 const maxIter = ref(100)
 const seed = ref(42)
+const scrubIdx = ref(0)
+const scrubbing = ref(false)
 
 function handleStart() {
+  scrubbing.value = false
   start(popSize.value, maxIter.value, seed.value)
 }
+
+function handleScrub(e: Event) {
+  const val = parseInt((e.target as HTMLInputElement).value)
+  scrubIdx.value = val
+  seekTo(val)
+}
+
+function toggleScrub() {
+  scrubbing.value = !scrubbing.value
+  if (scrubbing.value && state.value.history.length > 0) {
+    scrubIdx.value = state.value.history.length - 1
+  }
+}
+
+// Keep scrubber at end while running
+watch(() => state.value.history.length, (len) => {
+  if (!scrubbing.value) {
+    scrubIdx.value = len - 1
+  }
+})
 </script>
 
 <template>
   <div class="space-y-6">
-    <h1 class="section-title">Simulación en Vivo</h1>
+    <h1 class="section-title">Simulaci&oacute;n en Vivo</h1>
 
     <!-- Controls -->
     <div class="card">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
         <div>
           <label class="text-xs text-gray-500 uppercase flex items-center gap-1.5">
-            <Icon name="hawk" :size="13" /> Población
+            <Icon name="hawk" :size="13" /> Poblaci&oacute;n
           </label>
           <input
             v-model.number="popSize"
@@ -54,7 +77,7 @@ function handleStart() {
             class="btn-primary w-full flex items-center justify-center gap-2"
             @click="handleStart"
           >
-            <Icon name="hawk" :size="16" /> Iniciar Simulación
+            <Icon name="hawk" :size="16" /> {{ state.completed ? 'Re-ejecutar' : 'Iniciar Simulaci\u00f3n' }}
           </button>
           <button
             v-else
@@ -66,10 +89,10 @@ function handleStart() {
         </div>
       </div>
 
-      <!-- Progress -->
+      <!-- Progress bar -->
       <div v-if="state.running || state.iteration > 0" class="mt-4">
         <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
-          <span>Iteración {{ state.iteration }} / {{ state.maxIter }}</span>
+          <span>Iteraci&oacute;n {{ state.iteration }} / {{ state.maxIter }}</span>
           <span>{{ progress }}%</span>
         </div>
         <div class="h-2 bg-white/10 rounded-full overflow-hidden">
@@ -79,16 +102,44 @@ function handleStart() {
           />
         </div>
       </div>
+
+      <!-- Scrubber control (after completion) -->
+      <div v-if="state.completed && state.history.length > 1" class="mt-4 pt-3 border-t border-dark-border">
+        <div class="flex items-center gap-3">
+          <button
+            class="text-xs px-3 py-1 rounded-md transition-colors"
+            :class="scrubbing ? 'bg-accent-yellow/20 text-accent-yellow' : 'bg-dark-bg2 text-gray-400 hover:text-white'"
+            @click="toggleScrub"
+          >
+            {{ scrubbing ? 'Reproduciendo' : 'Explorar paso a paso' }}
+          </button>
+          <input
+            v-if="scrubbing"
+            type="range"
+            :min="0"
+            :max="state.history.length - 1"
+            :value="scrubIdx"
+            class="flex-1"
+            @input="handleScrub"
+          >
+          <span v-if="scrubbing" class="text-xs text-gray-400 font-mono whitespace-nowrap">
+            Iter {{ state.history[scrubIdx]?.iteration || 0 }} / {{ state.maxIter }}
+            &mdash; HV: {{ state.history[scrubIdx]?.hv.toLocaleString() || 0 }}
+            &mdash; {{ state.history[scrubIdx]?.paretoFront.length || 0 }} soluciones
+          </span>
+        </div>
+      </div>
     </div>
 
     <!-- KPI during simulation -->
     <section v-if="state.iteration > 0" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <KpiCard label="Iteración" :value="state.iteration" :unit="'de ' + state.maxIter" />
-      <KpiCard label="Soluciones Pareto" :value="state.archiveSize" />
-      <KpiCard label="Hipervolumen" :value="state.hv.toLocaleString()" />
+      <KpiCard label="Iteraci&oacute;n" :value="state.iteration" :unit="'de ' + state.maxIter" />
+      <KpiCard label="Soluciones Pareto" :value="state.archiveSize" color="text-accent-green" />
+      <KpiCard label="Hipervolumen" :value="state.hv.toLocaleString()" color="text-accent-yellow" />
       <KpiCard
         label="Fase"
-        :value="progress < 30 ? 'Exploración' : progress < 70 ? 'Transición' : 'Siege'"
+        :value="progress < 30 ? 'Exploraci\u00f3n' : progress < 70 ? 'Transici\u00f3n' : 'Siege'"
+        :color="progress < 30 ? 'text-blue-400' : progress < 70 ? 'text-accent-yellow' : 'text-accent-red'"
       />
     </section>
 
@@ -123,19 +174,20 @@ function handleStart() {
       </div>
       <h3 class="text-lg font-bold text-white mb-2">Listo para simular</h3>
       <p class="text-sm text-gray-400 max-w-lg mx-auto leading-relaxed">
-        Configura los parámetros y presiona <strong class="text-white">"Iniciar Simulación"</strong> para observar
-        el algoritmo MOHHO optimizando en tiempo real. Los halcones de Harris convergerán
-        sobre el conejo (solución líder) mientras construyen el frente de Pareto.
+        Configura los par&aacute;metros y presiona <strong class="text-white">&ldquo;Iniciar Simulaci&oacute;n&rdquo;</strong> para observar
+        el algoritmo MOHHO optimizando en tiempo real. Los halcones de Harris converger&aacute;n
+        sobre el conejo (soluci&oacute;n l&iacute;der) mientras construyen el frente de Pareto.
       </p>
+      <p class="text-xs text-gray-500 mt-3">Al terminar, podr&aacute;s explorar cada iteraci&oacute;n paso a paso con el scrubber.</p>
       <div class="mt-6 flex justify-center gap-6 text-xs text-gray-500">
         <div class="flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-blue-400" /> Exploración
+          <span class="w-2.5 h-2.5 rounded-full bg-blue-400" /> Exploraci&oacute;n
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-accent-yellow" /> Siege
+          <span class="w-2.5 h-2.5 rounded-full bg-accent-yellow" /> Siege
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-accent-red" /> Presa
+          <span class="w-2.5 h-2.5 rounded-full bg-accent-red" /> Presa
         </div>
       </div>
     </div>

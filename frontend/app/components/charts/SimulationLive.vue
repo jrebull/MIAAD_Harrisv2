@@ -8,15 +8,27 @@ const props = defineProps<{
   maxIter: number
 }>()
 
+function axisPad(vals: number[], pad = 0.08) {
+  if (!vals.length) return { min: 0, max: 1 }
+  const mn = Math.min(...vals), mx = Math.max(...vals)
+  const r = mx - mn || 1
+  return { min: mn - r * pad, max: mx + r * pad }
+}
+
 const paretoOption = computed<EChartsOption>(() => {
   const data = props.paretoFront.map(p => [p.f1, p.f2, p.f3])
   const pct = props.maxIter > 0 ? Math.round(props.iteration / props.maxIter * 100) : 0
+
+  const xB = axisPad(data.map(d => d[0]))
+  const yB = axisPad(data.map(d => d[1]))
 
   return {
     ...baseChartOption,
     title: {
       text: `Pareto en vivo \u2014 Iter ${props.iteration}/${props.maxIter} (${pct}%)`,
-      textStyle: { color: CHART_COLORS.text, fontSize: 13, fontWeight: 600 },
+      subtext: `${data.length} soluciones no-dominadas`,
+      textStyle: { color: CHART_COLORS.text, fontSize: 14, fontWeight: 600 },
+      subtextStyle: { color: CHART_COLORS.textMuted, fontSize: 11 },
       left: 'center',
     },
     xAxis: {
@@ -26,6 +38,8 @@ const paretoOption = computed<EChartsOption>(() => {
       nameTextStyle: { color: CHART_COLORS.textMuted },
       axisLabel: { color: CHART_COLORS.textMuted },
       splitLine: { lineStyle: { color: CHART_COLORS.grid, type: 'dashed' } },
+      min: xB.min,
+      max: xB.max,
     },
     yAxis: {
       name: 'f\u2082 disparidad',
@@ -34,11 +48,13 @@ const paretoOption = computed<EChartsOption>(() => {
       nameTextStyle: { color: CHART_COLORS.textMuted },
       axisLabel: { color: CHART_COLORS.textMuted },
       splitLine: { lineStyle: { color: CHART_COLORS.grid, type: 'dashed' } },
+      min: yB.min,
+      max: yB.max,
     },
     tooltip: {
       ...baseTooltip,
       trigger: 'item',
-      formatter: (p: any) => `<span style="opacity:0.6">f\u2081:</span> <b>${p.data[0].toFixed(4)}</b><br><span style="opacity:0.6">f\u2082:</span> <b>${p.data[1].toFixed(4)}</b><br><span style="opacity:0.6">f\u2083:</span> <b>${p.data[2].toLocaleString()}</b>`,
+      formatter: (p: any) => `<span style="opacity:0.5">f\u2081:</span> <b>${p.data[0].toFixed(4)}</b><br><span style="opacity:0.5">f\u2082:</span> <b>${p.data[1].toFixed(4)}</b><br><span style="opacity:0.5">f\u2083:</span> <b>${Math.round(p.data[2]).toLocaleString()}</b>`,
     },
     series: [{
       type: 'scatter',
@@ -46,17 +62,17 @@ const paretoOption = computed<EChartsOption>(() => {
       symbolSize: 10,
       itemStyle: {
         color: {
-          type: 'radial', x: 0.5, y: 0.5, r: 0.5,
+          type: 'linear', x: 0, y: 0, x2: 1, y2: 1,
           colorStops: [
-            { offset: 0, color: CHART_COLORS.primaryLight },
-            { offset: 1, color: CHART_COLORS.primary },
+            { offset: 0, color: '#60a5fa' },
+            { offset: 1, color: CHART_COLORS.green },
           ],
         },
         borderColor: 'rgba(255,255,255,0.2)',
         borderWidth: 1,
       },
       emphasis: {
-        itemStyle: { shadowBlur: 12, shadowColor: CHART_COLORS.primary, borderColor: '#fff' },
+        itemStyle: { shadowBlur: 12, shadowColor: 'rgba(96,165,250,0.6)', borderColor: '#fff' },
       },
       animationDuration: 200,
     }],
@@ -67,7 +83,9 @@ const hvOption = computed<EChartsOption>(() => ({
   ...baseChartOption,
   title: {
     text: 'Hipervolumen',
-    textStyle: { color: CHART_COLORS.text, fontSize: 13, fontWeight: 600 },
+    subtext: props.hvHistory.length ? `Actual: ${props.hvHistory[props.hvHistory.length - 1].toLocaleString()}` : '',
+    textStyle: { color: CHART_COLORS.text, fontSize: 14, fontWeight: 600 },
+    subtextStyle: { color: CHART_COLORS.green, fontSize: 12, fontWeight: 700 },
     left: 'center',
   },
   xAxis: {
@@ -90,10 +108,6 @@ const hvOption = computed<EChartsOption>(() => ({
   tooltip: {
     ...baseTooltip,
     trigger: 'axis',
-    formatter: (params: any) => {
-      const p = Array.isArray(params) ? params[0] : params
-      return `<span style="opacity:0.6">Iter:</span> <b>${p.name}</b><br><span style="opacity:0.6">HV:</span> <b>${p.value.toLocaleString()}</b>`
-    },
   },
   series: [{
     type: 'line',
@@ -115,7 +129,7 @@ const hvOption = computed<EChartsOption>(() => ({
       color: {
         type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
         colorStops: [
-          { offset: 0, color: 'rgba(0,229,160,0.15)' },
+          { offset: 0, color: 'rgba(0,229,160,0.2)' },
           { offset: 1, color: 'rgba(0,229,160,0)' },
         ],
       },
@@ -127,7 +141,7 @@ const hvOption = computed<EChartsOption>(() => ({
 
 <template>
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-    <VChart :option="paretoOption" autoresize class="w-full h-[400px]" />
-    <VChart :option="hvOption" autoresize class="w-full h-[400px]" />
+    <VChart :option="paretoOption" autoresize class="w-full h-[420px]" />
+    <VChart :option="hvOption" autoresize class="w-full h-[420px]" />
   </div>
 </template>
