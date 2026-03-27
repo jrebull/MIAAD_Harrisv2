@@ -151,6 +151,7 @@ watch(() => state.value.history.length, (len) => {
           :iteration="state.iteration"
           :max-iter="state.maxIter"
           :running="state.running"
+          :pop-size="popSize"
         />
       </div>
     </ClientOnly>

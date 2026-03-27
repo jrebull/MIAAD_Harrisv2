@@ -4,11 +4,13 @@ const route = useRoute()
 const tabs = [
   { path: '/', label: 'El Problema', icon: 'chart-bar' },
   { path: '/modelo', label: 'Modelo', icon: 'sigma' },
+  { path: '/algoritmo', label: 'Algoritmo', icon: 'cpu' },
   { path: '/pareto', label: 'Pareto', icon: 'target' },
   { path: '/asignacion', label: 'Asignación', icon: 'grid' },
   { path: '/impacto', label: 'Impacto', icon: 'globe' },
   { path: '/convergencia', label: 'Convergencia', icon: 'trending-up' },
   { path: '/simulacion', label: 'Simulación', icon: 'hawk' },
+  { path: '/analisis', label: 'Análisis', icon: 'flask' },
   { path: '/datos', label: 'Datos', icon: 'database' },
 ]
 </script>

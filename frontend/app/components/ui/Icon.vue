@@ -107,6 +107,20 @@ const s = computed(() => props.size || 18)
       <path d="M10 20h4" />
     </template>
 
+    <!-- CPU / Algorithm -->
+    <template v-else-if="name === 'cpu'">
+      <rect x="4" y="4" width="16" height="16" rx="2" />
+      <rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor" opacity="0.3" />
+      <path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3" />
+    </template>
+
+    <!-- Flask / Analysis -->
+    <template v-else-if="name === 'flask'">
+      <path d="M10 2v6.5L4 20a1.5 1.5 0 0 0 1.3 2h13.4a1.5 1.5 0 0 0 1.3-2L14 8.5V2" />
+      <path d="M8.5 2h7" />
+      <path d="M7 16h10" opacity="0.4" />
+    </template>
+
     <!-- Fallback circle -->
     <template v-else>
       <circle cx="12" cy="12" r="10" />

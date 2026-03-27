@@ -35,8 +35,13 @@ export const useSimulation = () => {
   let ws: WebSocket | null = null
 
   function start(popSize: number = 30, maxIter: number = 100, seed: number = 42) {
-    // Close existing connection
+    // Close existing connection — null handlers first to prevent stale
+    // onclose from setting running=false after we reset state
     if (ws) {
+      ws.onopen = null
+      ws.onmessage = null
+      ws.onerror = null
+      ws.onclose = null
       ws.close()
       ws = null
     }
