@@ -148,12 +148,17 @@ watch(() => props.paretoFront, (front) => {
     rabbitX = paretoNorm[0].x; rabbitY = paretoNorm[0].y
   }
 
-  const scatter = Math.max(0.22 * (1 - progress), 0.06)
+  // Scatter stays meaningful even late — hawks should never pile up
+  const scatter = Math.max(0.22 * (1 - progress * 0.6), 0.14)
   hawks.forEach((h, i) => {
+    // Distribute hawks across pareto solutions evenly
     const tgt = paretoNorm[i % Math.max(paretoNorm.length, 1)]
     if (tgt) {
-      h.tx = tgt.x + (Math.random() - 0.5) * scatter
-      h.ty = tgt.y + (Math.random() - 0.5) * scatter
+      // Add per-hawk angular offset so they don't all land on the same spot
+      const ang = (i / hawks.length) * Math.PI * 2
+      const dist = scatter * (0.4 + 0.6 * ((i * 7 + 3) % hawks.length) / hawks.length)
+      h.tx = tgt.x + Math.cos(ang) * dist * 0.5 + (Math.random() - 0.5) * scatter * 0.3
+      h.ty = tgt.y + Math.sin(ang) * dist * 0.5 + (Math.random() - 0.5) * scatter * 0.3
     }
     h.phase = progress < 0.3 ? 'explore' : progress < 0.65 ? 'transition' : 'siege'
   })
@@ -395,9 +400,12 @@ function frame() {
     let effTx = h.tx, effTy = h.ty
 
     if (h.phase === 'siege' || finished) {
-      const bR = finished ? 0.1 : 0.055, aR = finished ? 0.04 : 0.025
+      // Per-hawk orbit radius — spread them out so they don't overlap
+      const layer = idx % 5
+      const bR = finished ? (0.06 + layer * 0.025) : (0.035 + layer * 0.015)
+      const aR = finished ? 0.03 : 0.015
       const oR = bR + aR * Math.sin(fc * 0.007 + h.orbOff * 3)
-      const oA = fc * (finished ? 0.01 : 0.015) + h.orbOff + idx * 0.45
+      const oA = fc * (finished ? 0.008 + layer * 0.003 : 0.012 + layer * 0.004) + h.orbOff + idx * 0.45
       effTx = h.tx + Math.cos(oA) * oR; effTy = h.ty + Math.sin(oA) * oR
     }
 

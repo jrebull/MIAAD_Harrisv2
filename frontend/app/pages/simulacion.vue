@@ -181,6 +181,57 @@ watch(() => state.value.completed, (done) => {
       />
     </section>
 
+    <!-- Phase explanation -->
+    <div v-if="state.iteration > 0" class="card py-3">
+      <div class="flex items-start gap-3">
+        <div
+          class="w-3 h-3 mt-0.5 rounded-full flex-shrink-0 shadow-lg animate-pulse"
+          :class="state.completed
+            ? 'bg-emerald-400 shadow-emerald-400/50'
+            : progress < 30
+              ? 'bg-blue-400 shadow-blue-400/50'
+              : progress < 70
+                ? 'bg-yellow-400 shadow-yellow-400/50'
+                : 'bg-orange-400 shadow-orange-400/50'"
+        />
+        <div>
+          <h3
+            class="text-sm font-bold"
+            :class="state.completed
+              ? 'text-emerald-400'
+              : progress < 30 ? 'text-blue-400' : progress < 70 ? 'text-accent-yellow' : 'text-accent-red'"
+          >
+            {{ state.completed ? 'Optimizaci\u00f3n Completada' : progress < 30 ? 'Fase 1 \u2014 Exploraci\u00f3n' : progress < 70 ? 'Fase 2 \u2014 Transici\u00f3n' : 'Fase 3 \u2014 Asedio' }}
+            <span class="text-xs font-normal text-gray-500 ml-2">E(t) = {{ state.completed ? '0.00' : (2 * (1 - progress / 100)).toFixed(2) }}</span>
+          </h3>
+          <p class="text-xs text-gray-400 mt-1 leading-relaxed">
+            <template v-if="state.completed">
+              Los halcones capturaron al conejo. Se encontraron <strong class="text-emerald-300">{{ state.archiveSize }} soluciones Pareto</strong> no dominadas.
+              El hipervolumen final de <strong class="text-accent-yellow">{{ state.hv.toLocaleString() }}</strong> mide la calidad del frente.
+              Puedes explorar cada iteraci&oacute;n con el control de abajo o ver la asignaci&oacute;n de visas resultante.
+            </template>
+            <template v-else-if="progress < 30">
+              Los halcones se dispersan por el espacio de b&uacute;squeda (105 dimensiones, una por grupo pa&iacute;s-categor&iacute;a).
+              La energ&iacute;a E(t) es alta &mdash; cada halc&oacute;n explora libremente, evalu&uacute;a combinaciones de asignaci&oacute;n y
+              descubre regiones prometedoras del frente de Pareto. El conejo (soluci&oacute;n l&iacute;der) se mueve r&aacute;pidamente.
+            </template>
+            <template v-else-if="progress < 70">
+              La energ&iacute;a E(t) decrece. Los halcones equilibran exploraci&oacute;n y explotaci&oacute;n &mdash;
+              algunos se acercan al conejo mientras otros siguen explorando nuevas regiones.
+              El frente de Pareto se define y el hipervolumen crece de forma constante.
+              Se aplican saltos de L&eacute;vy para escapar de &oacute;ptimos locales.
+            </template>
+            <template v-else>
+              Energ&iacute;a E(t) baja &mdash; los halcones ejecutan la estrategia de <strong class="text-orange-300">asedio cooperativo</strong>:
+              rodean al conejo (soluci&oacute;n l&iacute;der) en formaci&oacute;n y refinan las soluciones cercanas.
+              Movimientos s&uacute;bitos de L&eacute;vy permiten &uacute;ltimos escapes.
+              El frente de Pareto converge a su forma final optimizando f&sub1;, f&sub2; y f&sub3; simult&aacute;neamente.
+            </template>
+          </p>
+        </div>
+      </div>
+    </div>
+
     <!-- Hawk Hunt animation -->
     <ClientOnly>
       <div class="card p-0 overflow-hidden">
