@@ -1,10 +1,17 @@
-"""WebSocket endpoint for live MOHHO simulation."""
+"""WebSocket endpoint for live MOHHO simulation.
+
+Key design: the optimization thread runs at full speed and stores ALL
+iteration messages in a list.  The send loop walks through that list at
+a **fixed pace** (one message every SEND_INTERVAL seconds), so every
+single iteration is shown to the client — never skipped.  If the
+optimizer finishes before the send loop catches up, the send loop keeps
+going until every iteration has been sent; only then does it emit
+"complete".  This guarantees a slow, dramatic, cinematic animation.
+"""
 
 import asyncio
 import json
-import queue
 import threading
-import time
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
@@ -13,9 +20,17 @@ from app.core.mohho import run_mohho, compute_hypervolume, Fitness3
 
 router = APIRouter()
 
-# Minimum interval (seconds) between sending messages to the client.
-# This ensures the frontend animation plays at a visible, dramatic pace.
-MIN_SEND_INTERVAL = 0.35  # ~3 messages per second
+# Target animation pace.  Adaptive: shorter simulations get more time
+# per frame so the total wall-clock stays in a sweet 30–60 s range.
+#   max_iter ≤ 100  → 0.40 s/iter → 40 s total
+#   max_iter ≤ 200  → 0.25 s/iter → 50 s total
+#   max_iter ≤ 500  → 0.12 s/iter → 60 s total
+def _send_interval(max_iter: int) -> float:
+    if max_iter <= 100:
+        return 0.40
+    if max_iter <= 200:
+        return 0.25
+    return 0.12
 
 
 @router.websocket("/ws/simulation")
@@ -37,12 +52,16 @@ async def simulation_ws(websocket: WebSocket):
         seed = max(int(params.get("seed", 42)), 0)
 
         problem = VisaProblem()
-        msg_queue: queue.Queue[dict | None] = queue.Queue()
+
+        # Shared state between threads ─ the optimizer appends, the
+        # send loop reads.  `done` is set when the optimizer finishes.
+        messages: list[dict] = []
+        done = threading.Event()
 
         def on_iteration(t: int, archive_fitnesses: list[Fitness3],
                          archive_positions: list) -> None:
             hv = compute_hypervolume(archive_fitnesses)
-            msg_queue.put({
+            messages.append({
                 "type": "iteration",
                 "iteration": t,
                 "max_iter": max_iter,
@@ -60,46 +79,29 @@ async def simulation_ws(websocket: WebSocket):
                 pop_size=pop_size, max_iter=max_iter,
                 archive_size=100, callback=on_iteration,
             )
-            msg_queue.put(None)  # Sentinel: optimization done
+            done.set()
 
         thread = threading.Thread(target=run_optimization, daemon=True)
         thread.start()
 
-        last_send = 0.0
+        interval = _send_interval(max_iter)
+        cursor = 0  # next message index to send
 
-        # Stream messages at a controlled pace
+        # Walk through every iteration at a fixed cinematic pace
         while True:
-            # Wait for at least one message
-            while msg_queue.empty():
+            # Wait for the next message to become available
+            while cursor >= len(messages):
+                if done.is_set():
+                    break  # optimizer finished, no more messages coming
                 await asyncio.sleep(0.03)
 
-            msg = msg_queue.get()
-            if msg is None:
+            # If optimizer is done and we've sent everything, exit
+            if cursor >= len(messages):
                 break
 
-            # Throttle: wait until MIN_SEND_INTERVAL has passed since last send
-            now = time.monotonic()
-            wait = MIN_SEND_INTERVAL - (now - last_send)
-            if wait > 0:
-                await asyncio.sleep(wait)
-
-            # If multiple messages queued up during the wait, skip to the latest
-            latest = msg
-            while not msg_queue.empty():
-                peek = msg_queue.get()
-                if peek is None:
-                    # Sentinel found while skipping — send latest, then break
-                    await websocket.send_text(json.dumps(latest))
-                    last_send = time.monotonic()
-                    latest = None
-                    break
-                latest = peek
-
-            if latest is None:
-                break  # Sentinel was hit
-
-            await websocket.send_text(json.dumps(latest))
-            last_send = time.monotonic()
+            await websocket.send_text(json.dumps(messages[cursor]))
+            cursor += 1
+            await asyncio.sleep(interval)
 
         await websocket.send_text(json.dumps({"type": "complete"}))
 
