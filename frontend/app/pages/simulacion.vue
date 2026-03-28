@@ -134,7 +134,7 @@ watch(() => state.value.completed, (done) => {
       </div>
 
       <!-- Scrubber control (after completion) -->
-      <div v-if="state.completed && state.history.length > 1" class="mt-4 pt-3 border-t border-dark-border">
+      <div v-if="!state.running && state.history.length > 1" class="mt-4 pt-3 border-t border-dark-border">
         <div class="flex items-center gap-3">
           <button
             class="text-xs px-3 py-1 rounded-md transition-colors"
@@ -240,6 +240,7 @@ watch(() => state.value.completed, (done) => {
           :iteration="state.iteration"
           :max-iter="state.maxIter"
           :running="state.running"
+          :completed="state.completed"
           :pop-size="popSize"
         />
       </div>
