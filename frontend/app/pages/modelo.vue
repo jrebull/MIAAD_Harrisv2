@@ -4,13 +4,69 @@ definePageMeta({ prerender: true })
 
 <template>
   <div class="space-y-8 max-w-5xl mx-auto">
-    <h1 class="section-title">Modelo Matemático</h1>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- CINEMATIC HERO HEADER                              -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section class="relative overflow-hidden rounded-2xl">
+      <!-- Animated gradient background -->
+      <div class="absolute inset-0 bg-gradient-to-br from-primary/20 via-dark-bg1 to-emerald-900/15" />
+      <div class="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse" style="animation-duration:4s" />
+      <div class="absolute bottom-0 left-0 w-72 h-72 bg-emerald-500/8 rounded-full blur-[100px] animate-pulse" style="animation-duration:6s" />
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full border border-primary/5 animate-spin" style="animation-duration:60s" />
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full border border-emerald-500/5 animate-spin" style="animation-duration:45s;animation-direction:reverse" />
+
+      <div class="relative px-8 py-12 text-center space-y-6">
+        <div class="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 rounded-full px-4 py-1.5">
+          <div class="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(0,60,166,0.8)]" />
+          <span class="text-primary-300 text-[10px] font-bold uppercase tracking-[0.2em]">Multi-Objective Optimization</span>
+        </div>
+
+        <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight leading-tight">
+          Modelo Matemático<br>
+          <span class="bg-gradient-to-r from-accent-yellow via-accent-green to-primary-300 bg-clip-text text-transparent">
+            MOHHO para Visas EB
+          </span>
+        </h1>
+
+        <p class="text-sm text-gray-400 max-w-2xl mx-auto leading-relaxed">
+          Un problema de programación entera multi-objetivo NP-difícil, resuelto con
+          Harris Hawks Optimization para encontrar las mejores asignaciones de visas posibles.
+        </p>
+
+        <!-- Animated stat counters -->
+        <div class="flex flex-wrap justify-center gap-6 pt-2">
+          <div class="text-center">
+            <p class="text-3xl font-black text-accent-yellow font-mono">140K</p>
+            <p class="text-[10px] text-gray-500 uppercase tracking-wider">Visas anuales</p>
+          </div>
+          <div class="w-px h-12 bg-gradient-to-b from-transparent via-gray-700 to-transparent" />
+          <div class="text-center">
+            <p class="text-3xl font-black text-white font-mono">105</p>
+            <p class="text-[10px] text-gray-500 uppercase tracking-wider">Grupos decisión</p>
+          </div>
+          <div class="w-px h-12 bg-gradient-to-b from-transparent via-gray-700 to-transparent" />
+          <div class="text-center">
+            <p class="text-3xl font-black text-accent-green font-mono">3</p>
+            <p class="text-[10px] text-gray-500 uppercase tracking-wider">Objetivos en conflicto</p>
+          </div>
+          <div class="w-px h-12 bg-gradient-to-b from-transparent via-gray-700 to-transparent" />
+          <div class="text-center">
+            <p class="text-3xl font-black text-primary-300 font-mono">406</p>
+            <p class="text-[10px] text-gray-500 uppercase tracking-wider">Soluciones Pareto</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- ========================== -->
     <!-- 1. DEFINICIÓN DEL PROBLEMA -->
     <!-- ========================== -->
     <section class="card space-y-4">
-      <h2 class="text-lg font-bold text-white">1. Definición Formal del Problema de Optimización</h2>
+      <h2 class="text-lg font-bold text-white flex items-center gap-3">
+        <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/20 text-primary-300 text-xs font-black">1</span>
+        Definición Formal del Problema de Optimización
+      </h2>
 
       <!-- Plain language intro (hospital metaphor) -->
       <div class="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-2">
@@ -34,6 +90,39 @@ definePageMeta({ prerender: true })
         (21 países × 5 categorías EB). El problema consiste en encontrar una asignación
         que minimice simultáneamente tres objetivos en conflicto, sujeta a restricciones legales.
       </p>
+
+      <!-- Visual 21×5 dimension grid -->
+      <div class="bg-dark-bg1 rounded-lg p-4 space-y-3">
+        <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold text-center">Espacio de Decisión: 21 Países × 5 Categorías = 105 Variables</p>
+        <div class="flex justify-center">
+          <div class="inline-grid grid-cols-5 gap-px">
+            <template v-for="row in 21" :key="row">
+              <div
+                v-for="col in 5"
+                :key="`${row}-${col}`"
+                class="w-3 h-3 rounded-sm transition-colors"
+                :class="[
+                  col === 1 ? 'bg-blue-500/50' :
+                  col === 2 ? 'bg-purple-500/50' :
+                  col === 3 ? 'bg-red-500/40' :
+                  col === 4 ? 'bg-yellow-500/40' :
+                  'bg-emerald-500/40',
+                  row <= 2 ? 'ring-1 ring-white/20' : '',
+                ]"
+                :title="`País ${row}, EB-${col}`"
+              />
+            </template>
+          </div>
+        </div>
+        <div class="flex justify-center gap-4 text-[9px] text-gray-500">
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-blue-500/50" /> EB-1</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-purple-500/50" /> EB-2</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-red-500/40" /> EB-3</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-yellow-500/40" /> EB-4</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-emerald-500/40" /> EB-5</span>
+        </div>
+        <p class="text-[10px] text-gray-600 text-center">Cada celda = una variable xᵍ (visas a asignar). Las dos primeras filas (India, China) tienen borde blanco: representan >80% de la demanda total.</p>
+      </div>
 
       <!-- Variable de decisión -->
       <div>
@@ -83,7 +172,10 @@ definePageMeta({ prerender: true })
     <!-- 2. ¿POR QUÉ LOS OBJETIVOS ENTRAN EN CONFLICTO? -->
     <!-- ========================================= -->
     <section class="card space-y-4">
-      <h2 class="text-lg font-bold text-white">2. ¿Por qué los Objetivos Entran en Conflicto?</h2>
+      <h2 class="text-lg font-bold text-white flex items-center gap-3">
+        <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-accent-red/20 text-accent-red text-xs font-black">2</span>
+        ¿Por qué los Objetivos Entran en Conflicto?
+      </h2>
 
       <p class="text-sm text-gray-400 leading-relaxed">
         Para entender por qué no existe una solución perfecta, comparemos dos estrategias extremas:
@@ -108,6 +200,55 @@ definePageMeta({ prerender: true })
             y <strong class="text-accent-red">f₃ puede subir</strong> (países con poca demanda no usan su cuota).
           </p>
         </div>
+      </div>
+
+      <!-- Conflict triangle visualization -->
+      <div class="bg-dark-bg1 rounded-lg p-6">
+        <div class="relative mx-auto" style="width: 280px; height: 250px;">
+          <!-- Triangle edges (SVG) -->
+          <svg class="absolute inset-0 w-full h-full" viewBox="0 0 280 250">
+            <!-- Triangle lines -->
+            <line x1="140" y1="20" x2="30" y2="220" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" />
+            <line x1="140" y1="20" x2="250" y2="220" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" />
+            <line x1="30" y1="220" x2="250" y2="220" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" />
+            <!-- Conflict arrows with labels -->
+            <line x1="85" y1="120" x2="85" y2="120" stroke="rgba(255,51,102,0.4)" stroke-width="2" stroke-dasharray="4 3">
+              <animate attributeName="x2" values="85;50;85" dur="3s" repeatCount="indefinite" />
+              <animate attributeName="y2" values="120;190;120" dur="3s" repeatCount="indefinite" />
+            </line>
+            <line x1="195" y1="120" x2="195" y2="120" stroke="rgba(255,51,102,0.4)" stroke-width="2" stroke-dasharray="4 3">
+              <animate attributeName="x2" values="195;230;195" dur="3s" repeatCount="indefinite" />
+              <animate attributeName="y2" values="120;190;120" dur="3s" repeatCount="indefinite" />
+            </line>
+            <line x1="100" y1="220" x2="100" y2="220" stroke="rgba(255,51,102,0.4)" stroke-width="2" stroke-dasharray="4 3">
+              <animate attributeName="x2" values="100;180;100" dur="3s" repeatCount="indefinite" />
+            </line>
+            <!-- Center label -->
+            <text x="140" y="145" text-anchor="middle" fill="rgba(255,51,102,0.5)" font-size="9" font-weight="bold">CONFLICTO</text>
+          </svg>
+          <!-- f1 node (top) -->
+          <div class="absolute top-0 left-1/2 -translate-x-1/2 text-center">
+            <div class="w-14 h-14 rounded-full bg-accent-yellow/15 border-2 border-accent-yellow/40 flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(250,204,21,0.15)]">
+              <span class="text-accent-yellow font-black text-sm">f₁</span>
+            </div>
+            <p class="text-[10px] text-accent-yellow mt-1 font-semibold">Espera</p>
+          </div>
+          <!-- f2 node (bottom-left) -->
+          <div class="absolute bottom-0 left-0 text-center">
+            <div class="w-14 h-14 rounded-full bg-accent-green/15 border-2 border-accent-green/40 flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(0,229,160,0.15)]">
+              <span class="text-accent-green font-black text-sm">f₂</span>
+            </div>
+            <p class="text-[10px] text-accent-green mt-1 font-semibold">Disparidad</p>
+          </div>
+          <!-- f3 node (bottom-right) -->
+          <div class="absolute bottom-0 right-0 text-center">
+            <div class="w-14 h-14 rounded-full bg-primary-300/15 border-2 border-primary-300/40 flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(96,165,250,0.15)]">
+              <span class="text-primary-300 font-black text-sm">f₃</span>
+            </div>
+            <p class="text-[10px] text-primary-300 mt-1 font-semibold">Desperdicio</p>
+          </div>
+        </div>
+        <p class="text-[10px] text-gray-500 text-center mt-2">Mejorar cualquier objetivo inevitablemente empeora al menos uno de los otros dos.</p>
       </div>
 
       <!-- Why f3 matters -->
@@ -139,7 +280,10 @@ definePageMeta({ prerender: true })
     <!-- 3. FORMULACIÓN MATEMÁTICA      -->
     <!-- ============================== -->
     <section class="card space-y-4">
-      <h2 class="text-lg font-bold text-white">3. Formulación Matemática</h2>
+      <h2 class="text-lg font-bold text-white flex items-center gap-3">
+        <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-accent-yellow/20 text-accent-yellow text-xs font-black">3</span>
+        Formulación Matemática
+      </h2>
 
       <div class="bg-dark-bg1 rounded-lg p-4 font-mono text-sm text-center">
         <p class="text-accent-yellow text-base mb-2">min F(x) = ( f₁(x), f₂(x), f₃(x) )</p>
@@ -240,7 +384,10 @@ definePageMeta({ prerender: true })
     <!-- 4. INTEGRACIÓN CON LA METAHEURÍSTICA (MOHHO) -->
     <!-- ============================================ -->
     <section class="card space-y-4">
-      <h2 class="text-lg font-bold text-white">4. Integración del Modelo con MOHHO</h2>
+      <h2 class="text-lg font-bold text-white flex items-center gap-3">
+        <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-accent-green/20 text-accent-green text-xs font-black">4</span>
+        Integración del Modelo con MOHHO
+      </h2>
       <p class="text-sm text-gray-400 leading-relaxed">
         El problema anterior es un <strong class="text-white">programa entero multi-objetivo con restricciones acopladas</strong>
         (NP-difícil). No se puede resolver con métodos exactos en tiempo razonable.
@@ -461,7 +608,10 @@ definePageMeta({ prerender: true })
     <!-- 5. ¿QUÉ ES EL FRENTE DE PARETO?              -->
     <!-- ============================================= -->
     <section class="card space-y-4">
-      <h2 class="text-lg font-bold text-white">5. ¿Qué es el Frente de Pareto?</h2>
+      <h2 class="text-lg font-bold text-white flex items-center gap-3">
+        <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/20 text-primary-300 text-xs font-black">5</span>
+        ¿Qué es el Frente de Pareto?
+      </h2>
       <p class="text-sm text-gray-400 leading-relaxed">
         Imagina que comparas dos repartos de visas, <strong class="text-white">A</strong> y <strong class="text-white">B</strong>:
       </p>
@@ -554,7 +704,10 @@ definePageMeta({ prerender: true })
     <!-- 6. HIPERVOLUMEN                               -->
     <!-- ============================================= -->
     <section class="card space-y-4">
-      <h2 class="text-lg font-bold text-white">6. ¿Cómo Sabemos si las Soluciones son Buenas? (Hipervolumen)</h2>
+      <h2 class="text-lg font-bold text-white flex items-center gap-3">
+        <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 text-xs font-black">6</span>
+        ¿Cómo Sabemos si las Soluciones son Buenas? (Hipervolumen)
+      </h2>
       <p class="text-sm text-gray-400 leading-relaxed">
         El <strong class="text-white">hipervolumen (HV)</strong> es como medir el "volumen" que cubre el frente de Pareto
         en el espacio tridimensional de f₁ × f₂ × f₃. Si el frente se expande (mejores soluciones),
@@ -642,7 +795,10 @@ definePageMeta({ prerender: true })
     <!-- 7. EVALUACIÓN DEL KNEE POINT -->
     <!-- ============================ -->
     <section class="card space-y-4">
-      <h2 class="text-lg font-bold text-white">7. Selección del Punto Knee (Punto de Compromiso Óptimo)</h2>
+      <h2 class="text-lg font-bold text-white flex items-center gap-3">
+        <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-accent-yellow/20 text-accent-yellow text-xs font-black">7</span>
+        Selección del Punto Knee (Punto de Compromiso Óptimo)
+      </h2>
 
       <!-- Intuitive explanation with analogy -->
       <div class="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-2">
@@ -928,7 +1084,10 @@ definePageMeta({ prerender: true })
     <!-- 8. COHERENCIA DEL PLANTEAMIENTO -->
     <!-- ============================== -->
     <section class="card space-y-4">
-      <h2 class="text-lg font-bold text-white">8. Coherencia del Planteamiento</h2>
+      <h2 class="text-lg font-bold text-white flex items-center gap-3">
+        <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/20 text-primary-300 text-xs font-black">8</span>
+        Coherencia del Planteamiento
+      </h2>
 
       <div class="space-y-3 text-sm text-gray-400 leading-relaxed">
         <div class="bg-dark-bg1 rounded-lg p-4">
@@ -964,7 +1123,10 @@ definePageMeta({ prerender: true })
 
     <!-- Configuración experimental -->
     <section class="card space-y-5">
-      <h2 class="text-lg font-bold text-white">9. Configuración Experimental</h2>
+      <h2 class="text-lg font-bold text-white flex items-center gap-3">
+        <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-accent-green/20 text-accent-green text-xs font-black">9</span>
+        Configuración Experimental
+      </h2>
 
       <p class="text-sm text-gray-400 leading-relaxed">
         Cada parámetro fue seleccionado con base en la literatura de HHO y optimización multiobjetivo,

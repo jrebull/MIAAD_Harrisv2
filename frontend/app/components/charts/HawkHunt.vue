@@ -1,15 +1,11 @@
 <script setup lang="ts">
 /**
- * Cinematic Harris Hawks Optimization — v3 complete redesign.
+ * HawkHunt v5 — Cinematic Tactical Visualization
  *
- * KEY FIX: During siege and finished states, hawks orbit in concentric
- * ring formations around the rabbit.  Each hawk has a unique ring/slot,
- * guaranteeing they are ALWAYS individually visible — never piling up.
- *
- * State management: `completed` prop drives finished state explicitly,
- * not derived from `running` transitions (which caused race conditions).
- *
- * Rabbit uses smooth interpolation, not instant jumps.
+ * Chevron agents with afterburner exhaust, scanner rings.
+ * Target core with radar sweep, shield arcs, holographic brackets.
+ * HUD moved to HTML overlay to avoid overlap.
+ * Siege zone visualization with danger field.
  */
 
 const props = defineProps<{
@@ -25,6 +21,37 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
 let animId = 0
 let dpr = 1
 let fc = 0
+
+// ═══ HUD (reactive for HTML overlay) ═══
+const hudProgress = computed(() => props.maxIter > 0 ? props.iteration / props.maxIter : 0)
+const hudPhase = computed(() => {
+  if (props.completed) return 'COMPLETADO'
+  if (hudProgress.value < 0.3) return 'EXPLORACIÓN'
+  if (hudProgress.value < 0.65) return 'TRANSICIÓN'
+  return 'ASEDIO'
+})
+const hudEnergy = computed(() => {
+  if (props.completed) return '0.00'
+  return (2 * (1 - hudProgress.value)).toFixed(2)
+})
+const hudBorder = computed(() => {
+  if (props.completed) return 'border-emerald-500/30'
+  if (hudProgress.value < 0.3) return 'border-blue-500/30'
+  if (hudProgress.value < 0.65) return 'border-yellow-500/30'
+  return 'border-orange-500/30'
+})
+const hudText = computed(() => {
+  if (props.completed) return 'text-emerald-400'
+  if (hudProgress.value < 0.3) return 'text-blue-400'
+  if (hudProgress.value < 0.65) return 'text-yellow-400'
+  return 'text-orange-400'
+})
+const hudGlow = computed(() => {
+  if (props.completed) return 'shadow-[0_0_15px_rgba(52,211,153,0.15)]'
+  if (hudProgress.value < 0.3) return 'shadow-[0_0_15px_rgba(96,165,250,0.15)]'
+  if (hudProgress.value < 0.65) return 'shadow-[0_0_15px_rgba(250,204,21,0.15)]'
+  return 'shadow-[0_0_15px_rgba(251,146,60,0.15)]'
+})
 
 // ═══════════════════ TYPES ═══════════════════
 
@@ -54,8 +81,8 @@ let stars: Star[] = []
 let hawks: Hawk[] = []
 let sparks: Spark[] = []
 
-let rabbitX = 0.5, rabbitY = 0.5     // current (smoothed) position
-let rabbitTx = 0.5, rabbitTy = 0.5   // target position
+let rabbitX = 0.5, rabbitY = 0.5
+let rabbitTx = 0.5, rabbitTy = 0.5
 let rabbitPulse = 0
 
 let paretoNorm: Array<{ x: number; y: number }> = []
@@ -64,6 +91,9 @@ let dispIter = 0
 let finished = false
 let completionFc = 0
 let resetFlash = 0
+let scanY = 0
+let prevPhase = 'explore'
+let phaseFlash = 0
 
 // ═══════════════════ HELPERS ═══════════════════
 
@@ -128,7 +158,7 @@ function fullReset() {
   rabbitTx = 0.5; rabbitTy = 0.5
   fc = 0; progress = 0; dispIter = 0
   finished = false; completionFc = 0
-  resetFlash = 50
+  resetFlash = 50; prevPhase = 'explore'; phaseFlash = 0
 }
 
 // ═══════════════════ CANVAS ═══════════════════
@@ -150,7 +180,6 @@ function setupCanvas() {
 
 // ═══════════════════ WATCHERS ═══════════════════
 
-// Simulation starts → full reset
 watch(() => props.running, (r) => {
   if (r) {
     finished = false
@@ -159,12 +188,10 @@ watch(() => props.running, (r) => {
   }
 })
 
-// Simulation completes → celebration
 watch(() => props.completed, (done) => {
   if (done && !finished) {
     finished = true
     completionFc = fc
-    // Burst of celebratory sparks from rabbit
     for (let i = 0; i < 80; i++) {
       const a = Math.random() * Math.PI * 2
       const sp = 0.003 + Math.random() * 0.008
@@ -185,22 +212,25 @@ watch(() => props.popSize, (n) => {
   if (!props.running && !props.completed && dispIter === 0) spawnHawks(n || 20)
 })
 
-// Process each pareto update — set targets for explore/transition
 watch(() => props.paretoFront, (front) => {
   if (!front?.length) return
   paretoNorm = normalize(front)
   progress = props.maxIter > 0 ? props.iteration / props.maxIter : 0
   dispIter = props.iteration
 
-  // Smooth rabbit target (leader = first pareto solution)
   if (paretoNorm.length > 0) {
     rabbitTx = paretoNorm[0].x
     rabbitTy = paretoNorm[0].y
   }
 
-  // Set phase & targets for NON-siege modes
-  // Siege/finished targets are computed per-frame (formation orbits)
   const phase = progress < 0.3 ? 'explore' : progress < 0.65 ? 'transition' : 'siege'
+
+  // Phase transition flash
+  if (phase !== prevPhase) {
+    prevPhase = phase
+    phaseFlash = 40
+  }
+
   hawks.forEach((h, i) => {
     h.phase = phase
     if (phase !== 'siege') {
@@ -222,9 +252,9 @@ watch(() => props.paretoFront, (front) => {
 function drawBg(ctx: CanvasRenderingContext2D, W: number, H: number) {
   const hue = 230 - progress * 30
   const g = ctx.createLinearGradient(0, 0, 0, H)
-  g.addColorStop(0, `hsl(${hue},40%,5%)`)
-  g.addColorStop(0.5, `hsl(${hue - 10},35%,7%)`)
-  g.addColorStop(1, `hsl(${hue - 20},30%,4%)`)
+  g.addColorStop(0, `hsl(${hue},40%,4%)`)
+  g.addColorStop(0.5, `hsl(${hue - 10},35%,6%)`)
+  g.addColorStop(1, `hsl(${hue - 20},30%,3%)`)
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H)
 
   const t = fc * 0.002
@@ -233,27 +263,45 @@ function drawBg(ctx: CanvasRenderingContext2D, W: number, H: number) {
     const cy = H * (0.3 + 0.4 * Math.cos(t * 0.7 + i * 1.7))
     const r = W * (0.15 + 0.1 * Math.sin(t * 0.4 + i))
     const ng = ctx.createRadialGradient(cx, cy, 0, cx, cy, r)
-    ng.addColorStop(0, `hsla(${hue + i * 30 - progress * 60},70%,35%,0.04)`)
+    ng.addColorStop(0, `hsla(${hue + i * 30 - progress * 60},70%,35%,0.03)`)
     ng.addColorStop(1, 'transparent')
     ctx.fillStyle = ng; ctx.fillRect(0, 0, W, H)
   }
 
   stars.forEach(s => {
     s.tw += s.sp
-    const a = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(s.tw))
+    const a = 0.2 + 0.8 * (0.5 + 0.5 * Math.sin(s.tw))
     ctx.beginPath(); ctx.fillStyle = `rgba(200,215,255,${a})`
     ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2); ctx.fill()
   })
 
-  ctx.strokeStyle = 'rgba(255,255,255,0.015)'; ctx.lineWidth = 0.5
-  for (let i = 1; i < 20; i++) {
-    const gx = (i / 20) * W, gy = (i / 20) * H
+  // Tactical grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.018)'; ctx.lineWidth = 0.5
+  const gs = 50
+  for (let gx = gs; gx < W; gx += gs) {
     ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke()
+  }
+  for (let gy = gs; gy < H; gy += gs) {
     ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke()
   }
+  ctx.fillStyle = 'rgba(255,255,255,0.035)'
+  for (let gx = gs; gx < W; gx += gs) {
+    for (let gy = gs; gy < H; gy += gs) {
+      ctx.beginPath(); ctx.arc(gx, gy, 1, 0, Math.PI * 2); ctx.fill()
+    }
+  }
 
+  // Scanning line
+  scanY = (scanY + 0.4) % H
+  const slg = ctx.createLinearGradient(0, scanY - 40, 0, scanY + 40)
+  slg.addColorStop(0, 'transparent')
+  slg.addColorStop(0.5, `rgba(${finished ? '0,229,160' : '80,160,255'},0.025)`)
+  slg.addColorStop(1, 'transparent')
+  ctx.fillStyle = slg; ctx.fillRect(0, scanY - 40, W, 80)
+
+  // Vignette
   const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.max(W, H) * 0.8)
-  vg.addColorStop(0, 'transparent'); vg.addColorStop(1, 'rgba(0,0,0,0.35)')
+  vg.addColorStop(0, 'transparent'); vg.addColorStop(1, 'rgba(0,0,0,0.4)')
   ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H)
 }
 
@@ -282,7 +330,14 @@ function drawParetoFront(ctx: CanvasRenderingContext2D, W: number, H: number) {
   if (paretoNorm.length < 1) return
   if (paretoNorm.length > 1) {
     const sorted = [...paretoNorm].sort((a, b) => a.x - b.x)
-    ctx.beginPath(); ctx.strokeStyle = 'rgba(60,130,255,0.35)'; ctx.lineWidth = 2.5
+    // Glow line (wider, softer)
+    ctx.beginPath(); ctx.strokeStyle = 'rgba(60,130,255,0.12)'; ctx.lineWidth = 8
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round'
+    ctx.moveTo(sorted[0].x * W, sorted[0].y * H)
+    for (let i = 1; i < sorted.length; i++) ctx.lineTo(sorted[i].x * W, sorted[i].y * H)
+    ctx.stroke()
+    // Core line
+    ctx.beginPath(); ctx.strokeStyle = 'rgba(60,130,255,0.45)'; ctx.lineWidth = 2
     ctx.moveTo(sorted[0].x * W, sorted[0].y * H)
     for (let i = 1; i < sorted.length; i++) ctx.lineTo(sorted[i].x * W, sorted[i].y * H)
     ctx.stroke()
@@ -303,15 +358,14 @@ function drawBeams(ctx: CanvasRenderingContext2D, W: number, H: number) {
     const d = Math.sqrt(dx * dx + dy * dy)
     if (d > 0.4) return
     ctx.beginPath()
-    ctx.strokeStyle = `rgba(255,200,50,${int * 0.2 * (1 - d / 0.4)})`
-    ctx.lineWidth = 1.5; ctx.setLineDash([6, 8])
+    ctx.strokeStyle = `rgba(255,200,50,${int * 0.15 * (1 - d / 0.4)})`
+    ctx.lineWidth = 1; ctx.setLineDash([6, 8])
     ctx.moveTo(h.x * W, h.y * H)
     ctx.lineTo(rabbitX * W, rabbitY * H)
     ctx.stroke(); ctx.setLineDash([])
   })
 }
 
-// Draw formation ring guides (subtle circles showing the orbit rings)
 function drawFormationRings(ctx: CanvasRenderingContext2D, W: number, H: number) {
   if (!finished && progress < 0.65) return
   const numRings = finished ? 4 : 3
@@ -333,31 +387,49 @@ function drawFormationRings(ctx: CanvasRenderingContext2D, W: number, H: number)
   }
 }
 
-// ═══════════════════ DRAW — HAWK ═══════════════════
-// NO ctx.save/restore/translate/rotate/ellipse/shadow — absolute coords only.
-// This prevents canvas state corruption that was making hawks invisible.
+// ═══════════════════ DRAW — SIEGE ZONE ═══════════════════
+
+function drawSiegeZone(ctx: CanvasRenderingContext2D, W: number, H: number) {
+  if (progress < 0.55 || finished) return
+  const intensity = (progress - 0.55) / 0.45
+  const zoneR = 0.20 * Math.min(W, H)
+  const rx = rabbitX * W, ry = rabbitY * H
+  const pa = 0.035 * intensity * (0.7 + 0.3 * Math.sin(fc * 0.03))
+
+  const zg = ctx.createRadialGradient(rx, ry, zoneR * 0.2, rx, ry, zoneR)
+  zg.addColorStop(0, `rgba(255,100,30,${pa})`)
+  zg.addColorStop(1, 'rgba(255,100,30,0)')
+  ctx.fillStyle = zg
+  ctx.beginPath()
+  ctx.arc(rx, ry, zoneR, 0, Math.PI * 2)
+  ctx.fill()
+}
+
+// ═══════════════════ DRAW — HAWK (v5 Chevron + Afterburner) ═══════════════════
+// ALL absolute coordinates — NO save/restore/translate/rotate/ellipse/shadow
 
 function drawHawk(ctx: CanvasRenderingContext2D, h: Hawk, W: number, H: number) {
   const px = h.x * W, py = h.y * H
   const [cr, cg, cb] = phaseRGB(h.phase)
-  const s = h.size
-  const flap = Math.sin(h.wing)
+  const s = h.size * 0.5
 
-  // Heading direction vectors
-  const ca = Math.cos(h.angle - Math.PI / 2)  // forward x
-  const sa = Math.sin(h.angle - Math.PI / 2)  // forward y
-  const pa = Math.cos(h.angle)                 // perpendicular x
-  const qa = Math.sin(h.angle)                 // perpendicular y
+  // Direction vectors
+  const ca = Math.cos(h.angle - Math.PI / 2)
+  const sa = Math.sin(h.angle - Math.PI / 2)
+  const pa = Math.cos(h.angle)
+  const qa = Math.sin(h.angle)
 
-  // Trail
+  // Energy trail
   if (h.trail.length > 1) {
     for (let i = 1; i < h.trail.length; i++) {
       const t = h.trail[i], prev = h.trail[i - 1]
-      const a = Math.max(0, 1 - t.age / 60) * 0.45
+      const a = Math.max(0, 1 - t.age / 60) * 0.25
       if (a <= 0) continue
       ctx.beginPath()
-      ctx.strokeStyle = `rgba(${cr},${cg},${cb},${a})`
-      ctx.lineWidth = (1 - t.age / 60) * 4
+      ctx.strokeStyle = finished
+        ? `rgba(0,229,160,${a})`
+        : `rgba(${cr},${cg},${cb},${a})`
+      ctx.lineWidth = (1 - t.age / 60) * 2
       ctx.lineCap = 'round'
       ctx.moveTo(prev.x * W, prev.y * H)
       ctx.lineTo(t.x * W, t.y * H)
@@ -365,297 +437,295 @@ function drawHawk(ctx: CanvasRenderingContext2D, h: Hawk, W: number, H: number) 
     }
   }
 
-  // Aura glow (simple concentric fills — no createRadialGradient)
-  const aR = finished ? s * 1.8 : (h.phase === 'siege' ? s * 1.0 : s * 1.5)
+  // Subtle outer glow (reduced from v4)
+  const aR = finished ? s * 0.9 : (h.phase === 'siege' ? s * 0.6 : s * 0.8)
   const ap = finished
-    ? 0.10 + 0.05 * Math.sin(fc * 0.035 + h.orbOff)
-    : 0.06 + 0.04 * Math.sin(fc * 0.06 + h.orbOff)
-  if (finished) {
-    ctx.beginPath(); ctx.fillStyle = `rgba(0,229,160,${ap * 0.3})`
-    ctx.arc(px, py, aR, 0, Math.PI * 2); ctx.fill()
-    ctx.beginPath(); ctx.fillStyle = `rgba(0,229,160,${ap * 0.6})`
-    ctx.arc(px, py, aR * 0.5, 0, Math.PI * 2); ctx.fill()
-  } else {
-    ctx.beginPath(); ctx.fillStyle = `rgba(${cr},${cg},${cb},${ap * 0.3})`
-    ctx.arc(px, py, aR, 0, Math.PI * 2); ctx.fill()
-    ctx.beginPath(); ctx.fillStyle = `rgba(${cr},${cg},${cb},${ap * 0.7})`
-    ctx.arc(px, py, aR * 0.5, 0, Math.PI * 2); ctx.fill()
-  }
+    ? 0.05 + 0.025 * Math.sin(fc * 0.035 + h.orbOff)
+    : 0.03 + 0.015 * Math.sin(fc * 0.06 + h.orbOff)
+  ctx.beginPath()
+  ctx.fillStyle = finished
+    ? `rgba(0,229,160,${ap})`
+    : `rgba(${cr},${cg},${cb},${ap})`
+  ctx.arc(px, py, aR, 0, Math.PI * 2)
+  ctx.fill()
 
-  // Wing length and flap offset
-  const wLen = s * 1.2
-  const flapAmt = flap * s * 0.4
+  // Chevron geometry
+  const tipX = px + ca * s * 0.9
+  const tipY = py + sa * s * 0.9
+  const lWingX = px - ca * s * 0.3 + pa * s * 0.5
+  const lWingY = py - sa * s * 0.3 + qa * s * 0.5
+  const rWingX = px - ca * s * 0.3 - pa * s * 0.5
+  const rWingY = py - sa * s * 0.3 - qa * s * 0.5
+  const notchX = px - ca * s * 0.1
+  const notchY = py - sa * s * 0.1
 
-  // Wings (two lines + fill triangles from body center)
-  ctx.lineWidth = 3; ctx.lineCap = 'round'
-  for (const side of [-1, 1]) {
-    // Wingtip position: perpendicular from body + forward flap
-    const wx = px + side * pa * wLen + ca * flapAmt * side * 0.3
-    const wy = py + side * qa * wLen + sa * flapAmt * side * 0.3
+  // ── Afterburner exhaust (speed-based) ──
+  const spd = Math.sqrt(h.vx * h.vx + h.vy * h.vy)
+  if (spd > 0.0006) {
+    const intensity = Math.min(1, spd / 0.004)
+    const burnLen = s * (0.4 + intensity * 1.8)
+    const burnW = s * 0.18
 
-    // Wing stroke
+    const bTipX = notchX - ca * burnLen
+    const bTipY = notchY - sa * burnLen
+
     ctx.beginPath()
-    ctx.strokeStyle = `rgba(${cr},${cg},${cb},0.9)`
-    ctx.moveTo(px, py)
-    ctx.lineTo(wx, wy)
-    ctx.stroke()
-
-    // Wing fill (triangle: body → wingtip → tail)
-    const tailX = px - ca * s * 0.4
-    const tailY = py - sa * s * 0.4
-    ctx.beginPath()
-    ctx.fillStyle = `rgba(${cr},${cg},${cb},0.18)`
-    ctx.moveTo(px, py)
-    ctx.lineTo(wx, wy)
-    ctx.lineTo(tailX, tailY)
+    ctx.moveTo(notchX + pa * burnW, notchY + qa * burnW)
+    ctx.lineTo(bTipX, bTipY)
+    ctx.lineTo(notchX - pa * burnW, notchY - qa * burnW)
     ctx.closePath()
-    ctx.fill()
 
-    // Feather lines along the wing
-    for (let f = 0; f < 3; f++) {
-      const t = 0.4 + f * 0.2
-      const fx = px + (wx - px) * t
-      const fy = py + (wy - py) * t
-      ctx.beginPath()
-      ctx.strokeStyle = `rgba(${cr},${cg},${cb},0.3)`
-      ctx.lineWidth = 1
-      ctx.moveTo(fx, fy)
-      ctx.lineTo(fx - ca * s * 0.15, fy - sa * s * 0.15)
-      ctx.stroke()
+    const fg = ctx.createLinearGradient(notchX, notchY, bTipX, bTipY)
+    if (finished) {
+      fg.addColorStop(0, `rgba(200,255,230,${0.45 * intensity})`)
+      fg.addColorStop(0.3, `rgba(0,229,160,${0.25 * intensity})`)
+      fg.addColorStop(1, 'rgba(0,229,160,0)')
+    } else {
+      fg.addColorStop(0, `rgba(255,255,255,${0.35 * intensity})`)
+      fg.addColorStop(0.25, `rgba(${cr},${cg},${cb},${0.35 * intensity})`)
+      fg.addColorStop(1, `rgba(${cr},${cg},${cb},0)`)
     }
+    ctx.fillStyle = fg
+    ctx.fill()
   }
 
-  // Body (circle at center)
+  // Outer chevron fill + stroke
   ctx.beginPath()
-  ctx.fillStyle = `rgba(${cr},${cg},${cb},0.95)`
-  ctx.arc(px, py, s * 0.35, 0, Math.PI * 2)
-  ctx.fill()
-
-  // Body highlight
-  ctx.beginPath()
-  ctx.fillStyle = 'rgba(255,255,255,0.15)'
-  ctx.arc(px - pa * s * 0.08, py - qa * s * 0.08, s * 0.18, 0, Math.PI * 2)
-  ctx.fill()
-
-  // Head (forward from body)
-  const hx = px + ca * s * 0.55
-  const hy = py + sa * s * 0.55
-  ctx.beginPath()
-  ctx.fillStyle = `rgba(${Math.min(255, cr + 50)},${Math.min(255, cg + 50)},${Math.min(255, cb + 50)},1)`
-  ctx.arc(hx, hy, s * 0.25, 0, Math.PI * 2)
-  ctx.fill()
-
-  // Eye
-  const ex = hx + pa * s * 0.08
-  const ey = hy + qa * s * 0.08
-  ctx.beginPath(); ctx.fillStyle = '#fff'
-  ctx.arc(ex, ey, s * 0.10, 0, Math.PI * 2); ctx.fill()
-  ctx.beginPath(); ctx.fillStyle = '#111'
-  ctx.arc(ex + pa * 0.5, ey + qa * 0.5, s * 0.05, 0, Math.PI * 2); ctx.fill()
-
-  // Beak (triangle forward from head)
-  const bx = hx + ca * s * 0.35
-  const by = hy + sa * s * 0.35
-  ctx.beginPath()
-  ctx.fillStyle = '#777'
-  ctx.moveTo(hx + ca * s * 0.2 + pa * s * 0.06, hy + sa * s * 0.2 + qa * s * 0.06)
-  ctx.lineTo(bx, by)
-  ctx.lineTo(hx + ca * s * 0.2 - pa * s * 0.06, hy + sa * s * 0.2 - qa * s * 0.06)
+  ctx.moveTo(tipX, tipY)
+  ctx.lineTo(lWingX, lWingY)
+  ctx.lineTo(notchX, notchY)
+  ctx.lineTo(rWingX, rWingY)
   ctx.closePath()
+
+  if (finished) {
+    ctx.fillStyle = 'rgba(0,229,160,0.65)'
+    ctx.strokeStyle = 'rgba(0,229,160,0.9)'
+  } else {
+    ctx.fillStyle = `rgba(${cr},${cg},${cb},0.55)`
+    ctx.strokeStyle = `rgba(${cr},${cg},${cb},0.85)`
+  }
+  ctx.fill()
+  ctx.lineWidth = 1.5
+  ctx.lineJoin = 'miter'
+  ctx.stroke()
+
+  // Inner chevron accent
+  const is2 = 0.45
+  ctx.beginPath()
+  ctx.moveTo(px + ca * s * 0.9 * is2, py + sa * s * 0.9 * is2)
+  ctx.lineTo(px - ca * s * 0.3 * is2 + pa * s * 0.5 * is2, py - sa * s * 0.3 * is2 + qa * s * 0.5 * is2)
+  ctx.lineTo(px - ca * s * 0.1 * is2, py - sa * s * 0.1 * is2)
+  ctx.lineTo(px - ca * s * 0.3 * is2 - pa * s * 0.5 * is2, py - sa * s * 0.3 * is2 - qa * s * 0.5 * is2)
+  ctx.closePath()
+  ctx.fillStyle = finished ? 'rgba(0,229,160,0.3)' : `rgba(${cr},${cg},${cb},0.25)`
   ctx.fill()
 
-  // Tail (lines behind body)
-  const tailCx = px - ca * s * 0.5
-  const tailCy = py - sa * s * 0.5
-  ctx.lineWidth = 2; ctx.lineCap = 'round'
-  ctx.strokeStyle = `rgba(${cr},${cg},${cb},0.5)`
-  for (let t = -2; t <= 2; t++) {
-    const tx = tailCx + pa * t * s * 0.08
-    const ty = tailCy + qa * t * s * 0.08
-    const endX = tx - ca * s * 0.5 + pa * t * s * 0.12
-    const endY = ty - sa * s * 0.5 + qa * t * s * 0.12
-    ctx.beginPath()
-    ctx.moveTo(tx, ty)
-    ctx.lineTo(endX, endY)
-    ctx.stroke()
-  }
+  // Scanner ring (rotating partial arc)
+  const scanRot = fc * 0.035 + h.orbOff * 3
+  const scanR = s * 0.55
+  ctx.beginPath()
+  ctx.arc(px, py, scanR, scanRot, scanRot + Math.PI * 0.5)
+  ctx.strokeStyle = finished ? 'rgba(0,229,160,0.18)' : `rgba(${cr},${cg},${cb},0.12)`
+  ctx.lineWidth = 1
+  ctx.stroke()
+
+  // Core dot
+  ctx.beginPath()
+  ctx.fillStyle = finished
+    ? 'rgba(200,255,230,0.95)'
+    : `rgba(${Math.min(255, cr + 100)},${Math.min(255, cg + 100)},${Math.min(255, cb + 100)},0.9)`
+  ctx.arc(px, py, 2, 0, Math.PI * 2)
+  ctx.fill()
 }
 
-// ═══════════════════ DRAW — RABBIT ═══════════════════
+// ═══════════════════ DRAW — TARGET (v5 Tactical Core) ═══════════════════
 
 function drawRabbit(ctx: CanvasRenderingContext2D, x: number, y: number, pulse: number) {
-  // ALL absolute coordinates — NO save/restore/translate/ellipse/shadow
+  const color: [number, number, number] = finished ? [0, 229, 160] : [255, 51, 102]
+  const cs = `${color[0]},${color[1]},${color[2]}`
 
+  // Outer glow
   if (finished) {
-    // Triumphant golden glow — concentric fills (no createRadialGradient)
-    const ga = 0.20 + 0.10 * Math.sin(fc * 0.025)
-    ctx.beginPath(); ctx.fillStyle = `rgba(255,215,0,${ga * 0.15})`
-    ctx.arc(x, y, 130, 0, Math.PI * 2); ctx.fill()
-    ctx.beginPath(); ctx.fillStyle = `rgba(0,229,160,${ga * 0.25})`
-    ctx.arc(x, y, 60, 0, Math.PI * 2); ctx.fill()
-    ctx.beginPath(); ctx.fillStyle = `rgba(255,215,0,${ga * 0.4})`
-    ctx.arc(x, y, 25, 0, Math.PI * 2); ctx.fill()
-    for (let i = 0; i < 4; i++) {
-      const p = (pulse * 0.35 + i / 4) % 1
-      const r = 30 + p * 100
-      ctx.beginPath()
-      ctx.strokeStyle = `rgba(255,215,0,${0.45 * (1 - p)})`
-      ctx.lineWidth = 3.5 * (1 - p)
-      ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke()
-    }
+    const ga = 0.15 + 0.08 * Math.sin(fc * 0.025)
+    ctx.beginPath(); ctx.fillStyle = `rgba(255,215,0,${ga * 0.1})`
+    ctx.arc(x, y, 100, 0, Math.PI * 2); ctx.fill()
+    ctx.beginPath(); ctx.fillStyle = `rgba(0,229,160,${ga * 0.15})`
+    ctx.arc(x, y, 50, 0, Math.PI * 2); ctx.fill()
   } else {
-    if (progress > 0.55) {
-      const ca = (progress - 0.55) / 0.45 * 0.35
-      ctx.strokeStyle = `rgba(255,51,102,${ca})`; ctx.lineWidth = 1; ctx.setLineDash([5, 5])
-      ctx.beginPath(); ctx.moveTo(x - 60, y); ctx.lineTo(x - 24, y); ctx.stroke()
-      ctx.beginPath(); ctx.moveTo(x + 24, y); ctx.lineTo(x + 60, y); ctx.stroke()
-      ctx.beginPath(); ctx.moveTo(x, y - 60); ctx.lineTo(x, y - 36); ctx.stroke()
-      ctx.beginPath(); ctx.moveTo(x, y + 30); ctx.lineTo(x, y + 60); ctx.stroke()
-      ctx.beginPath(); ctx.arc(x, y, 48, 0, Math.PI * 2); ctx.stroke()
-      ctx.setLineDash([])
-    }
-    const rc = 3 + Math.floor(progress * 4)
-    for (let i = 0; i < rc; i++) {
-      const p = (pulse + i / rc) % 1, r = 22 + p * 80
-      ctx.beginPath()
-      ctx.strokeStyle = `rgba(255,51,102,${0.5 * (1 - p) * (0.3 + progress * 0.7)})`
-      ctx.lineWidth = 4 * (1 - p)
-      ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke()
-    }
+    ctx.beginPath(); ctx.fillStyle = `rgba(${cs},0.035)`
+    ctx.arc(x, y, 55, 0, Math.PI * 2); ctx.fill()
+    ctx.beginPath(); ctx.fillStyle = `rgba(${cs},0.07)`
+    ctx.arc(x, y, 28, 0, Math.PI * 2); ctx.fill()
   }
 
-  // Glow (concentric fills — no createRadialGradient)
-  const glR = finished ? 80 : 55
+  // ── Radar sweep ──
+  const sweepAngle = fc * 0.02
+  const sweepR = finished ? 75 : 55
   ctx.beginPath()
-  ctx.fillStyle = finished ? 'rgba(255,215,0,0.08)' : 'rgba(255,51,102,0.06)'
-  ctx.arc(x, y + 5, glR, 0, Math.PI * 2); ctx.fill()
+  ctx.moveTo(x, y)
+  ctx.arc(x, y, sweepR, sweepAngle, sweepAngle + 0.5)
+  ctx.closePath()
+  const sg = ctx.createRadialGradient(x, y, 0, x, y, sweepR)
+  sg.addColorStop(0, `rgba(${cs},0.1)`)
+  sg.addColorStop(1, `rgba(${cs},0)`)
+  ctx.fillStyle = sg
+  ctx.fill()
+  // Sweep leading edge
   ctx.beginPath()
-  ctx.fillStyle = finished ? 'rgba(255,215,0,0.18)' : 'rgba(255,51,102,0.15)'
-  ctx.arc(x, y + 5, glR * 0.4, 0, Math.PI * 2); ctx.fill()
+  ctx.moveTo(x, y)
+  ctx.lineTo(
+    x + Math.cos(sweepAngle + 0.5) * sweepR,
+    y + Math.sin(sweepAngle + 0.5) * sweepR,
+  )
+  ctx.strokeStyle = `rgba(${cs},0.2)`
+  ctx.lineWidth = 1
+  ctx.stroke()
 
-  // Body (arc instead of ellipse — average radius 20)
-  ctx.fillStyle = finished ? '#FFD700' : '#FF3366'
-  ctx.beginPath(); ctx.arc(x, y + 5, 20, 0, Math.PI * 2); ctx.fill()
+  // ── Shield arcs (rotating partial circles) ──
+  const shR = finished ? 34 : 26
+  const shRot = fc * 0.01
+  ctx.lineWidth = 1.5
+  ctx.strokeStyle = finished ? 'rgba(0,229,160,0.25)' : `rgba(${cs},0.2)`
+  ctx.beginPath(); ctx.arc(x, y, shR, shRot, shRot + Math.PI * 0.7); ctx.stroke()
+  ctx.beginPath(); ctx.arc(x, y, shR, shRot + Math.PI, shRot + Math.PI * 1.7); ctx.stroke()
+  // Outer shield (slower, larger)
+  const shR2 = shR + 8
+  const shRot2 = -fc * 0.007
+  ctx.strokeStyle = finished ? 'rgba(0,229,160,0.12)' : `rgba(${cs},0.09)`
+  ctx.lineWidth = 1
+  ctx.beginPath(); ctx.arc(x, y, shR2, shRot2, shRot2 + Math.PI * 0.5); ctx.stroke()
+  ctx.beginPath(); ctx.arc(x, y, shR2, shRot2 + Math.PI * 0.8, shRot2 + Math.PI * 1.3); ctx.stroke()
+  ctx.beginPath(); ctx.arc(x, y, shR2, shRot2 + Math.PI * 1.6, shRot2 + Math.PI * 2.1); ctx.stroke()
 
-  // Head
-  ctx.fillStyle = finished ? '#FFE040' : '#FF4477'
-  ctx.beginPath(); ctx.arc(x, y - 16, 14, 0, Math.PI * 2); ctx.fill()
-
-  // Ears (two overlapping circles per ear instead of ellipse)
-  for (const side of [-1, 1]) {
-    const earX = x + side * 8
-    ctx.fillStyle = finished ? '#FFD700' : '#FF3366'
-    ctx.beginPath(); ctx.arc(earX, y - 34, 7, 0, Math.PI * 2); ctx.fill()
-    ctx.beginPath(); ctx.arc(earX, y - 44, 6, 0, Math.PI * 2); ctx.fill()
-    ctx.fillStyle = finished ? '#FFED80' : '#FF88AA'
-    ctx.beginPath(); ctx.arc(earX, y - 35, 5, 0, Math.PI * 2); ctx.fill()
-    ctx.beginPath(); ctx.arc(earX, y - 43, 4, 0, Math.PI * 2); ctx.fill()
+  // Pulse rings
+  const rc = finished ? 4 : 3 + Math.floor(progress * 3)
+  for (let i = 0; i < rc; i++) {
+    const p = (pulse + i / rc) % 1
+    const r = 16 + p * 65
+    const a = (1 - p) * (finished ? 0.3 : 0.2 + progress * 0.3)
+    ctx.beginPath()
+    ctx.strokeStyle = finished ? `rgba(255,215,0,${a})` : `rgba(${cs},${a})`
+    ctx.lineWidth = 2 * (1 - p)
+    ctx.arc(x, y, r, 0, Math.PI * 2)
+    ctx.stroke()
   }
 
-  // Eyes
-  for (const side of [-1, 1]) {
-    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x + side * 5.5, y - 16, 5, 0, Math.PI * 2); ctx.fill()
-    ctx.fillStyle = '#220011'; ctx.beginPath(); ctx.arc(x + side * 5.5, y - 16, 2.5, 0, Math.PI * 2); ctx.fill()
-    ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.beginPath(); ctx.arc(x + side * 6.5, y - 17.5, 1.3, 0, Math.PI * 2); ctx.fill()
+  // Targeting brackets (4 corners)
+  const bSz = finished ? 28 : 22
+  const bLen = 9
+  const ba = finished
+    ? 0.6 + 0.25 * Math.sin(fc * 0.03)
+    : 0.45 + 0.2 * Math.sin(fc * 0.04)
+  ctx.strokeStyle = finished ? `rgba(0,229,160,${ba})` : `rgba(${cs},${ba})`
+  ctx.lineWidth = 2; ctx.lineCap = 'round'
+  ctx.beginPath()
+  ctx.moveTo(x - bSz, y - bSz + bLen); ctx.lineTo(x - bSz, y - bSz); ctx.lineTo(x - bSz + bLen, y - bSz)
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.moveTo(x + bSz - bLen, y - bSz); ctx.lineTo(x + bSz, y - bSz); ctx.lineTo(x + bSz, y - bSz + bLen)
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.moveTo(x + bSz, y + bSz - bLen); ctx.lineTo(x + bSz, y + bSz); ctx.lineTo(x + bSz - bLen, y + bSz)
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.moveTo(x - bSz + bLen, y + bSz); ctx.lineTo(x - bSz, y + bSz); ctx.lineTo(x - bSz, y + bSz - bLen)
+  ctx.stroke()
+
+  // Crosshair lines
+  if (progress > 0.5 || finished) {
+    const ci = finished ? 0.3 : ((progress - 0.5) / 0.5) * 0.2
+    ctx.strokeStyle = `rgba(${cs},${ci})`
+    ctx.lineWidth = 1; ctx.setLineDash([3, 5])
+    const cLen = finished ? 55 : 42
+    const gap = bSz + 5
+    ctx.beginPath(); ctx.moveTo(x - cLen, y); ctx.lineTo(x - gap, y); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(x + gap, y); ctx.lineTo(x + cLen, y); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(x, y - cLen); ctx.lineTo(x, y - gap); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(x, y + gap); ctx.lineTo(x, y + cLen); ctx.stroke()
+    ctx.setLineDash([])
   }
 
-  // Nose
-  ctx.fillStyle = finished ? '#FFE080' : '#FFaacc'
-  ctx.beginPath(); ctx.arc(x, y - 9, 2.8, 0, Math.PI * 2); ctx.fill()
+  // Rotating diamond core
+  const rot = fc * 0.015
+  const dSz = finished ? 13 : 9
+  ctx.beginPath()
+  ctx.moveTo(x + Math.cos(rot) * dSz, y + Math.sin(rot) * dSz)
+  ctx.lineTo(x + Math.cos(rot + Math.PI * 0.5) * dSz, y + Math.sin(rot + Math.PI * 0.5) * dSz)
+  ctx.lineTo(x + Math.cos(rot + Math.PI) * dSz, y + Math.sin(rot + Math.PI) * dSz)
+  ctx.lineTo(x + Math.cos(rot + Math.PI * 1.5) * dSz, y + Math.sin(rot + Math.PI * 1.5) * dSz)
+  ctx.closePath()
+  ctx.fillStyle = finished ? 'rgba(255,215,0,0.75)' : `rgba(${cs},0.7)`
+  ctx.fill()
+  ctx.strokeStyle = finished ? 'rgba(255,255,200,0.8)' : 'rgba(255,255,255,0.4)'
+  ctx.lineWidth = 1.5
+  ctx.stroke()
 
-  // Whiskers
-  ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 0.8
-  for (const side of [-1, 1]) {
-    ctx.beginPath(); ctx.moveTo(x + side * 6, y - 9); ctx.lineTo(x + side * 24, y - 13); ctx.stroke()
-    ctx.beginPath(); ctx.moveTo(x + side * 6, y - 8); ctx.lineTo(x + side * 22, y - 4); ctx.stroke()
-  }
+  // Inner counter-rotating diamond
+  const rot2 = -fc * 0.01
+  const dSz2 = dSz * 0.55
+  ctx.beginPath()
+  ctx.moveTo(x + Math.cos(rot2) * dSz2, y + Math.sin(rot2) * dSz2)
+  ctx.lineTo(x + Math.cos(rot2 + Math.PI * 0.5) * dSz2, y + Math.sin(rot2 + Math.PI * 0.5) * dSz2)
+  ctx.lineTo(x + Math.cos(rot2 + Math.PI) * dSz2, y + Math.sin(rot2 + Math.PI) * dSz2)
+  ctx.lineTo(x + Math.cos(rot2 + Math.PI * 1.5) * dSz2, y + Math.sin(rot2 + Math.PI * 1.5) * dSz2)
+  ctx.closePath()
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'
+  ctx.fill()
 
-  // Tail
-  ctx.fillStyle = finished ? '#FFED80' : '#FFccdd'
-  ctx.beginPath(); ctx.arc(x, y + 24, 8, 0, Math.PI * 2); ctx.fill()
+  // Central dot
+  ctx.beginPath()
+  ctx.fillStyle = '#fff'
+  ctx.arc(x, y, 2.5, 0, Math.PI * 2)
+  ctx.fill()
 
   // Label
   ctx.textAlign = 'center'
+  ctx.font = 'bold 10px "JetBrains Mono", monospace'
   if (finished) {
     ctx.fillStyle = `rgba(0,229,160,${0.7 + 0.3 * Math.sin(fc * 0.03)})`
-    ctx.font = 'bold 15px Inter, sans-serif'
-    ctx.fillText('\u2605 CAPTURADA \u2605', x, y - 68)
+    ctx.fillText('\u25C6 CAPTURADA \u25C6', x, y - bSz - 12)
   } else {
-    ctx.fillStyle = `rgba(255,51,102,${0.5 + 0.2 * Math.sin(fc * 0.04)})`
-    ctx.font = 'bold 12px Inter, sans-serif'
-    ctx.fillText('PRESA', x, y - 60)
+    ctx.fillStyle = `rgba(${cs},${0.5 + 0.2 * Math.sin(fc * 0.04)})`
+    ctx.fillText('L\u00cdDER PARETO', x, y - bSz - 12)
   }
 }
 
-// ═══════════════════ DRAW — HUD ═══════════════════
+// ═══════════════════ DRAW — CANVAS LABELS ═══════════════════
 
-function drawHUD(ctx: CanvasRenderingContext2D, W: number, H: number) {
-  // ALL absolute coordinates — NO save/restore/translate/rotate/roundRect
-  if (dispIter <= 0 && !finished) return
+function drawLabels(ctx: CanvasRenderingContext2D, W: number, H: number) {
+  const M = 32 // axis margin
 
-  const label = finished ? 'COMPLETADO' : progress < 0.3 ? 'EXPLORACI\u00d3N' : progress < 0.65 ? 'TRANSICI\u00d3N' : 'ASEDIO'
-  const [pr, pg, pb] = finished ? [0, 229, 160] : progress < 0.3 ? [80, 160, 255] : progress < 0.65 ? [255, 200, 60] : [255, 120, 40]
-  const E = finished ? '0.00' : (2 * (1 - progress)).toFixed(2)
+  // ── Axis lines with arrows ──
+  // X axis line + arrow
+  ctx.strokeStyle = 'rgba(250,204,21,0.4)'; ctx.lineWidth = 1.2
+  ctx.beginPath(); ctx.moveTo(M, H - M); ctx.lineTo(W - 10, H - M); ctx.stroke()
+  ctx.beginPath(); ctx.moveTo(W - 10, H - M); ctx.lineTo(W - 17, H - M - 4); ctx.moveTo(W - 10, H - M); ctx.lineTo(W - 17, H - M + 4); ctx.stroke()
+  // Y axis line + arrow
+  ctx.strokeStyle = 'rgba(0,229,160,0.4)'
+  ctx.beginPath(); ctx.moveTo(M, H - M); ctx.lineTo(M, 10); ctx.stroke()
+  ctx.beginPath(); ctx.moveTo(M, 10); ctx.lineTo(M - 4, 17); ctx.moveTo(M, 10); ctx.lineTo(M + 4, 17); ctx.stroke()
 
-  // Manual rounded rectangle (replaces roundRect which may not exist in all browsers)
-  const bx = W - 200, by = 8, bw = 188, bh = 86, br = 10
-  ctx.fillStyle = 'rgba(0,0,0,0.6)'
-  ctx.beginPath()
-  ctx.moveTo(bx + br, by)
-  ctx.lineTo(bx + bw - br, by)
-  ctx.arcTo(bx + bw, by, bx + bw, by + br, br)
-  ctx.lineTo(bx + bw, by + bh - br)
-  ctx.arcTo(bx + bw, by + bh, bx + bw - br, by + bh, br)
-  ctx.lineTo(bx + br, by + bh)
-  ctx.arcTo(bx, by + bh, bx, by + bh - br, br)
-  ctx.lineTo(bx, by + br)
-  ctx.arcTo(bx, by, bx + br, by, br)
-  ctx.closePath()
-  ctx.fill()
-
-  ctx.strokeStyle = `rgba(${pr},${pg},${pb},0.4)`; ctx.lineWidth = 1
-  ctx.beginPath()
-  ctx.moveTo(bx + br, by)
-  ctx.lineTo(bx + bw - br, by)
-  ctx.arcTo(bx + bw, by, bx + bw, by + br, br)
-  ctx.lineTo(bx + bw, by + bh - br)
-  ctx.arcTo(bx + bw, by + bh, bx + bw - br, by + bh, br)
-  ctx.lineTo(bx + br, by + bh)
-  ctx.arcTo(bx, by + bh, bx, by + bh - br, br)
-  ctx.lineTo(bx, by + br)
-  ctx.arcTo(bx, by, bx + br, by, br)
-  ctx.closePath()
-  ctx.stroke()
-
-  ctx.textAlign = 'right'
-  ctx.fillStyle = `rgba(${pr},${pg},${pb},0.95)`
-  ctx.font = 'bold 14px Inter, sans-serif'
-  ctx.fillText(label, W - 22, 30)
-  ctx.fillStyle = 'rgba(255,255,255,0.5)'
-  ctx.font = '11px "JetBrains Mono", monospace'
-  ctx.fillText(`E(t) = ${E}`, W - 22, 48)
-  ctx.fillText(`iter ${dispIter} / ${props.maxIter}`, W - 22, 63)
-  ctx.fillText(`${paretoNorm.length} Pareto \u00b7 ${hawks.length} hawks`, W - 22, 78)
-  ctx.fillText(`${finished ? 'completado' : (hawks[0]?.phase || '...')}`, W - 22, 90)
-
-  // Axis labels — horizontal only (NO rotate/translate)
+  // ── X axis label (bottom center) ──
   ctx.textAlign = 'center'
-  ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.font = '11px Inter, sans-serif'
-  ctx.fillText('f\u2081 \u2014 Carga de espera', W / 2, H - 10)
-  // Vertical axis: draw without rotation
-  ctx.textAlign = 'left'
-  ctx.fillText('f\u2082', 6, H / 2)
+  ctx.font = 'bold 12px Inter, sans-serif'
+  ctx.fillStyle = 'rgba(250,204,21,0.75)'
+  ctx.fillText('f\u2081 \u2014 Carga de Espera (a\u00f1os promedio)', W / 2, H - 8)
 
-  if (finished) {
-    const ba = 0.6 + 0.2 * Math.sin(fc * 0.025)
-    ctx.textAlign = 'center'
-    ctx.font = 'bold 20px Inter, sans-serif'
-    ctx.fillStyle = `rgba(0,229,160,${ba})`
-    ctx.fillText('OPTIMIZACI\u00d3N COMPLETADA', W / 2, H - 40)
-    ctx.font = '13px Inter, sans-serif'
-    ctx.fillStyle = 'rgba(255,255,255,0.4)'
-    ctx.fillText(`${paretoNorm.length} soluciones Pareto \u00b7 ${hawks.length} halcones`, W / 2, H - 18)
-  }
+  // ── Y axis label (vertical, centered) ──
+  ctx.save()
+  ctx.translate(13, H / 2)
+  ctx.rotate(-Math.PI / 2)
+  ctx.textAlign = 'center'
+  ctx.font = 'bold 12px Inter, sans-serif'
+  ctx.fillStyle = 'rgba(0,229,160,0.75)'
+  ctx.fillText('f\u2082 \u2014 Disparidad entre Pa\u00edses', 0, 0)
+  ctx.restore()
+
+  // ── Bottom-left context (small, non-overlapping) ──
+  ctx.textAlign = 'left'
+  ctx.font = '9px Inter, sans-serif'
+  ctx.fillStyle = 'rgba(255,255,255,0.25)'
+  ctx.fillText('105 grupos \u00b7 140K visas \u00b7 Menor = mejor', M + 6, H - M - 8)
 }
 
 // ═══════════════════ MAIN FRAME LOOP ═══════════════════
@@ -670,7 +740,6 @@ function frame() {
   const H = cvs.height / dpr
   if (W < 10 || H < 10) { setupCanvas(); animId = requestAnimationFrame(frame); return }
 
-  // ── Defensive state reset — prevent leaks from ANY source ──
   ctx.globalAlpha = 1
   ctx.globalCompositeOperation = 'source-over'
   ctx.setLineDash([])
@@ -681,13 +750,11 @@ function frame() {
 
   fc++
 
-  // Safety: always have hawks
   if (hawks.length === 0) spawnHawks(props.popSize || 20)
 
-  // ── Background ──
   drawBg(ctx, W, H)
 
-  // ── Reset flash ──
+  // Reset flash
   if (resetFlash > 0) {
     resetFlash--
     const a = (resetFlash / 50) * 0.6
@@ -699,16 +766,23 @@ function frame() {
     }
   }
 
-  // ── Connections & Pareto ──
+  // Phase transition flash
+  if (phaseFlash > 0) {
+    phaseFlash--
+    const a = (phaseFlash / 40) * 0.25
+    const [pr, pg, pb] = phaseRGB(hawks[0]?.phase || 'explore')
+    ctx.fillStyle = `rgba(${pr},${pg},${pb},${a})`; ctx.fillRect(0, 0, W, H)
+  }
+
   drawConstellations(ctx, W, H)
   drawParetoFront(ctx, W, H)
+  drawSiegeZone(ctx, W, H)
   drawFormationRings(ctx, W, H)
   drawBeams(ctx, W, H)
 
-  // ── Reset line dash after beams/rings (extra safety) ──
   ctx.setLineDash([])
 
-  // ── Sparks ──
+  // Sparks
   sparks = sparks.filter(s => s.life > 0)
   sparks.forEach(s => {
     s.x += s.vx; s.y += s.vy
@@ -719,15 +793,14 @@ function frame() {
     ctx.arc(s.x * W, s.y * H, Math.max(0.1, s.sz * a), 0, Math.PI * 2); ctx.fill()
   })
 
-  // ── Smooth rabbit (with NaN guard) ──
+  // Smooth rabbit
   rabbitX += (rabbitTx - rabbitX) * 0.04
   rabbitY += (rabbitTy - rabbitY) * 0.04
   if (!isFinite(rabbitX)) rabbitX = 0.5
   if (!isFinite(rabbitY)) rabbitY = 0.5
 
-  // ── Hawks physics + draw ──
+  // Hawks physics + draw
   hawks.forEach((h) => {
-    // NaN guard — reset corrupt hawk
     if (!isFinite(h.x) || !isFinite(h.y) || !isFinite(h.vx) || !isFinite(h.vy)) {
       h.x = 0.3 + Math.random() * 0.4
       h.y = 0.3 + Math.random() * 0.4
@@ -739,7 +812,6 @@ function frame() {
     let effTy: number
 
     if (finished || h.phase === 'siege') {
-      // Formation orbits — concentric rings around rabbit
       const numRings = finished ? 4 : 3
       const ring = idx % numRings
       const baseRadius = finished ? 0.10 : 0.06
@@ -778,7 +850,6 @@ function frame() {
     h.vx += dx * accel + (Math.random() - 0.5) * noise
     h.vy += dy * accel + (Math.random() - 0.5) * noise
 
-    // Lévy flight in siege — SAFE: clamp base to prevent Infinity
     if (h.phase === 'siege' && !finished && Math.random() < 0.003) {
       const l = Math.pow(Math.max(Math.random(), 0.001), -0.5) * 0.012
       h.vx += (Math.random() - 0.5) * l
@@ -811,7 +882,6 @@ function frame() {
     h.trail.forEach(t => t.age++)
     h.trail = h.trail.filter(t => t.age < 60)
 
-    // Sparks — siege combat
     if (h.phase === 'siege' && !finished) {
       const dR = Math.sqrt(Math.pow(h.x - rabbitX, 2) + Math.pow(h.y - rabbitY, 2))
       if (dR < 0.15 && Math.random() < 0.06 && sparks.length < 200) {
@@ -825,7 +895,6 @@ function frame() {
       }
     }
 
-    // Sparks — celebration
     if (finished && Math.random() < 0.008 && sparks.length < 300) {
       const a2 = Math.random() * Math.PI * 2, sp2 = 0.001 + Math.random() * 0.003
       sparks.push({
@@ -841,11 +910,11 @@ function frame() {
     drawHawk(ctx, h, W, H)
   })
 
-  // ── Rabbit (always on top of hawks) ──
+  // Target
   rabbitPulse = (rabbitPulse + 0.004) % 1
   drawRabbit(ctx, rabbitX * W, rabbitY * H, rabbitPulse)
 
-  // ── Completion shockwave (triple ring) ──
+  // Completion shockwave
   if (finished && completionFc > 0) {
     const el = fc - completionFc
     if (el < 260) {
@@ -872,11 +941,10 @@ function frame() {
     }
   }
 
-  // ── HUD ──
-  drawHUD(ctx, W, H)
+  // Canvas labels
+  drawLabels(ctx, W, H)
 
   } catch (e) {
-    // Never let the animation loop die — log and continue
     console.error('HawkHunt frame error:', e)
   }
 
@@ -902,7 +970,9 @@ onUnmounted(() => {
 
 <template>
   <div class="relative">
-    <canvas ref="canvasRef" class="w-full h-[600px] rounded-xl" />
+    <canvas ref="canvasRef" class="w-full h-[660px] rounded-xl" />
+
+    <!-- Legend (top-left) -->
     <div class="absolute top-3 left-3 flex flex-wrap gap-2 text-[10px] text-gray-400/80">
       <span class="flex items-center gap-1.5 bg-black/50 px-2 py-1 rounded-md backdrop-blur-sm">
         <span class="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_6px_rgba(80,160,255,0.8)]" /> Exploraci&oacute;n
@@ -914,11 +984,25 @@ onUnmounted(() => {
         <span class="w-2 h-2 rounded-full bg-orange-400 shadow-[0_0_6px_rgba(255,120,40,0.8)]" /> Asedio
       </span>
       <span class="flex items-center gap-1.5 bg-black/50 px-2 py-1 rounded-md backdrop-blur-sm">
-        <span class="w-2 h-2 rounded-full bg-pink-500 shadow-[0_0_6px_rgba(255,51,102,0.8)]" /> Presa
+        <span class="w-2 h-2 rounded-full bg-pink-500 shadow-[0_0_6px_rgba(255,51,102,0.8)]" /> Objetivo
       </span>
       <span class="flex items-center gap-1.5 bg-black/50 px-2 py-1 rounded-md backdrop-blur-sm">
         <span class="w-2 h-2 rounded-full bg-blue-600 shadow-[0_0_6px_rgba(0,100,255,0.8)]" /> Frente Pareto
       </span>
+    </div>
+
+    <!-- HUD Panel (bottom-right, HTML overlay) -->
+    <div
+      v-if="props.iteration > 0 || props.completed"
+      class="absolute bottom-4 right-4 bg-black/70 backdrop-blur-md rounded-lg border px-4 py-3 text-right min-w-[180px]"
+      :class="[hudBorder, hudGlow]"
+    >
+      <p class="text-sm font-bold tracking-widest" :class="hudText">{{ hudPhase }}</p>
+      <div class="mt-1.5 space-y-0.5 text-[11px] font-mono text-gray-400">
+        <p>E(t) = {{ hudEnergy }}</p>
+        <p>iter {{ props.iteration }} / {{ props.maxIter }}</p>
+        <p>{{ props.paretoFront.length }} Pareto &middot; {{ props.popSize || 20 }} hawks</p>
+      </div>
     </div>
   </div>
 </template>

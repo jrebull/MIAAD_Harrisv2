@@ -6,6 +6,7 @@ const props = defineProps<{
   categories: string[]
   matrix: number[][]
   title?: string
+  capLine?: number
 }>()
 
 const catColors = [
@@ -17,6 +18,10 @@ const catColors = [
 ]
 
 const option = computed<EChartsOption>(() => {
+  const totals = props.countries.map((_, i) =>
+    props.categories.reduce((sum, __, j) => sum + (props.matrix[i]?.[j] || 0), 0)
+  )
+
   const series = props.categories.map((cat, j) => ({
     name: cat,
     type: 'bar' as const,
@@ -39,6 +44,50 @@ const option = computed<EChartsOption>(() => {
     animationDelay: (idx: number) => idx * 40,
   }))
 
+  // Total label series (invisible bars that show the total at the end)
+  series.push({
+    name: '_total',
+    type: 'bar' as const,
+    stack: 'total',
+    data: totals.map(() => 0),
+    itemStyle: {
+      color: 'transparent',
+      borderRadius: [0, 0, 0, 0],
+    },
+    emphasis: { focus: 'none' as any },
+    animationDuration: 0,
+    animationEasing: 'cubicOut',
+    animationDelay: () => 0,
+    label: {
+      show: true,
+      position: 'right',
+      color: CHART_COLORS.textMuted,
+      fontSize: 9,
+      fontFamily: 'Inter, monospace',
+      formatter: (p: any) => {
+        const total = totals[p.dataIndex]
+        return total > 0 ? total.toLocaleString() : ''
+      },
+    },
+  } as any)
+
+  // Cap mark line
+  const markLineData: any[] = []
+  if (props.capLine) {
+    markLineData.push({
+      xAxis: props.capLine,
+      lineStyle: { color: 'rgba(255,51,102,0.6)', type: 'dashed', width: 1.5 },
+      label: {
+        show: true,
+        position: 'end',
+        formatter: `Cap ${props.capLine.toLocaleString()}`,
+        color: 'rgba(255,51,102,0.8)',
+        fontSize: 9,
+        fontWeight: 600,
+      },
+    })
+  }
+
   return {
     ...baseChartOption,
     title: {
@@ -51,15 +100,18 @@ const option = computed<EChartsOption>(() => {
       trigger: 'axis',
       axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(0,60,166,0.06)' } },
       formatter: (params: any) => {
-        const items = Array.isArray(params) ? params : [params]
+        const items = (Array.isArray(params) ? params : [params]).filter((p: any) => p.seriesName !== '_total')
         if (!items.length) return ''
         const country = items[0].name
         let total = 0
+        const cap = props.capLine || 25620
         const rows = items.map((p: any) => {
           total += p.value || 0
           return `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${catColors[p.seriesIndex]?.from};margin-right:6px"></span>${p.seriesName}: <b>${(p.value || 0).toLocaleString()}</b>`
         }).join('<br>')
-        return `<b>${country}</b><br>${rows}<br><span style="opacity:0.6;margin-top:4px;display:inline-block">Total:</span> <b style="color:${CHART_COLORS.green}">${total.toLocaleString()}</b>`
+        const pct = ((total / cap) * 100).toFixed(1)
+        const capColor = total >= cap ? '#FF3366' : total >= cap * 0.9 ? '#FFD600' : CHART_COLORS.green
+        return `<b>${country}</b><br>${rows}<br><span style="opacity:0.6;margin-top:4px;display:inline-block">Total:</span> <b style="color:${CHART_COLORS.green}">${total.toLocaleString()}</b><br><span style="opacity:0.5">Cap:</span> <b style="color:${capColor}">${pct}%</b>`
       },
     },
     legend: {
@@ -67,11 +119,16 @@ const option = computed<EChartsOption>(() => {
       right: 16,
       textStyle: { color: CHART_COLORS.textMuted, fontSize: 10 },
       itemStyle: { borderWidth: 0 },
+      data: props.categories,
     },
-    grid: { left: 120, right: 16, top: 56, bottom: 16 },
+    grid: { left: 120, right: 60, top: 56, bottom: 40 },
     xAxis: {
       type: 'value',
-      axisLabel: { color: CHART_COLORS.textMuted, formatter: (v: number) => v.toLocaleString() },
+      name: 'Visas asignadas',
+      nameLocation: 'center',
+      nameGap: 26,
+      nameTextStyle: { color: CHART_COLORS.textMuted, fontSize: 10 },
+      axisLabel: { color: CHART_COLORS.textMuted, fontSize: 10, formatter: (v: number) => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : String(v) },
       splitLine: { lineStyle: { color: CHART_COLORS.grid, type: 'dashed' } },
     },
     yAxis: {
@@ -81,11 +138,15 @@ const option = computed<EChartsOption>(() => {
       axisLine: { lineStyle: { color: CHART_COLORS.grid } },
       inverse: true,
     },
-    series,
+    series: series.map((s, i) =>
+      i === 0 && markLineData.length > 0
+        ? { ...s, markLine: { silent: true, symbol: 'none', data: markLineData } }
+        : s
+    ),
   }
 })
 </script>
 
 <template>
-  <VChart :option="option" autoresize class="w-full h-[600px]" />
+  <VChart :option="option" autoresize class="w-full h-[660px]" />
 </template>

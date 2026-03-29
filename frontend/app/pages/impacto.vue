@@ -450,6 +450,9 @@ const waitTimeOption = computed<EChartsOption>(() => {
       name: cat,
       type: 'bar',
       stack: 'wait',
+      itemStyle: {
+        color: colors.solid,
+      },
       data: data.map(c => ({
         value: c.waits[cat] || 0,
         itemStyle: {
@@ -468,6 +471,7 @@ const waitTimeOption = computed<EChartsOption>(() => {
       })),
       emphasis: {
         itemStyle: {
+          color: colors.solid,
           shadowBlur: 20,
           shadowColor: colors.solid + 'aa',
           borderColor: '#fff',
@@ -484,7 +488,7 @@ const waitTimeOption = computed<EChartsOption>(() => {
     backgroundColor: 'transparent',
     textStyle: { color: CHART_COLORS.text, fontFamily: 'Inter, sans-serif' },
     title: {
-      text: 'Anos de Espera por Pais y Categoria',
+      text: 'Años de Espera por País y Categoría',
       subtext: 'Cada barra representa años de vida esperando una visa',
       left: 'center',
       top: 8,
@@ -539,6 +543,7 @@ const waitTimeOption = computed<EChartsOption>(() => {
     legend: {
       top: 58,
       left: 'center',
+      data: EB_CATEGORIES,
       textStyle: { color: 'rgba(255,255,255,0.7)', fontSize: 11 },
       itemStyle: { borderWidth: 0 },
       itemWidth: 14,
@@ -548,7 +553,7 @@ const waitTimeOption = computed<EChartsOption>(() => {
     grid: { left: 140, right: 40, top: 100, bottom: 20, containLabel: false },
     xAxis: {
       type: 'value',
-      name: 'Anos de espera',
+      name: 'Años de espera',
       nameLocation: 'center',
       nameGap: 28,
       nameTextStyle: { color: 'rgba(255,255,255,0.4)', fontSize: 11 },
@@ -556,7 +561,7 @@ const waitTimeOption = computed<EChartsOption>(() => {
       axisLabel: {
         color: 'rgba(255,255,255,0.5)',
         fontSize: 11,
-        formatter: (v: number) => v + ' a',
+        formatter: (v: number) => v + ' años',
       },
       splitLine: { lineStyle: { color: 'rgba(255,255,255,0.04)', type: 'dashed' } },
       axisLine: { show: false },
@@ -585,21 +590,23 @@ const waitTimeOption = computed<EChartsOption>(() => {
     },
     series: [
       ...series,
-      // Invisible series for markLine
+      // Invisible helper for avg markLine (excluded from legend via legendHoverLink)
       {
-        name: '_markline',
+        name: 'Promedio',
         type: 'bar',
         stack: 'wait',
         data: data.map(() => 0),
         silent: true,
+        itemStyle: { color: 'transparent' },
         markLine: {
           silent: true,
           symbol: 'none',
-          lineStyle: { color: 'rgba(255,214,0,0.5)', type: 'dashed', width: 1.5 },
+          lineStyle: { color: 'rgba(255,214,0,0.6)', type: 'dashed', width: 1.5 },
           label: {
-            formatter: `Promedio {c} años`,
-            color: 'rgba(255,214,0,0.7)',
-            fontSize: 10,
+            formatter: `Prom. {c} años`,
+            color: 'rgba(255,214,0,0.8)',
+            fontSize: 11,
+            fontWeight: 'bold' as any,
             position: 'insideEndTop',
           },
           data: [{ xAxis: Math.round(avgWait * 10) / 10, name: 'Promedio' }],
@@ -680,6 +687,12 @@ const waitTimeOption = computed<EChartsOption>(() => {
 
       <!-- ===== WAIT TIME BY COUNTRY — HUMAN COST ===== -->
       <section v-if="waitTimeData.length" class="space-y-5">
+        <!-- Section intro -->
+        <div class="text-center space-y-1">
+          <h2 class="text-lg font-bold text-white tracking-tight">El Costo Humano de la Espera</h2>
+          <p class="text-xs text-gray-500 max-w-xl mx-auto">Tiempo de espera real por país y categoría EB bajo el sistema FIFO actual. India EB-3 enfrenta más de una década de espera.</p>
+        </div>
+
         <!-- Chart -->
         <div class="card relative overflow-hidden" style="border-color: rgba(255,51,102,0.2);">
           <!-- Subtle background glow for drama -->

@@ -347,11 +347,20 @@ const selectedIdx = ref(0)
 const sortKey = ref<'f1' | 'f2' | 'f3' | 'visas_used'>('f1')
 const sortAsc = ref(true)
 
-interface IndexedPoint extends ParetoPoint { _idx: number }
+interface IndexedPoint extends ParetoPoint { _idx: number; _scenario: string; _util: number; _champion: boolean }
 
 const sortedPareto = computed<IndexedPoint[]>(() => {
   if (!pareto.value?.points) return []
-  const pts = pareto.value.points.map((p, i) => ({ ...p, _idx: i }))
+  const scenarios = pointScenarios.value
+  const champs = championIdxs.value
+  const champSet = new Set(Object.values(champs))
+  const pts = pareto.value.points.map((p, i) => ({
+    ...p,
+    _idx: i,
+    _scenario: scenarios[i] || 'equilibrio',
+    _util: +(p.visas_used / 140000 * 100).toFixed(1),
+    _champion: champSet.has(i),
+  }))
   pts.sort((a, b) => sortAsc.value ? a[sortKey.value] - b[sortKey.value] : b[sortKey.value] - a[sortKey.value])
   return pts
 })
@@ -361,7 +370,99 @@ const selectedSolution = computed(() => {
   return pareto.value.points[selectedIdx.value]
 })
 
-// Map a Pareto solution to its closest scenario
+// Scenario type metadata for display
+const SCENARIO_META: Record<string, { label: string; short: string; color: string; bg: string; border: string }> = {
+  humanitario: { label: 'Humanitario', short: 'HUM', color: 'text-red-400', bg: 'bg-red-500/15', border: 'border-red-500/30' },
+  equidad: { label: 'Equidad', short: 'EQU', color: 'text-emerald-400', bg: 'bg-emerald-500/15', border: 'border-emerald-500/30' },
+  max_utilizacion: { label: 'Max Utilización', short: 'MAX', color: 'text-yellow-400', bg: 'bg-yellow-500/15', border: 'border-yellow-500/30' },
+  equilibrio: { label: 'Equilibrio', short: 'BAL', color: 'text-blue-400', bg: 'bg-blue-500/15', border: 'border-blue-500/30' },
+}
+
+// Find the single closest point index to a target
+function closestIdx(pts: ParetoPoint[], target: number[]): number {
+  let best = 0, bestD = Infinity
+  pts.forEach((p, i) => {
+    const d = ((p.f1 - target[0]) / 10) ** 2 + ((p.f2 - target[1]) / 16) ** 2 + ((p.f3 - target[2]) / 50000) ** 2
+    if (d < bestD) { bestD = d; best = i }
+  })
+  return best
+}
+
+// Find knee point: max perpendicular distance from line connecting min-f1 and min-f2 extremes
+function findKneeIdx(pts: ParetoPoint[]): number {
+  if (pts.length < 3) return 0
+  // Normalize all objectives to [0,1]
+  const f1s = pts.map(p => p.f1), f2s = pts.map(p => p.f2), f3s = pts.map(p => p.f3)
+  const r1 = Math.max(...f1s) - Math.min(...f1s) || 1
+  const r2 = Math.max(...f2s) - Math.min(...f2s) || 1
+  const r3 = Math.max(...f3s) - Math.min(...f3s) || 1
+  const norm = pts.map(p => [
+    (p.f1 - Math.min(...f1s)) / r1,
+    (p.f2 - Math.min(...f2s)) / r2,
+    (p.f3 - Math.min(...f3s)) / r3,
+  ])
+  // Ideal and anti-ideal corners
+  const ideal = [0, 0, 0]
+  const anti = [1, 1, 1]
+  // Line direction
+  const dir = [anti[0] - ideal[0], anti[1] - ideal[1], anti[2] - ideal[2]]
+  const dirLen = Math.sqrt(dir[0] ** 2 + dir[1] ** 2 + dir[2] ** 2)
+  // Point with max perpendicular distance from ideal-anti line
+  let knee = 0, maxDist = -1
+  norm.forEach((n, i) => {
+    const v = [n[0] - ideal[0], n[1] - ideal[1], n[2] - ideal[2]]
+    const proj = (v[0] * dir[0] + v[1] * dir[1] + v[2] * dir[2]) / dirLen
+    const distSq = v[0] ** 2 + v[1] ** 2 + v[2] ** 2 - proj ** 2
+    // We want low values = close to ideal, so use negative projected component as tiebreak
+    const score = Math.sqrt(Math.max(0, distSq))
+    // Knee is the point closest to ideal that is "most balanced" — use sum of normalized objectives
+    // Actually: knee = min sum of normalized objectives (most balanced compromise)
+    const sumNorm = n[0] + n[1] + n[2]
+    if (i === 0 || sumNorm < maxDist) { maxDist = sumNorm; knee = i }
+  })
+  return knee
+}
+
+// Champion indices: the single best point for each scenario
+const championIdxs = computed<Record<string, number>>(() => {
+  const pts = pareto.value?.points
+  if (!pts?.length || !summary.value) return {}
+  const s = summary.value
+  return {
+    humanitario: closestIdx(pts, s.best_f1),
+    equidad: closestIdx(pts, s.best_f2),
+    max_utilizacion: closestIdx(pts, s.best_f3),
+    equilibrio: findKneeIdx(pts),
+  }
+})
+
+// Every point gets a scenario tag based on closest target
+const pointScenarios = computed<string[]>(() => {
+  const pts = pareto.value?.points
+  if (!pts?.length || !summary.value) return []
+  const s = summary.value
+  const targets: Record<string, number[]> = {
+    humanitario: s.best_f1,
+    equidad: s.best_f2,
+    max_utilizacion: s.best_f3,
+  }
+  // Knee point target = the actual knee solution's fitness
+  const kneeIdx = championIdxs.value.equilibrio ?? 0
+  const knee = pts[kneeIdx]
+  if (knee) targets.equilibrio = [knee.f1, knee.f2, knee.f3]
+
+  return pts.map(p => {
+    let best = 'equilibrio'
+    let bestDist = Infinity
+    for (const [sc, t] of Object.entries(targets)) {
+      const d = ((p.f1 - t[0]) / 10) ** 2 + ((p.f2 - t[1]) / 16) ** 2 + ((p.f3 - t[2]) / 50000) ** 2
+      if (d < bestDist) { bestDist = d; best = sc }
+    }
+    return best
+  })
+})
+
+// Map a solution to its scenario (for selectSolution)
 function closestScenario(sol: ParetoPoint): string {
   if (!summary.value) return 'equilibrio'
   const s = summary.value
@@ -370,15 +471,10 @@ function closestScenario(sol: ParetoPoint): string {
     equidad: s.best_f2,
     max_utilizacion: s.best_f3,
   }
-  // Normalized distance to each scenario target
   let best = 'equilibrio'
   let bestDist = Infinity
   for (const [sc, t] of Object.entries(targets)) {
-    const d = Math.sqrt(
-      Math.pow((sol.f1 - t[0]) / 10, 2) +
-      Math.pow((sol.f2 - t[1]) / 16, 2) +
-      Math.pow((sol.f3 - t[2]) / 50000, 2),
-    )
+    const d = ((sol.f1 - t[0]) / 10) ** 2 + ((sol.f2 - t[1]) / 16) ** 2 + ((sol.f3 - t[2]) / 50000) ** 2
     if (d < bestDist) { bestDist = d; best = sc }
   }
   return best
@@ -404,22 +500,23 @@ function sortArrow(key: string) {
 // ---- Quick scenario picks ----
 function pickScenario(sc: string) {
   setScenario(sc)
-  // Find the pareto solution closest to this scenario
-  if (!pareto.value?.points || !summary.value) return
+  if (!pareto.value?.points) return
+  // Find the tagged point for this scenario
+  const tags = pointScenarios.value
+  const taggedIdx = tags.findIndex(t => t === sc)
+  if (taggedIdx >= 0) {
+    selectedIdx.value = taggedIdx
+    return
+  }
+  // Fallback: closest to target
+  if (!summary.value) return
   const s = summary.value
   let target: number[]
   if (sc === 'humanitario') target = s.best_f1
   else if (sc === 'equidad') target = s.best_f2
   else if (sc === 'max_utilizacion') target = s.best_f3
-  else return // equilibrio / fifo — keep current selection
-
-  let best = 0
-  let bestDist = Infinity
-  pareto.value.points.forEach((p, i) => {
-    const d = Math.abs(p.f1 - target[0]) + Math.abs(p.f2 - target[1]) + Math.abs(p.f3 - target[2])
-    if (d < bestDist) { bestDist = d; best = i }
-  })
-  selectedIdx.value = best
+  else return
+  selectedIdx.value = closestIdx(pareto.value.points, target)
 }
 
 // ---- Init ----
@@ -435,112 +532,204 @@ watch(scenario, () => fetchAllocation())
 
 <template>
   <div class="space-y-6">
-    <h1 class="section-title">Asignación de Visas</h1>
+
+    <!-- ===== CINEMATIC HERO ===== -->
+    <section class="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-dark-bg1 via-[#0a0a2e] to-dark-bg1">
+      <!-- Animated background layers -->
+      <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(0,60,166,0.15),transparent_60%)]" />
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_80%,rgba(0,229,160,0.08),transparent_50%)]" />
+        <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+        <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-accent-green/30 to-transparent" />
+      </div>
+
+      <div class="relative px-6 py-8 md:px-10 md:py-10">
+        <div class="flex items-start justify-between flex-wrap gap-4">
+          <div class="max-w-2xl">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 text-sm font-bold text-primary-300">5</span>
+              <span class="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-semibold">Asignaci&oacute;n de Visas</span>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-black text-white leading-tight">
+              Del Frente de Pareto a la
+              <span class="bg-gradient-to-r from-primary-300 to-accent-green bg-clip-text text-transparent"> Asignaci&oacute;n Real</span>
+            </h1>
+            <p class="text-sm text-gray-400 mt-3 leading-relaxed max-w-xl">
+              Cada una de las <span class="text-white font-bold">{{ pareto?.count || 406 }}</span> soluciones Pareto-&oacute;ptimas
+              define una distribuci&oacute;n completa de <span class="text-accent-green font-bold">140,000</span> visas
+              entre 21 pa&iacute;ses &times; 5 categor&iacute;as. Selecciona una soluci&oacute;n para explorar su impacto.
+            </p>
+          </div>
+          <!-- KPI cluster -->
+          <div v-if="summary" class="flex items-center gap-3">
+            <div class="bg-dark-bg2/80 backdrop-blur rounded-xl px-4 py-3 border border-emerald-500/20 text-center min-w-[90px]">
+              <p class="text-[9px] text-gray-500 uppercase tracking-wider">Hipervolumen</p>
+              <p class="text-lg font-black text-emerald-400 font-mono">{{ Math.round(summary.hv_stats.mean).toLocaleString() }}</p>
+              <p class="text-[9px] text-gray-600 font-mono">&pm;{{ Math.round(summary.hv_stats.std).toLocaleString() }}</p>
+            </div>
+            <div class="bg-dark-bg2/80 backdrop-blur rounded-xl px-4 py-3 border border-blue-500/20 text-center min-w-[90px]">
+              <p class="text-[9px] text-gray-500 uppercase tracking-wider">Ejecuciones</p>
+              <p class="text-lg font-black text-blue-400 font-mono">{{ summary.num_runs }}</p>
+              <p class="text-[9px] text-gray-600 font-mono">{{ summary.max_iter }} iter</p>
+            </div>
+            <div class="bg-dark-bg2/80 backdrop-blur rounded-xl px-4 py-3 border border-yellow-500/20 text-center min-w-[90px]">
+              <p class="text-[9px] text-gray-500 uppercase tracking-wider">Soluciones</p>
+              <p class="text-lg font-black text-yellow-400 font-mono">{{ pareto?.count || '...' }}</p>
+              <p class="text-[9px] text-gray-600 font-mono">no-dominadas</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- ===== PARETO BROWSER ===== -->
-    <section class="card space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-sm font-bold text-white">Frente de Pareto — {{ pareto?.count || '...' }} soluciones</h2>
-          <p class="text-[10px] text-gray-500 mt-0.5">
-            Cada fila es una solución óptima del archivo Pareto. Haz clic para seleccionar.
-          </p>
-        </div>
+    <section class="card space-y-4 relative overflow-hidden">
+      <!-- Background glow -->
+      <div class="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
-        <!-- Quick picks -->
-        <div class="flex items-center gap-1.5">
-          <span class="text-[10px] text-gray-600 mr-1">Accesos rápidos:</span>
-          <button
-            class="px-2 py-0.5 rounded text-[10px] font-medium transition-colors"
-            :class="scenario === 'humanitario' ? 'bg-accent-red/20 text-accent-red' : 'bg-dark-bg2 text-gray-500 hover:text-white'"
-            @click="pickScenario('humanitario')"
-          >
-            Min f₁
-          </button>
-          <button
-            class="px-2 py-0.5 rounded text-[10px] font-medium transition-colors"
-            :class="scenario === 'equidad' ? 'bg-accent-green/20 text-accent-green' : 'bg-dark-bg2 text-gray-500 hover:text-white'"
-            @click="pickScenario('equidad')"
-          >
-            Min f₂
-          </button>
-          <button
-            class="px-2 py-0.5 rounded text-[10px] font-medium transition-colors"
-            :class="scenario === 'max_utilizacion' ? 'bg-accent-yellow/20 text-accent-yellow' : 'bg-dark-bg2 text-gray-500 hover:text-white'"
-            @click="pickScenario('max_utilizacion')"
-          >
-            Min f₃
-          </button>
-          <button
-            class="px-2 py-0.5 rounded text-[10px] font-medium transition-colors"
-            :class="scenario === 'equilibrio' ? 'bg-primary/20 text-primary-300' : 'bg-dark-bg2 text-gray-500 hover:text-white'"
-            @click="pickScenario('equilibrio')"
-          >
-            Balance
-          </button>
-        </div>
+      <!-- Header -->
+      <div class="relative">
+        <h2 class="text-sm font-bold text-white flex items-center gap-2">
+          <span class="w-1.5 h-4 rounded-full bg-gradient-to-b from-primary to-accent-green" />
+          Explorador del Frente de Pareto
+        </h2>
+        <p class="text-[10px] text-gray-500 mt-0.5 pl-4">
+          {{ pareto?.count || '...' }} soluciones Pareto-&oacute;ptimas clasificadas por escenario. Las ★ marcan al campe&oacute;n de cada categor&iacute;a.
+        </p>
+      </div>
+
+      <!-- Quick scenario picks with colored labels -->
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="text-[10px] text-gray-600 mr-1">Escenarios:</span>
+        <button
+          class="px-2.5 py-1 rounded text-[10px] font-semibold transition-all border"
+          :class="scenario === 'humanitario'
+            ? 'bg-red-500/15 text-red-400 border-red-500/30'
+            : 'bg-dark-bg2 text-gray-500 border-transparent hover:text-red-400'"
+          @click="pickScenario('humanitario')"
+        >
+          Humanitario (min f₁)
+        </button>
+        <button
+          class="px-2.5 py-1 rounded text-[10px] font-semibold transition-all border"
+          :class="scenario === 'equidad'
+            ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+            : 'bg-dark-bg2 text-gray-500 border-transparent hover:text-emerald-400'"
+          @click="pickScenario('equidad')"
+        >
+          Equidad (min f₂)
+        </button>
+        <button
+          class="px-2.5 py-1 rounded text-[10px] font-semibold transition-all border"
+          :class="scenario === 'max_utilizacion'
+            ? 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30'
+            : 'bg-dark-bg2 text-gray-500 border-transparent hover:text-yellow-400'"
+          @click="pickScenario('max_utilizacion')"
+        >
+          Max Utilización (min f₃)
+        </button>
+        <button
+          class="px-2.5 py-1 rounded text-[10px] font-semibold transition-all border"
+          :class="scenario === 'equilibrio'
+            ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+            : 'bg-dark-bg2 text-gray-500 border-transparent hover:text-blue-400'"
+          @click="pickScenario('equilibrio')"
+        >
+          Equilibrio (knee)
+        </button>
       </div>
 
       <!-- Table -->
-      <div class="max-h-[320px] overflow-y-auto rounded-lg border border-dark-border">
+      <div class="max-h-[360px] overflow-y-auto rounded-lg border border-dark-border relative">
         <table class="w-full text-xs">
           <thead class="sticky top-0 z-10 bg-dark-bg2">
             <tr class="border-b border-dark-border">
-              <th class="px-3 py-2 text-left text-[10px] text-gray-500 uppercase font-semibold w-12">#</th>
+              <th class="px-2 py-2 text-left text-[10px] text-gray-500 uppercase font-semibold w-10">#</th>
+              <th class="px-2 py-2 text-center text-[10px] text-gray-500 uppercase font-semibold">Tipo</th>
               <th
-                class="px-3 py-2 text-right text-[10px] uppercase font-semibold cursor-pointer select-none transition-colors"
+                class="px-2 py-2 text-right text-[10px] uppercase font-semibold cursor-pointer select-none transition-colors"
                 :class="sortKey === 'f1' ? 'text-accent-yellow' : 'text-gray-500 hover:text-gray-300'"
                 @click="toggleSort('f1')"
               >
                 f₁ espera{{ sortArrow('f1') }}
               </th>
               <th
-                class="px-3 py-2 text-right text-[10px] uppercase font-semibold cursor-pointer select-none transition-colors"
+                class="px-2 py-2 text-right text-[10px] uppercase font-semibold cursor-pointer select-none transition-colors"
                 :class="sortKey === 'f2' ? 'text-accent-green' : 'text-gray-500 hover:text-gray-300'"
                 @click="toggleSort('f2')"
               >
                 f₂ brecha{{ sortArrow('f2') }}
               </th>
               <th
-                class="px-3 py-2 text-right text-[10px] uppercase font-semibold cursor-pointer select-none transition-colors"
+                class="px-2 py-2 text-right text-[10px] uppercase font-semibold cursor-pointer select-none transition-colors"
                 :class="sortKey === 'f3' ? 'text-accent-red' : 'text-gray-500 hover:text-gray-300'"
                 @click="toggleSort('f3')"
               >
                 f₃ desperdicio{{ sortArrow('f3') }}
               </th>
               <th
-                class="px-3 py-2 text-right text-[10px] uppercase font-semibold cursor-pointer select-none transition-colors"
+                class="px-2 py-2 text-right text-[10px] uppercase font-semibold cursor-pointer select-none transition-colors"
                 :class="sortKey === 'visas_used' ? 'text-primary-300' : 'text-gray-500 hover:text-gray-300'"
                 @click="toggleSort('visas_used')"
               >
                 Visas{{ sortArrow('visas_used') }}
               </th>
+              <th class="px-2 py-2 text-right text-[10px] text-gray-500 uppercase font-semibold">Util %</th>
             </tr>
           </thead>
           <tbody>
             <tr
-              v-for="(p, ri) in sortedPareto"
+              v-for="p in sortedPareto"
               :key="p._idx"
-              class="border-b border-dark-border/20 cursor-pointer transition-colors"
-              :class="selectedIdx === p._idx
-                ? 'bg-primary/15 text-white'
-                : 'hover:bg-white/[0.03] text-gray-400'"
+              class="border-b cursor-pointer transition-all"
+              :class="[
+                selectedIdx === p._idx
+                  ? 'bg-primary/15 text-white border-primary/30'
+                  : p._champion
+                    ? `${SCENARIO_META[p._scenario]?.bg} border-l-2 ${SCENARIO_META[p._scenario]?.border} font-semibold text-white`
+                    : 'hover:bg-white/[0.03] text-gray-400 border-dark-border/20',
+              ]"
               @click="selectSolution(p._idx)"
             >
-              <td class="px-3 py-1.5 font-mono text-gray-600">{{ p._idx + 1 }}</td>
-              <td class="px-3 py-1.5 text-right font-mono">{{ p.f1.toFixed(2) }}</td>
-              <td class="px-3 py-1.5 text-right font-mono">{{ p.f2.toFixed(2) }}</td>
-              <td class="px-3 py-1.5 text-right font-mono">{{ p.f3.toLocaleString() }}</td>
-              <td class="px-3 py-1.5 text-right font-mono">{{ p.visas_used.toLocaleString() }}</td>
+              <td class="px-2 py-1.5 font-mono text-gray-600 text-[10px]">
+                <span v-if="p._champion" class="text-[10px]">★</span>
+                <span v-else>{{ p._idx + 1 }}</span>
+              </td>
+              <td class="px-2 py-1.5 text-center">
+                <span
+                  class="inline-block px-1.5 py-0.5 rounded text-[9px] font-bold border"
+                  :class="[
+                    SCENARIO_META[p._scenario]?.bg,
+                    SCENARIO_META[p._scenario]?.color,
+                    SCENARIO_META[p._scenario]?.border,
+                    p._champion ? 'ring-1 ring-offset-1 ring-offset-dark-bg1' : '',
+                    p._champion ? SCENARIO_META[p._scenario]?.border.replace('border-', 'ring-') : '',
+                  ]"
+                >{{ SCENARIO_META[p._scenario]?.short }}</span>
+              </td>
+              <td class="px-2 py-1.5 text-right font-mono" :class="p._champion && p._scenario === 'humanitario' ? 'text-red-400 font-bold' : ''">{{ p.f1.toFixed(2) }}</td>
+              <td class="px-2 py-1.5 text-right font-mono" :class="p._champion && p._scenario === 'equidad' ? 'text-emerald-400 font-bold' : ''">{{ p.f2.toFixed(2) }}</td>
+              <td class="px-2 py-1.5 text-right font-mono" :class="p._champion && p._scenario === 'max_utilizacion' ? 'text-yellow-400 font-bold' : ''">{{ p.f3.toLocaleString() }}</td>
+              <td class="px-2 py-1.5 text-right font-mono">{{ p.visas_used.toLocaleString() }}</td>
+              <td class="px-2 py-1.5 text-right font-mono" :class="p._util >= 99 ? 'text-emerald-400 font-bold' : p._util >= 90 ? 'text-yellow-400' : 'text-gray-500'">{{ p._util }}%</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <p class="text-[10px] text-gray-600">
-        {{ pareto?.baseline ? `Baseline FIFO: f\u2081=${pareto.baseline.f1.toFixed(2)}, f\u2082=${pareto.baseline.f2.toFixed(2)}, f\u2083=${pareto.baseline.f3.toLocaleString()}` : '' }}
-        · Ordenar por columna · Todas las soluciones son Pareto-óptimas (ninguna domina a otra)
-      </p>
+      <!-- Footer with baseline info -->
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <p class="text-[10px] text-gray-600">
+          {{ pareto?.baseline ? `FIFO baseline: f\u2081=${pareto.baseline.f1.toFixed(2)}, f\u2082=${pareto.baseline.f2.toFixed(2)}, f\u2083=${pareto.baseline.f3.toLocaleString()}` : '' }}
+          · Todas las soluciones son Pareto-óptimas (ninguna domina a otra)
+        </p>
+        <div class="flex items-center gap-3 text-[9px]">
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-red-500/30 border border-red-500/30" /> HUM = Humanitario</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-emerald-500/30 border border-emerald-500/30" /> EQU = Equidad</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-yellow-500/30 border border-yellow-500/30" /> MAX = Max Util.</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-blue-500/30 border border-blue-500/30" /> BAL = Equilibrio</span>
+        </div>
+      </div>
     </section>
 
     <!-- ===== SELECTED SOLUTION KPIs ===== -->
@@ -557,25 +746,50 @@ watch(scenario, () => fetchAllocation())
     </div>
 
     <template v-else-if="allocation">
-      <div class="card">
-        <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-1 font-semibold">
-          Asignación detallada — escenario
-          <span class="text-white">{{ currentScenario.name }}</span>
-        </p>
-        <p class="text-[10px] text-gray-600 mb-3">{{ currentScenario.description }}</p>
+      <div class="card relative overflow-hidden">
+        <!-- Section accent -->
+        <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-primary/40 via-accent-green/40 to-transparent" />
+        <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
-        <!-- Utilization bar -->
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-sm text-gray-400">
-            <span class="text-white font-bold">{{ allocation.visas_used.toLocaleString() }}</span>
-            de 140,000 visas — <span class="text-accent-green font-mono font-bold">{{ allocation.utilization }}%</span>
-          </p>
-        </div>
-        <div class="h-2 bg-white/10 rounded-full overflow-hidden mb-1">
-          <div
-            class="h-full bg-gradient-to-r from-primary to-accent-green rounded-full transition-all duration-700"
-            :style="{ width: allocation.utilization + '%' }"
-          />
+        <div class="relative">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-1.5 h-4 rounded-full bg-gradient-to-b from-accent-green to-primary" />
+            <p class="text-[10px] text-gray-500 uppercase tracking-[0.15em] font-bold">
+              Asignaci&oacute;n detallada
+            </p>
+          </div>
+          <h2 class="text-lg font-bold text-white mb-1">
+            Escenario <span :class="SCENARIO_META[scenario]?.color || 'text-primary-300'">{{ currentScenario.name }}</span>
+          </h2>
+          <p class="text-[10px] text-gray-500 mb-4">{{ currentScenario.description }}</p>
+
+          <!-- Utilization gauge -->
+          <div class="bg-dark-bg2/60 rounded-xl p-4 border border-dark-border">
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-sm text-gray-400">
+                <span class="text-white font-bold text-base">{{ allocation.visas_used.toLocaleString() }}</span>
+                <span class="text-gray-600"> / 140,000 visas</span>
+              </p>
+              <span
+                class="px-2.5 py-1 rounded-full text-xs font-bold font-mono"
+                :class="allocation.utilization >= 99 ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : allocation.utilization >= 90 ? 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/30' : 'bg-red-500/15 text-red-400 border border-red-500/30'"
+              >{{ allocation.utilization }}%</span>
+            </div>
+            <div class="h-3 bg-white/5 rounded-full overflow-hidden relative">
+              <div class="absolute inset-0 bg-white/[0.02] rounded-full" style="background-image: repeating-linear-gradient(90deg, transparent, transparent 9.9%, rgba(255,255,255,0.03) 10%, rgba(255,255,255,0.03) 10.1%)" />
+              <div
+                class="h-full bg-gradient-to-r from-primary via-primary-300 to-accent-green rounded-full transition-all duration-1000 relative"
+                :style="{ width: allocation.utilization + '%' }"
+              >
+                <div class="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 rounded-full" />
+              </div>
+            </div>
+            <div class="flex justify-between mt-1.5 text-[9px] font-mono text-gray-600">
+              <span>0</span>
+              <span>{{ (allocation.visas_used - (140000 - allocation.visas_used)).toLocaleString() > '0' ? (140000 - allocation.visas_used).toLocaleString() + ' sin usar' : 'Uso completo' }}</span>
+              <span>140K</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -594,9 +808,13 @@ watch(scenario, () => fetchAllocation())
       <!-- ===== MOHHO vs FIFO COMPARISON HEATMAPS ===== -->
       <ClientOnly>
         <section v-if="fifoAlloc && allocation" class="space-y-3">
-          <div class="card">
-            <h2 class="text-sm font-bold text-white mb-1">Comparaci&oacute;n MOHHO vs FIFO</h2>
-            <p class="text-[10px] text-gray-500 mb-3">
+          <div class="card relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-red-500/30 via-transparent to-emerald-500/30" />
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-1.5 h-4 rounded-full bg-gradient-to-b from-red-400 to-emerald-400" />
+              <h2 class="text-sm font-bold text-white">Batalla: MOHHO vs FIFO</h2>
+            </div>
+            <p class="text-[10px] text-gray-500 mb-3 pl-4">
               Ambos mapas de calor usan la misma escala de color para una comparaci&oacute;n justa.
               El tooltip muestra la diferencia (delta) respecto al otro m&eacute;todo.
             </p>
@@ -651,10 +869,14 @@ watch(scenario, () => fetchAllocation())
       </ClientOnly>
 
       <!-- ===== SANKEY SPILLOVER CASCADE ===== -->
-      <section v-if="allocation && sankeyOption" class="card space-y-3">
+      <section v-if="allocation && sankeyOption" class="card space-y-3 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
         <div>
-          <h2 class="text-sm font-bold text-white">Cascada de Spillover</h2>
-          <p class="text-[10px] text-gray-500 mt-0.5">Flujo de visas no utilizadas: EB-4/5 &rarr; EB-1 &rarr; EB-2 &rarr; EB-3</p>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-1.5 h-4 rounded-full bg-gradient-to-b from-purple-400 to-yellow-400" />
+            <h2 class="text-sm font-bold text-white">Cascada de Spillover</h2>
+          </div>
+          <p class="text-[10px] text-gray-500 mt-0.5 pl-4">Flujo de visas no utilizadas: EB-4/5 &rarr; EB-1 &rarr; EB-2 &rarr; EB-3. Las visas que una categor&iacute;a no consume se redistribuyen inteligentemente.</p>
         </div>
         <ClientOnly>
           <VChart :option="sankeyOption" autoresize class="w-full h-[400px]" />
@@ -670,15 +892,25 @@ watch(scenario, () => fetchAllocation())
         </div>
       </section>
 
-      <!-- Stacked bar chart -->
+      <!-- ===== STACKED BAR CHART ===== -->
       <ClientOnly>
-        <div class="card">
+        <section class="card relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-yellow-500/30 to-transparent" />
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-1.5 h-4 rounded-full bg-gradient-to-b from-yellow-400 to-primary" />
+            <h2 class="text-sm font-bold text-white">Distribuci&oacute;n por Pa&iacute;s</h2>
+          </div>
+          <p class="text-[10px] text-gray-500 mb-2 pl-4">
+            Visas asignadas por categor&iacute;a EB para cada pa&iacute;s. L&iacute;nea roja: tope per-c&aacute;pita (25,620).
+          </p>
           <AllocationBar
             :countries="allocation.rows.map(r => r.flag + ' ' + r.country)"
             :categories="categories"
             :matrix="allocation.matrix"
+            :cap-line="25620"
+            :title="'Asignaci\u00f3n: ' + currentScenario.name"
           />
-        </div>
+        </section>
       </ClientOnly>
 
       <!-- Data table -->

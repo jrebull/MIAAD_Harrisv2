@@ -69,8 +69,8 @@ const mohhoImprovement = computed(() => {
   if (!summary.value) return { f1: '0', f2: '0', waste: '0' }
   const b = summary.value.baseline
   return {
-    f1: ((1 - summary.value.best_f1[0] / b.f1) * 100).toFixed(0),
-    f2: ((1 - summary.value.best_f2[1] / b.f2) * 100).toFixed(0),
+    f1: ((1 - summary.value.best_f1[0] / b.f1) * 100).toFixed(1),
+    f2: ((1 - summary.value.best_f2[1] / b.f2) * 100).toFixed(1),
     waste: formatNumber(Math.round(b.f3 - summary.value.best_f3[2])),
   }
 })
@@ -103,250 +103,368 @@ const animParetoSize = useCountUp(expParetoSize, 2200)
 
 <template>
   <div class="space-y-10">
-    <!-- Hero -->
-    <section class="text-center py-10 relative">
-      <div class="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent rounded-3xl" />
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- CINEMATIC HERO                                        -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section class="relative overflow-hidden rounded-2xl -mx-2 md:-mx-4">
+      <!-- Layered animated background -->
+      <div class="absolute inset-0 bg-gradient-to-br from-[#001a4d] via-dark-bg1 to-[#001a2e]" />
+      <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/12 rounded-full blur-[150px] animate-pulse" style="animation-duration:5s" />
+      <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-600/8 rounded-full blur-[120px] animate-pulse" style="animation-duration:7s" />
+      <div class="absolute top-1/4 right-1/4 w-[300px] h-[300px] bg-accent-yellow/5 rounded-full blur-[100px] animate-pulse" style="animation-duration:4s" />
+      <!-- Orbital rings -->
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-primary/[0.04] animate-spin" style="animation-duration:80s" />
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] h-[420px] rounded-full border border-emerald-500/[0.04] animate-spin" style="animation-duration:55s;animation-direction:reverse" />
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] rounded-full border border-accent-yellow/[0.04] animate-spin" style="animation-duration:35s" />
+      <!-- Grid pattern overlay -->
+      <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px); background-size: 40px 40px;" />
+
+      <div class="relative px-6 py-16 md:py-24 text-center space-y-8">
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-2 bg-primary/15 border border-primary/25 rounded-full px-5 py-2 backdrop-blur-sm">
+          <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.9)] animate-pulse" />
+          <span class="text-primary-300 text-[10px] font-bold uppercase tracking-[0.25em]">Multi-Objective Harris Hawks Optimization</span>
+        </div>
+
+        <!-- Title -->
+        <div class="space-y-3">
+          <h1 class="text-5xl md:text-7xl font-black tracking-tight leading-[1.05]">
+            <span class="bg-gradient-to-r from-accent-yellow via-accent-green to-primary-300 bg-clip-text text-transparent">
+              VISA PREDICT AI
+            </span>
+          </h1>
+          <p class="text-gray-400 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
+            Optimización inteligente para la asignación de
+            <span class="text-white font-semibold">140,000 visas de empleo</span> de Estados Unidos.
+            Tres objetivos. Cero compromisos innecesarios.
+          </p>
+        </div>
+
+        <!-- Hero KPI strip -->
+        <div class="flex flex-wrap justify-center gap-8 pt-4">
+          <div class="text-center group">
+            <p class="text-4xl md:text-5xl font-black font-mono text-accent-yellow transition-transform group-hover:scale-110">140K</p>
+            <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Visas / Año</p>
+          </div>
+          <div class="w-px h-16 bg-gradient-to-b from-transparent via-gray-700 to-transparent hidden md:block" />
+          <div class="text-center group">
+            <p class="text-4xl md:text-5xl font-black font-mono text-white transition-transform group-hover:scale-110">21<span class="text-xl text-gray-500">×</span>5</p>
+            <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Países × Categorías</p>
+          </div>
+          <div class="w-px h-16 bg-gradient-to-b from-transparent via-gray-700 to-transparent hidden md:block" />
+          <div class="text-center group">
+            <p class="text-4xl md:text-5xl font-black font-mono text-accent-red transition-transform group-hover:scale-110">13</p>
+            <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Años de Espera Max</p>
+          </div>
+          <div class="w-px h-16 bg-gradient-to-b from-transparent via-gray-700 to-transparent hidden md:block" />
+          <div class="text-center group">
+            <p class="text-4xl md:text-5xl font-black font-mono text-accent-green transition-transform group-hover:scale-110">406</p>
+            <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Soluciones Pareto</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- THE CRISIS — Emotional data-driven storytelling       -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section class="relative overflow-hidden rounded-2xl">
+      <div class="absolute inset-0 bg-gradient-to-r from-accent-red/8 via-transparent to-accent-red/5" />
+      <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-accent-red via-accent-red/60 to-transparent rounded-r" />
+      <div class="relative p-6 md:p-8 space-y-6">
+        <div>
+          <p class="text-[10px] text-accent-red font-bold uppercase tracking-[0.2em] mb-2">El Problema</p>
+          <h2 class="text-2xl md:text-3xl font-black text-white leading-tight">
+            Un sistema roto que deja<br>
+            <span class="text-accent-red">miles de visas sin usar</span>
+            cada año
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <p class="text-sm text-gray-400 leading-relaxed">
+              Cada año fiscal, EE.UU. otorga <strong class="text-white">140,000 visas de empleo</strong>
+              (EB-1 a EB-5) limitadas por un tope de <strong class="text-white">7% por país</strong>.
+              El sistema actual <strong class="text-accent-red">FIFO</strong> (First In, First Out)
+              asigna por orden de llegada sin considerar eficiencia ni equidad.
+            </p>
+            <p class="text-sm text-gray-400 leading-relaxed">
+              El resultado: familias de India esperan <strong class="text-white">más de una década</strong>,
+              mientras miles de visas quedan vacías porque los topes impiden reasignarlas.
+              <strong class="text-accent-red">{{ fifoWaste > 0 ? formatNumber(fifoWaste) : '...' }} visas desperdiciadas</strong>
+              cada año bajo FIFO.
+            </p>
+          </div>
+
+          <!-- Crisis stats -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-dark-bg1/80 rounded-xl p-4 border border-accent-red/15 text-center">
+              <p class="text-3xl font-black text-accent-red font-mono">{{ animMaxWait }}</p>
+              <p class="text-[10px] text-gray-500 uppercase tracking-wider mt-1">Años de espera máx.</p>
+              <p class="text-[9px] text-gray-600 mt-0.5">India EB-3</p>
+            </div>
+            <div class="bg-dark-bg1/80 rounded-xl p-4 border border-accent-yellow/15 text-center">
+              <p class="text-3xl font-black text-accent-yellow font-mono">{{ formatNumber(animBacklog) }}</p>
+              <p class="text-[10px] text-gray-500 uppercase tracking-wider mt-1">Backlog total</p>
+              <p class="text-[9px] text-gray-600 mt-0.5">Peticiones aprobadas</p>
+            </div>
+            <div class="bg-dark-bg1/80 rounded-xl p-4 border border-white/10 text-center">
+              <p class="text-3xl font-black text-white font-mono">{{ animCountries }}</p>
+              <p class="text-[10px] text-gray-500 uppercase tracking-wider mt-1">Países</p>
+              <p class="text-[9px] text-gray-600 mt-0.5">En competencia</p>
+            </div>
+            <div class="bg-dark-bg1/80 rounded-xl p-4 border border-accent-red/15 text-center">
+              <p class="text-3xl font-black text-accent-red font-mono">{{ fifoWaste > 0 ? formatNumber(fifoWaste) : '...' }}</p>
+              <p class="text-[10px] text-gray-500 uppercase tracking-wider mt-1">Visas perdidas</p>
+              <p class="text-[9px] text-gray-600 mt-0.5">Bajo FIFO</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- THREE OBJECTIVES — The trilemma                        -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section class="space-y-4">
+      <div class="text-center space-y-1">
+        <p class="text-[10px] text-primary-300 font-bold uppercase tracking-[0.2em]">El Trilema</p>
+        <h2 class="text-xl md:text-2xl font-black text-white">Tres Objetivos en Conflicto</h2>
+        <p class="text-xs text-gray-500 max-w-lg mx-auto">Mejorar uno inevitablemente empeora otro. No existe una solución perfecta — solo compromisos óptimos.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- f1 -->
+        <div class="card group relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(250,204,21,0.08)]">
+          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-yellow to-accent-yellow/0" />
+          <div class="absolute top-4 right-4 text-5xl font-black text-accent-yellow/[0.06] select-none">f₁</div>
+          <div class="relative">
+            <div class="w-12 h-12 rounded-xl bg-accent-yellow/10 border border-accent-yellow/20 flex items-center justify-center mb-4">
+              <span class="text-accent-yellow text-xl font-black">f₁</span>
+            </div>
+            <h3 class="text-accent-yellow font-bold text-lg mb-2">Carga de Espera</h3>
+            <p class="text-xs text-gray-400 leading-relaxed mb-3">
+              Suma ponderada de años de espera de las personas que NO reciben visa. Los que llevan más tiempo pesan más.
+            </p>
+            <div class="bg-dark-bg1 rounded-lg p-3 space-y-1">
+              <p class="font-mono text-[11px] text-white">f₁(x) = Σ(nᵍ - xᵍ)·wᵍ / Σnᵍ</p>
+              <p class="text-[10px] text-accent-yellow font-semibold">Minimizar = más humanitario</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- f2 -->
+        <div class="card group relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(0,229,160,0.08)]">
+          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-green to-accent-green/0" />
+          <div class="absolute top-4 right-4 text-5xl font-black text-accent-green/[0.06] select-none">f₂</div>
+          <div class="relative">
+            <div class="w-12 h-12 rounded-xl bg-accent-green/10 border border-accent-green/20 flex items-center justify-center mb-4">
+              <span class="text-accent-green text-xl font-black">f₂</span>
+            </div>
+            <h3 class="text-accent-green font-bold text-lg mb-2">Disparidad</h3>
+            <p class="text-xs text-gray-400 leading-relaxed mb-3">
+              Brecha máxima de espera entre cualquier par de países. Captura la inequidad del sistema.
+            </p>
+            <div class="bg-dark-bg1 rounded-lg p-3 space-y-1">
+              <p class="font-mono text-[11px] text-white">f₂(x) = max|W̄c₁ - W̄c₂|</p>
+              <p class="text-[10px] text-accent-green font-semibold">Minimizar = más equitativo</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- f3 -->
+        <div class="card group relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(96,165,250,0.08)]">
+          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-300 to-primary-300/0" />
+          <div class="absolute top-4 right-4 text-5xl font-black text-primary-300/[0.06] select-none">f₃</div>
+          <div class="relative">
+            <div class="w-12 h-12 rounded-xl bg-primary-300/10 border border-primary-300/20 flex items-center justify-center mb-4">
+              <span class="text-primary-300 text-xl font-black">f₃</span>
+            </div>
+            <h3 class="text-primary-300 font-bold text-lg mb-2">Desperdicio</h3>
+            <p class="text-xs text-gray-400 leading-relaxed mb-3">
+              Visas que quedan sin usar por la interacción de topes legales. Cada visa vacía es una oportunidad perdida.
+            </p>
+            <div class="bg-dark-bg1 rounded-lg p-3 space-y-1">
+              <p class="font-mono text-[11px] text-white">f₃(x) = V - Σxᵍ</p>
+              <p class="text-[10px] text-primary-300 font-semibold">Minimizar = máxima eficiencia</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- FIFO vs MOHHO — Side-by-side battle                   -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section v-if="summary" class="space-y-4">
+      <div class="text-center space-y-1">
+        <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.2em]">La Solución</p>
+        <h2 class="text-xl md:text-2xl font-black text-white">FIFO vs MOHHO</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- FIFO -->
+        <div class="relative overflow-hidden rounded-xl border border-accent-red/20 bg-gradient-to-br from-accent-red/[0.04] to-transparent p-6">
+          <div class="absolute top-0 left-0 w-1.5 h-full bg-accent-red/50 rounded-r" />
+          <div class="absolute top-4 right-4">
+            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-accent-red/15 text-accent-red border border-accent-red/20">SISTEMA ACTUAL</span>
+          </div>
+          <h3 class="text-lg font-black text-accent-red mb-6">FIFO</h3>
+          <div class="space-y-4 font-mono text-sm">
+            <div>
+              <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">f₁ Carga de Espera</p>
+              <p class="text-2xl font-black text-white">{{ summary.baseline.f1.toFixed(3) }} <span class="text-xs text-gray-500 font-normal">años</span></p>
+            </div>
+            <div>
+              <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">f₂ Disparidad</p>
+              <p class="text-2xl font-black text-white">{{ summary.baseline.f2.toFixed(3) }} <span class="text-xs text-gray-500 font-normal">años</span></p>
+            </div>
+            <div>
+              <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">f₃ Desperdicio</p>
+              <p class="text-2xl font-black text-accent-red">{{ formatNumber(Math.round(summary.baseline.f3)) }} <span class="text-xs text-gray-500 font-normal">visas</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- MOHHO -->
+        <div class="relative overflow-hidden rounded-xl border border-accent-green/20 bg-gradient-to-br from-accent-green/[0.04] to-transparent p-6">
+          <div class="absolute top-0 left-0 w-1.5 h-full bg-accent-green/50 rounded-r" />
+          <div class="absolute top-4 right-4">
+            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-accent-green/15 text-accent-green border border-accent-green/20">OPTIMIZADO</span>
+          </div>
+          <h3 class="text-lg font-black text-accent-green mb-6">MOHHO</h3>
+          <div class="space-y-4 font-mono text-sm">
+            <div>
+              <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">f₁ Carga de Espera</p>
+              <div class="flex items-baseline gap-2">
+                <p class="text-2xl font-black text-white">{{ summary.best_f1[0].toFixed(3) }}</p>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-accent-green/15 text-accent-green">-{{ mohhoImprovement.f1 }}%</span>
+              </div>
+            </div>
+            <div>
+              <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">f₂ Disparidad</p>
+              <div class="flex items-baseline gap-2">
+                <p class="text-2xl font-black text-white">{{ summary.best_f2[1].toFixed(3) }}</p>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-accent-green/15 text-accent-green">-{{ mohhoImprovement.f2 }}%</span>
+              </div>
+            </div>
+            <div>
+              <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">f₃ Desperdicio</p>
+              <div class="flex items-baseline gap-2">
+                <p class="text-2xl font-black text-accent-green">{{ formatNumber(Math.round(summary.best_f3[2])) }}</p>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-accent-green/15 text-accent-green">-{{ mohhoImprovement.waste }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Improvement summary bar -->
+      <div class="bg-gradient-to-r from-accent-green/10 via-accent-green/5 to-transparent rounded-xl border border-accent-green/15 p-4 flex flex-wrap items-center justify-center gap-6">
+        <p class="text-xs text-gray-400">MOHHO supera a FIFO en <strong class="text-white">todos los objetivos</strong>:</p>
+        <div class="flex gap-4 text-center">
+          <div>
+            <p class="text-lg font-black text-accent-green">-{{ mohhoImprovement.f1 }}%</p>
+            <p class="text-[9px] text-gray-500 uppercase">Espera</p>
+          </div>
+          <div>
+            <p class="text-lg font-black text-accent-green">-{{ mohhoImprovement.f2 }}%</p>
+            <p class="text-[9px] text-gray-500 uppercase">Disparidad</p>
+          </div>
+          <div>
+            <p class="text-lg font-black text-accent-green">-{{ mohhoImprovement.waste }}</p>
+            <p class="text-[9px] text-gray-500 uppercase">Visas salvadas</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- EXPERIMENTAL CONFIG — Impressive stats                -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section v-if="summary" class="card relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
       <div class="relative">
-        <p class="text-xs text-primary-300 font-semibold uppercase tracking-[0.25em] mb-3">Multi-Objective Harris Hawks Optimization</p>
-        <h1 class="text-4xl md:text-6xl font-black tracking-tight leading-[1.1]">
-          <span class="bg-gradient-to-r from-accent-yellow via-accent-green to-primary bg-clip-text text-transparent">
-            VISA PREDICT AI
-          </span>
-        </h1>
-        <p class="text-gray-400 mt-4 max-w-2xl mx-auto text-lg leading-relaxed">
-          Optimización multi-objetivo para la asignación de
-          <span class="text-white font-semibold">140,000 visas EB</span> de EE.UU.
-          entre <span class="text-white font-semibold">21 países</span> y
-          <span class="text-white font-semibold">5 categorías</span>.
-        </p>
-      </div>
-    </section>
-
-    <!-- KPI Cards -->
-    <section v-if="summary && groups" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <KpiCard label="Total Visas EB" :value="formatNumber(animVisas)" unit="por año fiscal" color="text-accent-yellow" />
-      <KpiCard label="Backlog Total" :value="formatNumber(animBacklog)" unit="peticiones aprobadas" color="text-accent-red" />
-      <KpiCard label="Países Analizados" :value="String(animCountries)" unit="bloques de países" />
-      <KpiCard label="Mayor Espera" :value="animMaxWait + ' años'" unit="India EB-3" color="text-accent-green" />
-    </section>
-
-    <!-- Skeleton while loading -->
-    <section v-else class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div v-for="i in 4" :key="i" class="metric-card">
-        <div class="skeleton h-3 w-20 mx-auto mb-3" />
-        <div class="skeleton h-8 w-24 mx-auto mb-2" />
-        <div class="skeleton h-2.5 w-16 mx-auto" />
-      </div>
-    </section>
-
-    <!-- Problem description -->
-    <section class="card space-y-4">
-      <h2 class="section-title">El Problema</h2>
-      <p class="text-gray-400 leading-relaxed">
-        Cada año fiscal, EE.UU. otorga <strong class="text-accent-yellow">140,000 visas de empleo</strong>
-        (EB) distribuidas en 5 categorías y limitadas por topes por país del 7%.
-        El sistema actual (<strong class="text-accent-red">FIFO</strong>) genera esperas de hasta
-        <strong class="text-white">13 años</strong> para ciertos países y deja
-        <strong class="text-accent-red">{{ fifoWaste > 0 ? formatNumber(fifoWaste) : '...' }}</strong> visas sin usar.
-      </p>
-      <p class="text-gray-400 leading-relaxed">
-        <strong class="text-accent-green">MOHHO</strong> (Multi-Objective Harris Hawks Optimization) encuentra un
-        <strong class="text-accent-green">frente de Pareto</strong> con cientos de soluciones que mejoran
-        simultáneamente la espera, la equidad entre países y la utilización de visas.
-      </p>
-    </section>
-
-    <!-- FIFO vs MOHHO comparison -->
-    <section v-if="summary" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="card border-accent-red/20 relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-1 h-full bg-accent-red/60" />
-        <h3 class="text-sm font-semibold text-accent-red uppercase tracking-wider mb-4 pl-3">FIFO (Sistema Actual)</h3>
-        <div class="space-y-3 font-mono text-sm pl-3">
-          <div class="flex justify-between items-baseline">
-            <span class="text-gray-500">f espera</span>
-            <span class="text-white text-lg font-bold">{{ summary.baseline.f1.toFixed(3) }} <span class="text-xs text-gray-500 font-normal">años</span></span>
-          </div>
-          <div class="flex justify-between items-baseline">
-            <span class="text-gray-500">f brecha</span>
-            <span class="text-white text-lg font-bold">{{ summary.baseline.f2.toFixed(3) }} <span class="text-xs text-gray-500 font-normal">años</span></span>
-          </div>
-          <div class="flex justify-between items-baseline">
-            <span class="text-gray-500">f desperdicio</span>
-            <span class="text-white text-lg font-bold">{{ formatNumber(Math.round(summary.baseline.f3)) }} <span class="text-xs text-gray-500 font-normal">visas</span></span>
-          </div>
+        <div class="text-center mb-6">
+          <p class="text-[10px] text-primary-300 font-bold uppercase tracking-[0.2em] mb-1">Validación Estadística</p>
+          <h2 class="text-xl font-black text-white">Configuración Experimental</h2>
         </div>
-      </div>
-      <div class="card border-accent-green/20 relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-1 h-full bg-accent-green/60" />
-        <h3 class="text-sm font-semibold text-accent-green uppercase tracking-wider mb-4 pl-3">MOHHO (Mejor Solución)</h3>
-        <div class="space-y-3 font-mono text-sm pl-3">
-          <div class="flex justify-between items-baseline">
-            <span class="text-gray-500">f espera</span>
-            <span class="text-white text-lg font-bold">
-              {{ summary.best_f1[0].toFixed(3) }}
-              <span class="text-accent-green text-xs font-semibold ml-1">-{{ mohhoImprovement.f1 }}%</span>
-            </span>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-dark-bg1 rounded-xl p-5 text-center border border-white/5 transition-all hover:border-primary/20 hover:shadow-[0_0_20px_rgba(0,60,166,0.08)]">
+            <p class="text-3xl font-black font-mono text-white">{{ animNumRuns }}</p>
+            <p class="text-[10px] text-gray-500 uppercase tracking-wider mt-1">Corridas</p>
+            <p class="text-[9px] text-gray-600 mt-0.5">Semillas 42–71</p>
           </div>
-          <div class="flex justify-between items-baseline">
-            <span class="text-gray-500">f brecha</span>
-            <span class="text-white text-lg font-bold">
-              {{ summary.best_f2[1].toFixed(3) }}
-              <span class="text-accent-green text-xs font-semibold ml-1">-{{ mohhoImprovement.f2 }}%</span>
-            </span>
+          <div class="bg-dark-bg1 rounded-xl p-5 text-center border border-white/5 transition-all hover:border-accent-yellow/20 hover:shadow-[0_0_20px_rgba(250,204,21,0.08)]">
+            <p class="text-3xl font-black font-mono text-white">{{ animPopSize }}</p>
+            <p class="text-[10px] text-gray-500 uppercase tracking-wider mt-1">Halcones</p>
+            <p class="text-[9px] text-gray-600 mt-0.5">Agentes por corrida</p>
           </div>
-          <div class="flex justify-between items-baseline">
-            <span class="text-gray-500">f desperdicio</span>
-            <span class="text-white text-lg font-bold">
-              {{ formatNumber(Math.round(summary.best_f3[2])) }}
-              <span class="text-accent-green text-xs font-semibold ml-1">-{{ mohhoImprovement.waste }}</span>
-            </span>
+          <div class="bg-dark-bg1 rounded-xl p-5 text-center border border-white/5 transition-all hover:border-accent-green/20 hover:shadow-[0_0_20px_rgba(0,229,160,0.08)]">
+            <p class="text-3xl font-black font-mono text-white">{{ formatNumber(animMaxIter) }}</p>
+            <p class="text-[10px] text-gray-500 uppercase tracking-wider mt-1">Iteraciones</p>
+            <p class="text-[9px] text-gray-600 mt-0.5">Por corrida</p>
+          </div>
+          <div class="bg-dark-bg1 rounded-xl p-5 text-center border border-accent-green/15 transition-all hover:border-accent-green/30 hover:shadow-[0_0_20px_rgba(0,229,160,0.1)]">
+            <p class="text-3xl font-black font-mono text-accent-green">{{ formatNumber(animParetoSize) }}</p>
+            <p class="text-[10px] text-gray-500 uppercase tracking-wider mt-1">Soluciones Pareto</p>
+            <p class="text-[9px] text-gray-600 mt-0.5">No-dominadas</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Objectives explained -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="card group relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-accent-yellow to-accent-yellow/0" />
-        <div class="flex items-center gap-2 mb-3">
-          <Icon name="heart" :size="16" class="text-accent-yellow" />
-          <h3 class="text-accent-yellow font-bold">f&#8321; — Carga de Espera</h3>
-        </div>
-        <p class="text-xs text-gray-400 leading-relaxed">
-          Mide los años de espera ponderados de las personas que NO reciben visa.
-          Menor = más humanitario.
-        </p>
-        <p class="font-mono text-[11px] text-gray-600 mt-3 bg-white/[0.03] rounded px-2 py-1">
-          f&#8321;(x) = Σ(n&#7501; - x&#7501;)·w&#7501; / Σn&#7501;
-        </p>
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- EB VISA TYPES — Visual cards                          -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section class="space-y-4">
+      <div class="text-center space-y-1">
+        <p class="text-[10px] text-accent-yellow font-bold uppercase tracking-[0.2em]">Categorías</p>
+        <h2 class="text-xl font-black text-white">Las 5 Visas de Empleo</h2>
       </div>
-      <div class="card group relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-accent-green to-accent-green/0" />
-        <div class="flex items-center gap-2 mb-3">
-          <Icon name="scale" :size="16" class="text-accent-green" />
-          <h3 class="text-accent-green font-bold">f&#8322; — Disparidad</h3>
-        </div>
-        <p class="text-xs text-gray-400 leading-relaxed">
-          Mide la brecha máxima de espera entre países.
-          Menor = más equitativo.
-        </p>
-        <p class="font-mono text-[11px] text-gray-600 mt-3 bg-white/[0.03] rounded px-2 py-1">
-          f&#8322;(x) = max|W&#772;c&#8321; - W&#772;c&#8322;|
-        </p>
-      </div>
-      <div class="card group relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-accent-blue to-accent-blue/0" />
-        <div class="flex items-center gap-2 mb-3">
-          <Icon name="trending-up" :size="16" class="text-accent-blue" />
-          <h3 class="text-accent-blue font-bold">f&#8323; — Desperdicio</h3>
-        </div>
-        <p class="text-xs text-gray-400 leading-relaxed">
-          Mide las visas que quedan sin usar por la interacción de topes.
-          Menor = más eficiente.
-        </p>
-        <p class="font-mono text-[11px] text-gray-600 mt-3 bg-white/[0.03] rounded px-2 py-1">
-          f&#8323;(x) = V - Σx&#7501;
-        </p>
-      </div>
-    </section>
 
-    <!-- Experimental summary -->
-    <section v-if="summary" class="card">
-      <h2 class="section-title mb-4">Configuración Experimental</h2>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-        <div>
-          <p class="text-2xl font-mono font-bold text-white">{{ animNumRuns }}</p>
-          <p class="text-[10px] text-gray-500 uppercase tracking-wider mt-1">corridas independientes</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div class="rounded-xl border border-accent-yellow/20 bg-accent-yellow/[0.03] p-4 relative overflow-hidden transition-all hover:border-accent-yellow/40 hover:bg-accent-yellow/[0.06]">
+          <div class="absolute top-0 left-0 w-full h-0.5 bg-accent-yellow" />
+          <p class="text-accent-yellow font-mono font-black text-lg">EB-1</p>
+          <p class="text-[10px] text-accent-yellow/60 uppercase tracking-wider font-bold mt-0.5">Extraordinarios</p>
+          <p class="text-[10px] text-gray-500 leading-relaxed mt-2">Nobel, CEOs, investigadores, atletas de renombre internacional.</p>
         </div>
-        <div>
-          <p class="text-2xl font-mono font-bold text-white">{{ animPopSize }}</p>
-          <p class="text-[10px] text-gray-500 uppercase tracking-wider mt-1">halcones (población)</p>
+        <div class="rounded-xl border border-accent-green/20 bg-accent-green/[0.03] p-4 relative overflow-hidden transition-all hover:border-accent-green/40 hover:bg-accent-green/[0.06]">
+          <div class="absolute top-0 left-0 w-full h-0.5 bg-accent-green" />
+          <p class="text-accent-green font-mono font-black text-lg">EB-2</p>
+          <p class="text-[10px] text-accent-green/60 uppercase tracking-wider font-bold mt-0.5">Grado Avanzado</p>
+          <p class="text-[10px] text-gray-500 leading-relaxed mt-2">Maestría, doctorado, habilidad excepcional en ciencias o arte.</p>
         </div>
-        <div>
-          <p class="text-2xl font-mono font-bold text-white">{{ formatNumber(animMaxIter) }}</p>
-          <p class="text-[10px] text-gray-500 uppercase tracking-wider mt-1">iteraciones</p>
+        <div class="rounded-xl border border-primary-300/20 bg-primary-300/[0.03] p-4 relative overflow-hidden transition-all hover:border-primary-300/40 hover:bg-primary-300/[0.06]">
+          <div class="absolute top-0 left-0 w-full h-0.5 bg-primary-300" />
+          <p class="text-primary-300 font-mono font-black text-lg">EB-3</p>
+          <p class="text-[10px] text-primary-300/60 uppercase tracking-wider font-bold mt-0.5">Calificados</p>
+          <p class="text-[10px] text-gray-500 leading-relaxed mt-2">Profesionales con licenciatura, trabajadores con 2+ años de experiencia.</p>
         </div>
-        <div>
-          <p class="text-2xl font-mono font-bold text-accent-green">{{ formatNumber(animParetoSize) }}</p>
-          <p class="text-[10px] text-gray-500 uppercase tracking-wider mt-1">soluciones Pareto</p>
+        <div class="rounded-xl border border-purple-400/20 bg-purple-400/[0.03] p-4 relative overflow-hidden transition-all hover:border-purple-400/40 hover:bg-purple-400/[0.06]">
+          <div class="absolute top-0 left-0 w-full h-0.5 bg-purple-400" />
+          <p class="text-purple-400 font-mono font-black text-lg">EB-4</p>
+          <p class="text-[10px] text-purple-400/60 uppercase tracking-wider font-bold mt-0.5">Especiales</p>
+          <p class="text-[10px] text-gray-500 leading-relaxed mt-2">Trabajadores religiosos, traductores militares, empleados intl.</p>
+        </div>
+        <div class="rounded-xl border border-accent-red/20 bg-accent-red/[0.03] p-4 relative overflow-hidden transition-all hover:border-accent-red/40 hover:bg-accent-red/[0.06]">
+          <div class="absolute top-0 left-0 w-full h-0.5 bg-accent-red" />
+          <p class="text-accent-red font-mono font-black text-lg">EB-5</p>
+          <p class="text-[10px] text-accent-red/60 uppercase tracking-wider font-bold mt-0.5">Inversionistas</p>
+          <p class="text-[10px] text-gray-500 leading-relaxed mt-2">Inversión mínima $1.05M creando 10+ empleos en EE.UU.</p>
         </div>
       </div>
     </section>
 
-    <!-- Glosario de Términos -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- GLOSSARY — Collapsible                                -->
+    <!-- ══════════════════════════════════════════════════════ -->
     <section class="card">
-      <h2 class="section-title mb-2">Glosario de Términos</h2>
+      <h2 class="text-lg font-bold text-white mb-2">Glosario de Términos</h2>
       <p class="text-xs text-gray-500 mb-5">Referencia completa de la terminología técnica empleada en este sistema.</p>
-
-      <!-- EB Visa Types -->
-      <details class="mb-4 group" open>
-        <summary class="flex items-center gap-2 cursor-pointer py-2 px-1 rounded-lg hover:bg-white/[0.03] transition-colors">
-          <span class="text-sm font-semibold text-accent-yellow tracking-wide">Tipos de Visa EB (Employment-Based)</span>
-        </summary>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3 pl-5">
-          <!-- EB-1 -->
-          <div class="rounded-xl border border-accent-yellow/20 bg-accent-yellow/[0.04] p-4 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-accent-yellow to-accent-yellow/0" />
-            <div class="flex items-baseline gap-2 mb-2">
-              <span class="text-accent-yellow font-mono font-bold text-lg">EB-1</span>
-              <span class="text-[10px] text-accent-yellow/70 uppercase tracking-wider font-semibold">Prioridad</span>
-            </div>
-            <p class="text-xs text-gray-400 leading-relaxed">
-              Trabajadores con <strong class="text-white">habilidades extraordinarias</strong>: premios Nobel, CEOs de multinacionales,
-              investigadores destacados, atletas y artistas de reconocimiento internacional.
-            </p>
-          </div>
-          <!-- EB-2 -->
-          <div class="rounded-xl border border-accent-green/20 bg-accent-green/[0.04] p-4 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-accent-green to-accent-green/0" />
-            <div class="flex items-baseline gap-2 mb-2">
-              <span class="text-accent-green font-mono font-bold text-lg">EB-2</span>
-              <span class="text-[10px] text-accent-green/70 uppercase tracking-wider font-semibold">Grado Avanzado</span>
-            </div>
-            <p class="text-xs text-gray-400 leading-relaxed">
-              Profesionales con <strong class="text-white">maestría o doctorado</strong>, o personas con habilidad excepcional
-              en ciencias, artes o negocios. Incluye exenciones por interés nacional (NIW).
-            </p>
-          </div>
-          <!-- EB-3 -->
-          <div class="rounded-xl border border-accent-blue/20 bg-accent-blue/[0.04] p-4 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-accent-blue to-accent-blue/0" />
-            <div class="flex items-baseline gap-2 mb-2">
-              <span class="text-accent-blue font-mono font-bold text-lg">EB-3</span>
-              <span class="text-[10px] text-accent-blue/70 uppercase tracking-wider font-semibold">Calificados</span>
-            </div>
-            <p class="text-xs text-gray-400 leading-relaxed">
-              <strong class="text-white">Trabajadores calificados</strong> (min. 2 años experiencia),
-              profesionales con licenciatura y otros trabajadores para puestos que requieren menos de 2 años de formación.
-            </p>
-          </div>
-          <!-- EB-4 -->
-          <div class="rounded-xl border border-primary-300/20 bg-primary-300/[0.04] p-4 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary-300 to-primary-300/0" />
-            <div class="flex items-baseline gap-2 mb-2">
-              <span class="text-primary-300 font-mono font-bold text-lg">EB-4</span>
-              <span class="text-[10px] text-primary-300/70 uppercase tracking-wider font-semibold">Especiales</span>
-            </div>
-            <p class="text-xs text-gray-400 leading-relaxed">
-              <strong class="text-white">Inmigrantes especiales</strong>: trabajadores religiosos, traductores militares
-              afganos/iraquíes, empleados de organizaciones internacionales y ciertos médicos.
-            </p>
-          </div>
-          <!-- EB-5 -->
-          <div class="rounded-xl border border-accent-red/20 bg-accent-red/[0.04] p-4 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-accent-red to-accent-red/0" />
-            <div class="flex items-baseline gap-2 mb-2">
-              <span class="text-accent-red font-mono font-bold text-lg">EB-5</span>
-              <span class="text-[10px] text-accent-red/70 uppercase tracking-wider font-semibold">Inversionistas</span>
-            </div>
-            <p class="text-xs text-gray-400 leading-relaxed">
-              <strong class="text-white">Inversionistas</strong> que crean al menos 10 empleos con una inversión mínima
-              de $1.05M (o $800K en áreas de empleo dirigido TEA). Incluye el programa de Centros Regionales.
-            </p>
-          </div>
-        </div>
-      </details>
 
       <!-- Conceptos del Algoritmo -->
       <details class="mb-4 group">
@@ -360,43 +478,31 @@ const animParetoSize = useCountUp(expParetoSize, 2200)
           </div>
           <div class="flex flex-col gap-0.5">
             <span class="text-accent-green font-semibold text-sm">Frente de Pareto</span>
-            <p class="text-xs text-gray-400 leading-relaxed">Conjunto de soluciones <strong class="text-white">no-dominadas</strong>: ninguna es estrictamente mejor que otra en todos los objetivos simultáneamente. Representa la frontera eficiente del espacio de decisión, donde mejorar un objetivo implica empeorar al menos otro.</p>
+            <p class="text-xs text-gray-400 leading-relaxed">Conjunto de soluciones <strong class="text-white">no-dominadas</strong>: ninguna es estrictamente mejor que otra en todos los objetivos simultáneamente. Representa la frontera eficiente del espacio de decisión.</p>
           </div>
           <div class="flex flex-col gap-0.5">
             <span class="text-accent-green font-semibold text-sm">Dominancia de Pareto</span>
-            <p class="text-xs text-gray-400 leading-relaxed">Una solución <strong class="text-white">A domina a B</strong> (A &#8826; B) si y solo si A es mejor o igual en <em>todos</em> los objetivos y estrictamente mejor en <em>al menos uno</em>. Formalmente: &#8704;i: f&#7522;(A) &#8804; f&#7522;(B) &#8743; &#8707;j: f&#11388;(A) &lt; f&#11388;(B).</p>
+            <p class="text-xs text-gray-400 leading-relaxed">Una solución <strong class="text-white">A domina a B</strong> (A ≻ B) si y solo si A es mejor o igual en todos los objetivos y estrictamente mejor en al menos uno.</p>
           </div>
           <div class="flex flex-col gap-0.5">
             <span class="text-accent-green font-semibold text-sm">Hipervolumen (HV)</span>
-            <p class="text-xs text-gray-400 leading-relaxed"><strong class="text-white">Volumen del espacio objetivo</strong> cubierto por el frente de Pareto, delimitado por un punto de referencia. Es la métrica estándar de calidad de un frente: mayor HV indica mejor convergencia y diversidad simultáneamente. Es la única métrica Pareto-compatible.</p>
-          </div>
-          <div class="flex flex-col gap-0.5">
-            <span class="text-accent-green font-semibold text-sm">Punto de referencia (r)</span>
-            <p class="text-xs text-gray-400 leading-relaxed">Punto en el espacio objetivo que es <strong class="text-white">peor que todas las soluciones</strong> del frente en todos los objetivos. Se usa como límite superior para el cálculo del hipervolumen. Su elección afecta el valor absoluto del HV pero no el ranking relativo entre frentes.</p>
+            <p class="text-xs text-gray-400 leading-relaxed"><strong class="text-white">Volumen del espacio objetivo</strong> cubierto por el frente de Pareto. Mayor HV = mejor convergencia y diversidad.</p>
           </div>
           <div class="flex flex-col gap-0.5">
             <span class="text-accent-green font-semibold text-sm">Knee point <span class="text-gray-600 font-normal">(punto rodilla)</span></span>
-            <p class="text-xs text-gray-400 leading-relaxed">Solución del frente de Pareto con el <strong class="text-white">mejor balance entre objetivos</strong>. Se identifica como el punto con máxima distancia perpendicular a la línea que conecta los extremos del frente. Representa el compromiso más eficiente.</p>
+            <p class="text-xs text-gray-400 leading-relaxed">Solución con el <strong class="text-white">mejor balance entre objetivos</strong>. Máxima distancia perpendicular a la línea entre extremos del frente.</p>
           </div>
           <div class="flex flex-col gap-0.5">
             <span class="text-accent-green font-semibold text-sm">SPV <span class="text-gray-600 font-normal">(Smallest Position Value)</span></span>
-            <p class="text-xs text-gray-400 leading-relaxed">Método de decodificación que convierte un <strong class="text-white">vector continuo [0,1]&#xB9;&#x2070;&#x2075;</strong> en una permutación. Para cada solución, los 105 valores reales se ordenan de menor a mayor y su posición define la prioridad de asignación de cada grupo país-categoría.</p>
-          </div>
-          <div class="flex flex-col gap-0.5">
-            <span class="text-accent-green font-semibold text-sm">Exploración vs Explotación</span>
-            <p class="text-xs text-gray-400 leading-relaxed">Dilema fundamental en metaheurísticas. <strong class="text-white">Exploración</strong>: buscar ampliamente en nuevas regiones del espacio de soluciones (diversidad). <strong class="text-white">Explotación</strong>: refinar soluciones prometedoras en zonas conocidas (convergencia). HHO transiciona gradualmente de exploración a explotación.</p>
+            <p class="text-xs text-gray-400 leading-relaxed">Convierte un <strong class="text-white">vector continuo [0,1]¹⁰⁵</strong> en permutación para definir la prioridad de asignación.</p>
           </div>
           <div class="flex flex-col gap-0.5">
             <span class="text-accent-green font-semibold text-sm">Energía de escape (E)</span>
-            <p class="text-xs text-gray-400 leading-relaxed">Parámetro que <strong class="text-white">decrece linealmente de 2 a 0</strong> con las iteraciones, modelando la energía del conejo para escapar. Cuando |E| &#8805; 1 se prioriza exploración global; cuando |E| &lt; 1 se activan estrategias de explotación intensiva.</p>
+            <p class="text-xs text-gray-400 leading-relaxed">Parámetro que <strong class="text-white">decrece linealmente de 2 a 0</strong>. |E| ≥ 1 → exploración; |E| < 1 → explotación intensiva.</p>
           </div>
           <div class="flex flex-col gap-0.5">
             <span class="text-accent-green font-semibold text-sm">Vuelo de Lévy</span>
-            <p class="text-xs text-gray-400 leading-relaxed"><strong class="text-white">Caminata aleatoria</strong> con distribución de pasos de cola pesada: la mayoría de pasos son cortos, pero ocasionalmente se producen saltos largos. Permite a los halcones escapar de óptimos locales y descubrir regiones inexploradas del espacio de búsqueda.</p>
-          </div>
-          <div class="flex flex-col gap-0.5">
-            <span class="text-accent-green font-semibold text-sm">Archivo externo</span>
-            <p class="text-xs text-gray-400 leading-relaxed">Repositorio que almacena las <strong class="text-white">soluciones no-dominadas</strong> encontradas durante la optimización. Se actualiza cada iteración: nuevas soluciones no-dominadas entran y las dominadas se eliminan. Su tamaño se controla mediante mecanismos de crowding distance.</p>
+            <p class="text-xs text-gray-400 leading-relaxed"><strong class="text-white">Caminata aleatoria</strong> con saltos largos ocasionales para escapar de óptimos locales.</p>
           </div>
         </div>
       </details>
@@ -409,35 +515,23 @@ const animParetoSize = useCountUp(expParetoSize, 2200)
         <div class="space-y-3 mt-3 pl-5">
           <div class="flex flex-col gap-0.5">
             <span class="text-accent-blue font-semibold text-sm">FIFO <span class="text-gray-600 font-normal">(First In, First Out)</span></span>
-            <p class="text-xs text-gray-400 leading-relaxed">Sistema de asignación actual donde las visas se otorgan estrictamente por <strong class="text-white">orden de llegada</strong> de la petición aprobada (fecha de prioridad). No optimiza ningún criterio de equidad ni eficiencia global; simplemente atiende la cola cronológicamente.</p>
+            <p class="text-xs text-gray-400 leading-relaxed">Sistema actual de asignación por <strong class="text-white">orden de llegada</strong>. No optimiza equidad ni eficiencia.</p>
           </div>
           <div class="flex flex-col gap-0.5">
             <span class="text-accent-blue font-semibold text-sm">Per-country cap <span class="text-gray-600 font-normal">(tope por país)</span></span>
-            <p class="text-xs text-gray-400 leading-relaxed">Restricción legal que limita a cada país al <strong class="text-white">7% del total anual</strong> de visas EB (25,620 de 140,000). Su objetivo es evitar que un solo país acapare todas las visas, pero genera esperas extremas para países con alta demanda como India y China.</p>
+            <p class="text-xs text-gray-400 leading-relaxed">Límite de <strong class="text-white">7% del total anual</strong> (25,620 visas) por país. Genera esperas extremas para India y China.</p>
           </div>
           <div class="flex flex-col gap-0.5">
-            <span class="text-accent-blue font-semibold text-sm">Spillover <span class="text-gray-600 font-normal">(cascada de reasignación)</span></span>
-            <p class="text-xs text-gray-400 leading-relaxed">Mecanismo legal donde las <strong class="text-white">visas no utilizadas</strong> de categorías inferiores se reasignan hacia arriba: EB-4/5 &#8594; EB-1 &#8594; EB-2 &#8594; EB-3. Permite que visas sin demanda suficiente en una categoría beneficien a categorías con mayor backlog.</p>
+            <span class="text-accent-blue font-semibold text-sm">Spillover <span class="text-gray-600 font-normal">(cascada)</span></span>
+            <p class="text-xs text-gray-400 leading-relaxed">Visas no usadas de EB-4/5 se reasignan: <strong class="text-white">EB-4/5 → EB-1 → EB-2 → EB-3</strong>.</p>
           </div>
           <div class="flex flex-col gap-0.5">
             <span class="text-accent-blue font-semibold text-sm">Backlog <span class="text-gray-600 font-normal">(acumulación)</span></span>
-            <p class="text-xs text-gray-400 leading-relaxed">Número total de <strong class="text-white">peticiones aprobadas que esperan visa</strong>. Cuando la demanda supera la oferta anual, se genera un backlog creciente. Para India EB-3 el backlog actual implica esperas superiores a 10 años.</p>
-          </div>
-          <div class="flex flex-col gap-0.5">
-            <span class="text-accent-blue font-semibold text-sm">f&#8321; <span class="text-gray-600 font-normal">(carga de espera)</span></span>
-            <p class="text-xs text-gray-400 leading-relaxed"><strong class="text-white">Primer objetivo a minimizar.</strong> Suma ponderada de los años de espera de las personas que NO reciben visa en la asignación propuesta. Pondera por el tiempo de espera de cada grupo: quienes llevan más tiempo esperando pesan más.</p>
-          </div>
-          <div class="flex flex-col gap-0.5">
-            <span class="text-accent-blue font-semibold text-sm">f&#8322; <span class="text-gray-600 font-normal">(disparidad entre países)</span></span>
-            <p class="text-xs text-gray-400 leading-relaxed"><strong class="text-white">Segundo objetivo a minimizar.</strong> Mide la brecha máxima de tiempo de espera promedio entre cualquier par de países. Captura la inequidad del sistema: un valor bajo indica que todos los países experimentan esperas similares.</p>
-          </div>
-          <div class="flex flex-col gap-0.5">
-            <span class="text-accent-blue font-semibold text-sm">f&#8323; <span class="text-gray-600 font-normal">(desperdicio de visas)</span></span>
-            <p class="text-xs text-gray-400 leading-relaxed"><strong class="text-white">Tercer objetivo a minimizar.</strong> Cantidad de visas del total de 140,000 que quedan sin asignar por la interacción entre topes por país y demanda por categoría. Bajo el sistema FIFO actual, se desperdician miles de visas cada año.</p>
+            <p class="text-xs text-gray-400 leading-relaxed"><strong class="text-white">Peticiones aprobadas esperando visa.</strong> India EB-3 tiene backlog de 10+ años.</p>
           </div>
           <div class="flex flex-col gap-0.5">
             <span class="text-accent-blue font-semibold text-sm">Visa Bulletin</span>
-            <p class="text-xs text-gray-400 leading-relaxed">Publicación mensual del <strong class="text-white">Departamento de Estado</strong> de EE.UU. que indica las fechas de prioridad actuales para cada categoría y país. Define quiénes pueden avanzar en el proceso de visa basándose en cuándo fue aprobada su petición.</p>
+            <p class="text-xs text-gray-400 leading-relaxed">Publicación mensual del <strong class="text-white">Departamento de Estado</strong> con fechas de prioridad actuales por categoría y país.</p>
           </div>
         </div>
       </details>
@@ -449,20 +543,16 @@ const animParetoSize = useCountUp(expParetoSize, 2200)
         </summary>
         <div class="space-y-3 mt-3 pl-5">
           <div class="flex flex-col gap-0.5">
-            <span class="text-accent-red font-semibold text-sm">&#963; <span class="text-gray-600 font-normal">(sigma / desviación estándar)</span></span>
-            <p class="text-xs text-gray-400 leading-relaxed">Mide la <strong class="text-white">dispersión</strong> de un conjunto de resultados respecto a su media. En este proyecto, se usa para evaluar la variabilidad del hipervolumen entre las 30 corridas independientes. Menor &#963; indica resultados más reproducibles.</p>
+            <span class="text-accent-red font-semibold text-sm">σ <span class="text-gray-600 font-normal">(desviación estándar)</span></span>
+            <p class="text-xs text-gray-400 leading-relaxed">Dispersión de resultados respecto a la media. Menor σ = más reproducible.</p>
           </div>
           <div class="flex flex-col gap-0.5">
             <span class="text-accent-red font-semibold text-sm">CV <span class="text-gray-600 font-normal">(coeficiente de variación)</span></span>
-            <p class="text-xs text-gray-400 leading-relaxed">Definido como <strong class="text-white">&#963;/&#956; &#215; 100</strong>, expresa la desviación estándar como porcentaje de la media. Permite comparar la consistencia de métricas con distintas escalas. Un CV bajo (&lt;5%) indica alta consistencia del algoritmo entre corridas.</p>
+            <p class="text-xs text-gray-400 leading-relaxed"><strong class="text-white">σ/μ × 100</strong>. CV < 5% indica alta consistencia del algoritmo.</p>
           </div>
           <div class="flex flex-col gap-0.5">
             <span class="text-accent-red font-semibold text-sm">IQR <span class="text-gray-600 font-normal">(rango intercuartílico)</span></span>
-            <p class="text-xs text-gray-400 leading-relaxed">Diferencia entre el <strong class="text-white">tercer cuartil (Q3) y el primer cuartil (Q1)</strong>: el rango que contiene el 50% central de los datos. Es robusto frente a valores atípicos, a diferencia del rango total. Se usa en los box plots de convergencia.</p>
-          </div>
-          <div class="flex flex-col gap-0.5">
-            <span class="text-accent-red font-semibold text-sm">Mediana <span class="text-gray-600 font-normal">(percentil 50)</span></span>
-            <p class="text-xs text-gray-400 leading-relaxed">Valor que divide los datos ordenados exactamente a la mitad: <strong class="text-white">50% por arriba, 50% por abajo</strong>. Más robusta que la media frente a valores extremos. Reportada junto con la media para caracterizar distribuciones potencialmente asimétricas.</p>
+            <p class="text-xs text-gray-400 leading-relaxed">Q3 - Q1: rango que contiene el <strong class="text-white">50% central</strong> de los datos. Robusto ante outliers.</p>
           </div>
         </div>
       </details>

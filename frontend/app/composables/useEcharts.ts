@@ -9,6 +9,7 @@ import {
   RadarChart,
   ParallelChart,
   SankeyChart,
+  GaugeChart,
 } from 'echarts/charts'
 import {
   TitleComponent,
@@ -26,7 +27,7 @@ import {
 use([
   CanvasRenderer,
   ScatterChart, BarChart, LineChart, HeatmapChart, EffectScatterChart,
-  RadarChart, ParallelChart, SankeyChart,
+  RadarChart, ParallelChart, SankeyChart, GaugeChart,
   TitleComponent, TooltipComponent, LegendComponent, GridComponent,
   DataZoomComponent, ToolboxComponent, VisualMapComponent,
   ParallelComponent, MarkLineComponent, MarkPointComponent,

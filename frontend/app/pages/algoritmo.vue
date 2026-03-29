@@ -990,18 +990,18 @@ archive = []                                # Archivo Pareto vacío</pre>
           <pre class="p-4 text-[11px] font-mono leading-relaxed overflow-x-auto text-gray-400"><span class="text-gray-600">"""Parámetros de configuración para la optimización MOHHO de visas."""</span>
 
 <span class="text-gray-600"># ── Presupuesto total de visas EB (fuente: INA §203) ──</span>
-<span class="text-accent-yellow">V</span>: int = <span class="text-purple-400">140_000</span>          <span class="text-gray-600"># visas EB disponibles por año fiscal</span>
-<span class="text-accent-yellow">V_TOTAL</span>: int = <span class="text-purple-400">366_000</span>    <span class="text-gray-600"># demanda total registrada</span>
-<span class="text-accent-yellow">P_C</span>: int = <span class="text-purple-400">25_620</span>        <span class="text-gray-600"># tope per-country (7% de 366,000)</span>
+<span class="text-accent-yellow">V</span>: int = <span class="text-purple-400">140,000</span>          <span class="text-gray-600"># visas EB disponibles por año fiscal</span>
+<span class="text-accent-yellow">V_TOTAL</span>: int = <span class="text-purple-400">366,000</span>    <span class="text-gray-600"># demanda total registrada</span>
+<span class="text-accent-yellow">P_C</span>: int = <span class="text-purple-400">25,620</span>        <span class="text-gray-600"># tope per-country (7% de 366,000)</span>
 <span class="text-accent-yellow">T_ACTUAL</span>: int = <span class="text-purple-400">2026</span>      <span class="text-gray-600"># año fiscal actual</span>
 
 <span class="text-gray-600"># ── Topes base por categoría (antes de spillover) ──</span>
 <span class="text-accent-yellow">K_BASE</span>: dict = {
-    <span class="text-accent-green">"EB-1"</span>: <span class="text-purple-400">40_040</span>,   <span class="text-gray-600"># 28.6% de 140k — Extraordinarios</span>
-    <span class="text-accent-green">"EB-2"</span>: <span class="text-purple-400">40_040</span>,   <span class="text-gray-600"># 28.6% de 140k — Profesionales</span>
-    <span class="text-accent-green">"EB-3"</span>: <span class="text-purple-400">40_040</span>,   <span class="text-gray-600"># 28.6% de 140k — Calificados</span>
-    <span class="text-accent-green">"EB-4"</span>: <span class="text-purple-400">9_940</span>,    <span class="text-gray-600"># 7.1%  — Especiales (SIV)</span>
-    <span class="text-accent-green">"EB-5"</span>: <span class="text-purple-400">9_940</span>,    <span class="text-gray-600"># 7.1%  — Inversores</span>
+    <span class="text-accent-green">"EB-1"</span>: <span class="text-purple-400">40,040</span>,   <span class="text-gray-600"># 28.6% de 140k — Extraordinarios</span>
+    <span class="text-accent-green">"EB-2"</span>: <span class="text-purple-400">40,040</span>,   <span class="text-gray-600"># 28.6% de 140k — Profesionales</span>
+    <span class="text-accent-green">"EB-3"</span>: <span class="text-purple-400">40,040</span>,   <span class="text-gray-600"># 28.6% de 140k — Calificados</span>
+    <span class="text-accent-green">"EB-4"</span>: <span class="text-purple-400">9,940</span>,    <span class="text-gray-600"># 7.1%  — Especiales (SIV)</span>
+    <span class="text-accent-green">"EB-5"</span>: <span class="text-purple-400">9,940</span>,    <span class="text-gray-600"># 7.1%  — Inversores</span>
 }
 
 <span class="text-gray-600"># ── Hiperparámetros del algoritmo MOHHO ──</span>
@@ -1278,7 +1278,7 @@ archive = []                                # Archivo Pareto vacío</pre>
 <span class="text-blue-400">from</span> app.core.hho <span class="text-blue-400">import</span> escape_energy, op1..op6
 <span class="text-blue-400">from</span> app.core.problem <span class="text-blue-400">import</span> VisaProblem
 
-<span class="text-accent-yellow">HV_REF_POINT</span> = (<span class="text-purple-400">10.0</span>, <span class="text-purple-400">16.0</span>, <span class="text-purple-400">50_000.0</span>)  <span class="text-gray-600"># punto de referencia para HV</span>
+<span class="text-accent-yellow">HV_REF_POINT</span> = (<span class="text-purple-400">10.0</span>, <span class="text-purple-400">16.0</span>, <span class="text-purple-400">50,000.0</span>)  <span class="text-gray-600"># punto de referencia para HV</span>
 
 
 <span class="text-gray-600"># ── DOMINANCIA DE PARETO ──</span>
@@ -1469,17 +1469,17 @@ archive = []                                # Archivo Pareto vacío</pre>
 
 <span class="text-accent-yellow">VISA_DATA</span> = {
     <span class="text-accent-green">"India"</span>: {
-        <span class="text-accent-green">"EB-1"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">18_462</span>,  <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2023</span>},  <span class="text-gray-600"># 3 años esperando</span>
-        <span class="text-accent-green">"EB-2"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">331_561</span>, <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2014</span>},  <span class="text-gray-600"># 12 AÑOS — la fila más larga</span>
-        <span class="text-accent-green">"EB-3"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">102_683</span>, <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2013</span>},  <span class="text-gray-600"># 13 años esperando</span>
-        <span class="text-accent-green">"EB-4"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">4_866</span>,   <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2022</span>},
+        <span class="text-accent-green">"EB-1"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">18,462</span>,  <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2023</span>},  <span class="text-gray-600"># 3 años esperando</span>
+        <span class="text-accent-green">"EB-2"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">331,561</span>, <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2014</span>},  <span class="text-gray-600"># 12 AÑOS — la fila más larga</span>
+        <span class="text-accent-green">"EB-3"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">102,683</span>, <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2013</span>},  <span class="text-gray-600"># 13 años esperando</span>
+        <span class="text-accent-green">"EB-4"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">4,866</span>,   <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2022</span>},
         <span class="text-accent-green">"EB-5"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">116</span>,     <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2022</span>},
     },
     <span class="text-accent-green">"China"</span>: {
-        <span class="text-accent-green">"EB-1"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">11_858</span>,  <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2023</span>},
-        <span class="text-accent-green">"EB-2"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">36_172</span>,  <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2021</span>},
-        <span class="text-accent-green">"EB-3"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">13_334</span>,  <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2021</span>},
-        <span class="text-accent-green">"EB-5"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">12_117</span>,  <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2016</span>},  <span class="text-gray-600"># 10 años — inversores</span>
+        <span class="text-accent-green">"EB-1"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">11,858</span>,  <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2023</span>},
+        <span class="text-accent-green">"EB-2"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">36,172</span>,  <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2021</span>},
+        <span class="text-accent-green">"EB-3"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">13,334</span>,  <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2021</span>},
+        <span class="text-accent-green">"EB-5"</span>: {<span class="text-accent-green">"n"</span>: <span class="text-purple-400">12,117</span>,  <span class="text-accent-green">"d"</span>: <span class="text-purple-400">2016</span>},  <span class="text-gray-600"># 10 años — inversores</span>
     },
     <span class="text-gray-600">... (21 países en total)</span>
 }
