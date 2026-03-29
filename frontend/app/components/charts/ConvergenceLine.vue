@@ -13,6 +13,7 @@ const option = computed<EChartsOption>(() => {
 
   return {
     ...baseChartOption,
+    grid: { left: 80, right: 25, top: 50, bottom: 75 },
     title: {
       text: 'Convergencia del Hipervolumen',
       textStyle: { color: CHART_COLORS.text, fontSize: 14, fontWeight: 600 },
@@ -21,6 +22,7 @@ const option = computed<EChartsOption>(() => {
     tooltip: {
       ...baseTooltip,
       trigger: 'axis',
+      confine: true,
       formatter: (params: any) => {
         const p = Array.isArray(params) ? params : [params]
         const meanSeries = p.find((s: any) => s.seriesName === 'HV medio')
@@ -28,7 +30,7 @@ const option = computed<EChartsOption>(() => {
         const idx = meanSeries.dataIndex
         const mean = props.hvMean[idx]
         const std = props.hvStd[idx]
-        return `<span style="opacity:0.6">Iteraci\u00f3n</span> <b>${props.iterations[idx]}</b><br><span style="opacity:0.6">HV medio:</span> <b>${mean.toLocaleString('es-MX', { maximumFractionDigits: 0 })}</b><br><span style="opacity:0.6">\u00b11\u03c3:</span> ${std.toLocaleString('es-MX', { maximumFractionDigits: 0 })}`
+        return `<span style="opacity:0.6">Iteración</span> <b>${props.iterations[idx]}</b><br><span style="opacity:0.6">HV medio:</span> <b>${mean.toLocaleString('es-MX', { maximumFractionDigits: 0 })}</b><br><span style="opacity:0.6">±1σ:</span> ${std.toLocaleString('es-MX', { maximumFractionDigits: 0 })}`
       },
     },
     legend: {
@@ -39,10 +41,10 @@ const option = computed<EChartsOption>(() => {
     xAxis: {
       type: 'category',
       data: props.iterations.map(String),
-      name: 'Iteraci\u00f3n',
+      name: 'Iteración',
       nameLocation: 'center',
-      nameGap: 28,
-      nameTextStyle: { color: CHART_COLORS.textMuted },
+      nameGap: 32,
+      nameTextStyle: { color: CHART_COLORS.textMuted, fontSize: 11 },
       axisLabel: {
         color: CHART_COLORS.textMuted,
         interval: Math.floor(props.iterations.length / 10),
@@ -53,14 +55,14 @@ const option = computed<EChartsOption>(() => {
       type: 'value',
       name: 'Hipervolumen (3D)',
       nameLocation: 'center',
-      nameGap: 70,
-      nameTextStyle: { color: CHART_COLORS.textMuted },
+      nameGap: 65,
+      nameTextStyle: { color: CHART_COLORS.textMuted, fontSize: 11 },
       axisLabel: { color: CHART_COLORS.textMuted },
       splitLine: { lineStyle: { color: CHART_COLORS.grid, type: 'dashed' } },
     },
     dataZoom: [
       { type: 'inside', xAxisIndex: 0 },
-      { type: 'slider', xAxisIndex: 0, height: 20, bottom: 0, borderColor: CHART_COLORS.grid,
+      { type: 'slider', xAxisIndex: 0, height: 20, bottom: 4, borderColor: CHART_COLORS.grid,
         fillerColor: 'rgba(0,60,166,0.15)', handleStyle: { color: CHART_COLORS.primary } },
     ],
     series: [
@@ -126,5 +128,5 @@ const option = computed<EChartsOption>(() => {
 </script>
 
 <template>
-  <VChart :option="option" autoresize class="w-full h-[400px]" />
+  <VChart :option="option" autoresize class="w-full h-[440px]" />
 </template>

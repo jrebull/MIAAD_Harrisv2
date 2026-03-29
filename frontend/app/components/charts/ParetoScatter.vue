@@ -94,18 +94,20 @@ const option = computed<EChartsOption>(() => {
 
   return {
     ...baseChartOption,
+    grid: { left: 75, right: 25, top: 50, bottom: 62 },
     title: {
-      text: `Frente de Pareto \u2014 ${xKey === 'f1' ? 'f\u2081' : 'f\u2082'} vs ${yKey === 'f2' ? 'f\u2082' : 'f\u2083'} (${props.points.length} soluciones)`,
+      text: `Frente de Pareto — ${xKey === 'f1' ? 'f₁' : 'f₂'} vs ${yKey === 'f2' ? 'f₂' : 'f₃'} (${props.points.length} soluciones)`,
       textStyle: { color: CHART_COLORS.text, fontSize: 14, fontWeight: 600 },
       left: 'center',
     },
     tooltip: {
       ...baseTooltip,
       trigger: 'item',
+      confine: true,
       formatter: (p: any) => {
         const d = p.data
         const label = p.seriesName === 'FIFO (Baseline)' ? '<span style="color:#FF3366;font-weight:700;font-size:13px">FIFO Baseline</span><br>' : ''
-        return `${label}<span style="opacity:0.5">f\u2081:</span> <b>${d[3].toFixed(4)}</b> a\u00f1os<br><span style="opacity:0.5">f\u2082:</span> <b>${d[4].toFixed(4)}</b> a\u00f1os<br><span style="opacity:0.5">f\u2083:</span> <b>${Math.round(d[5]).toLocaleString()}</b> desperdicio<br><span style="opacity:0.5">Visas:</span> <span style="color:${CHART_COLORS.green};font-weight:700">${d[2].toLocaleString()}</span>`
+        return `${label}<span style="opacity:0.5">f₁:</span> <b>${d[3].toFixed(4)}</b> años<br><span style="opacity:0.5">f₂:</span> <b>${d[4].toFixed(4)}</b> años<br><span style="opacity:0.5">f₃:</span> <b>${Math.round(d[5]).toLocaleString()}</b> desperdicio<br><span style="opacity:0.5">Visas:</span> <span style="color:${CHART_COLORS.green};font-weight:700">${d[2].toLocaleString()}</span>`
       },
     },
     legend: {
@@ -118,24 +120,24 @@ const option = computed<EChartsOption>(() => {
     xAxis: {
       name: xLabel,
       nameLocation: 'center',
-      nameGap: 32,
+      nameGap: 36,
       nameTextStyle: { color: CHART_COLORS.textMuted, fontSize: 11 },
       min: xBounds.min,
       max: xBounds.max,
       axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
       splitLine: { lineStyle: { color: CHART_COLORS.grid, type: 'dashed' } },
-      axisLabel: { color: CHART_COLORS.textMuted },
+      axisLabel: { color: CHART_COLORS.textMuted, formatter: (v: number) => yKey === 'f3' && xKey === 'f1' ? v.toFixed(2) : v.toFixed(1) },
     },
     yAxis: {
       name: yLabel,
       nameLocation: 'center',
-      nameGap: 60,
+      nameGap: 58,
       nameTextStyle: { color: CHART_COLORS.textMuted, fontSize: 11 },
       min: yBounds.min,
       max: yBounds.max,
       axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
       splitLine: { lineStyle: { color: CHART_COLORS.grid, type: 'dashed' } },
-      axisLabel: { color: CHART_COLORS.textMuted },
+      axisLabel: { color: CHART_COLORS.textMuted, formatter: (v: number) => yKey === 'f3' ? Math.round(v).toLocaleString() : v.toFixed(1) },
     },
     dataZoom: [
       { type: 'inside', xAxisIndex: 0 },

@@ -63,7 +63,7 @@ async def simulation_ws(websocket: WebSocket):
             hv = compute_hypervolume(archive_fitnesses)
             messages.append({
                 "type": "iteration",
-                "iteration": t,
+                "iteration": t + 1,
                 "max_iter": max_iter,
                 "archive_size": len(archive_fitnesses),
                 "hv": round(hv, 2),

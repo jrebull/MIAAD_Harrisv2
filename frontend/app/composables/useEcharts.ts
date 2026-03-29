@@ -6,6 +6,9 @@ import {
   LineChart,
   HeatmapChart,
   EffectScatterChart,
+  RadarChart,
+  ParallelChart,
+  SankeyChart,
 } from 'echarts/charts'
 import {
   TitleComponent,
@@ -15,6 +18,7 @@ import {
   DataZoomComponent,
   ToolboxComponent,
   VisualMapComponent,
+  ParallelComponent,
   MarkLineComponent,
   MarkPointComponent,
 } from 'echarts/components'
@@ -22,9 +26,10 @@ import {
 use([
   CanvasRenderer,
   ScatterChart, BarChart, LineChart, HeatmapChart, EffectScatterChart,
+  RadarChart, ParallelChart, SankeyChart,
   TitleComponent, TooltipComponent, LegendComponent, GridComponent,
   DataZoomComponent, ToolboxComponent, VisualMapComponent,
-  MarkLineComponent, MarkPointComponent,
+  ParallelComponent, MarkLineComponent, MarkPointComponent,
 ])
 
 export { type EChartsOption }
