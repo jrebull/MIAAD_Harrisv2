@@ -39,7 +39,7 @@ También funciona con **swipe** en pantallas táctiles y con los botones `‹ �
 10. **Las soluciones** — tabla de políticas concretas
 11. **Demo en vivo** → `/simulacion` (cambia al navegador aquí)
 12. Arquitectura de los programas (mapa de módulos)
-13. **Flujo del sistema** — diagrama de flujo animado (datos fluyendo)
+13. **El algoritmo, por dentro** — anatomía de MOHHO codificado (bucle real, 6 operadores, corriente animada)
 14. Rigor y fuentes de datos
 15. Conclusiones
 16. Gracias / preguntas
