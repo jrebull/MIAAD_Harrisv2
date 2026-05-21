@@ -115,7 +115,7 @@ table.sol td:first-child{text-align:left;border-left:3px solid var(--a,var(--pri
 table.sol td:last-child{border-radius:0 11px 11px 0}
 table.sol .sub{display:block;font-size:11.5px;color:var(--mut);font-family:var(--sans);margin-top:3px;font-weight:400}
 table.sol tr.fifo td{background:rgba(255,59,107,.06);color:var(--mut)}
-.flowchart{width:100%;max-width:1140px;margin:4px auto 0;display:block}
+.flowchart{width:100%;max-width:1140px;height:60vh;margin:2px auto 0;display:block}
 .ccard{background:rgba(8,11,22,.94);border:1px solid rgba(255,255,255,.15);border-radius:10px;overflow:hidden;box-shadow:0 16px 40px -18px #000}
 .ccbar{display:flex;align-items:center;gap:5px;padding:5px 9px;background:rgba(255,255,255,.05);font-family:var(--mono);font-size:9.5px;color:#8b96bd}
 .ccbar i{width:8px;height:8px;border-radius:50%;display:inline-block}
@@ -459,8 +459,8 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
   <!-- 11b — ANATOMÍA DEL ALGORITMO -->
   <section class="slide" data-time="1:05" data-notes="Anatomía del algoritmo, tal como está codificado en Python. run_mohho inicializa N halcones como vectores en [0,1] de 105 dimensiones y los evalúa con spv → decode → (f1,f2,f3). Luego itera 500 veces: calcula la energía E(t), elige al conejo por ruleta de crowding, y según |E| ramifica a uno de los 6 operadores — exploración (op1/op2), asedio (op3/op4) o vuelos de Lévy (op5/op6). Cada candidato pasa por update_archive (dominancia + crowding, acotado a 100). Al terminar devuelve el frente. La corriente que recorre el diagrama es una iteración del bucle.">
     <div class="wrap" style="max-width:1180px">
-      <div class="kick r">12 — El algoritmo, por dentro</div>
-      <h2 class="r">Así se codificó <span class="grad">MOHHO</span></h2>
+      <div class="kick r" style="margin-bottom:8px">12 — El algoritmo, por dentro</div>
+      <h2 class="r" style="font-size:clamp(22px,3vw,38px);margin-bottom:4px">Así se codificó <span class="grad">MOHHO</span></h2>
       <svg class="flowchart r" viewBox="0 0 1200 690">
         <defs>
           <marker id="arr2" viewBox="0 0 10 10" markerWidth="7.5" markerHeight="7.5" refX="7" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#aab4d4"/></marker>
