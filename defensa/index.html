@@ -107,6 +107,14 @@ ul.feat li{display:flex;gap:15px;align-items:flex-start;font-size:clamp(15px,1.7
   border:1px solid var(--line);border-radius:8px;padding:4px 9px}
 .chip.y{color:var(--gold);border-color:rgba(255,214,0,.3);background:rgba(255,214,0,.05)}
 .eqs .dot{width:9px;height:9px}
+table.sol{width:100%;border-collapse:separate;border-spacing:0 9px;font-size:15.5px}
+table.sol th{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:right;padding:0 14px 2px;font-weight:600}
+table.sol th:first-child{text-align:left}
+table.sol td{padding:14px;background:rgba(255,255,255,.04);font-family:var(--mono);text-align:right;color:var(--ink)}
+table.sol td:first-child{text-align:left;border-left:3px solid var(--a,var(--primary));border-radius:11px 0 0 11px;font-family:var(--sans)}
+table.sol td:last-child{border-radius:0 11px 11px 0}
+table.sol .sub{display:block;font-size:11.5px;color:var(--mut);font-family:var(--sans);margin-top:3px;font-weight:400}
+table.sol tr.fifo td{background:rgba(255,59,107,.06);color:var(--mut)}
 
 /* hunt canvas */
 .huntbox{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);
@@ -178,7 +186,7 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
 <div id="bar"></div>
 <div id="timer">10:00</div>
 <div class="hud-hint"><b>→</b> avanzar · <b>N</b> notas · <b>T</b> timer · <b>?</b> ayuda</div>
-<div id="counter"><b>1</b> / 14</div>
+<div id="counter"><b>1</b> / 15</div>
 <div id="dots"></div>
 
 <div id="deck">
@@ -341,39 +349,48 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
   </section>
 
   <!-- 8 — PARETO -->
-  <section class="slide" data-time="1:00" data-notes="El frente no da UNA respuesta: da un menú de políticas. Cada punto es una asignación viable. Según la prioridad del decisor se elige el escenario. FIFO queda FUERA del frente — es dominado por casi todo.">
+  <section class="slide" data-time="1:05" data-notes="El frente de Pareto es una SUPERFICIE en 3D — gira sola en pantalla y puedes arrastrarla con el mouse. Cada punto azul es una solución (política viable). Marcamos los escenarios: humanitario (oro), equidad (verde), máx. utilización (azul) y equilibrio (blanco). La X roja es FIFO, que FLOTA por encima de la superficie: está dominado. En la siguiente lámina verán las soluciones concretas con números.">
     <div class="wrap">
       <div class="kick r">08 — El frente de Pareto</div>
-      <h2 class="r">No una respuesta — <span class="gradg">un menú de políticas</span></h2>
-      <div class="grid g2 r" style="align-items:center;gap:30px;margin-top:8px">
-        <svg viewBox="0 0 340 240" style="width:100%;max-width:440px">
-          <defs><linearGradient id="pf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6ea8ff"/><stop offset="1" stop-color="#00E5A0"/></linearGradient></defs>
-          <line x1="44" y1="200" x2="324" y2="200" stroke="rgba(255,214,0,.5)" stroke-width="1.2"/>
-          <line x1="44" y1="200" x2="44" y2="16" stroke="rgba(0,229,160,.5)" stroke-width="1.2"/>
-          <text x="185" y="224" fill="#9aa6cc" font-size="11" text-anchor="middle" font-family="monospace">f₁ — espera →</text>
-          <text x="16" y="108" fill="#9aa6cc" font-size="11" text-anchor="middle" font-family="monospace" transform="rotate(-90 16 108)">f₂ — disparidad →</text>
-          <path class="draw-path" d="M60 44 C 120 60, 160 104, 188 132 S 270 182, 312 188" fill="none" stroke="url(#pf)" stroke-width="3" stroke-linecap="round"/>
-          <circle class="pt" cx="60" cy="44" r="5.5" fill="#FFD600"/><text class="pt" x="68" y="42" fill="#FFD600" font-size="10.5">humanitario</text>
-          <circle class="pt" cx="312" cy="188" r="5.5" fill="#00E5A0"/><text class="pt" x="248" y="184" fill="#00E5A0" font-size="10.5">equidad</text>
-          <circle class="pt" cx="188" cy="130" r="7.5" fill="#fff" stroke="#2f6df0" stroke-width="3"/><text class="pt" x="120" y="122" fill="#fff" font-size="10.5">equilibrio (knee)</text>
-          <circle class="pt" cx="292" cy="58" r="6.5" fill="none" stroke="#FF3B6B" stroke-width="2" stroke-dasharray="3 3"/>
-          <text class="pt" x="222" y="54" fill="#ff7595" font-size="10.5">✕ FIFO (dominado)</text>
-        </svg>
-        <ul class="feat">
-          <li><span class="dot y"></span><span><b class="y">Humanitario</b> — mínima espera (f₁)</span></li>
-          <li><span class="dot" style="color:#fff"></span><span><b>Equilibrio</b> — punto de rodilla, mejor compromiso</span></li>
-          <li><span class="dot g"></span><span><b class="g">Equidad</b> — mínima disparidad (f₂)</span></li>
-          <li><span class="dot b"></span><span><b class="b">Máx. utilización</b> — cero desperdicio (f₃)</span></li>
-          <li><span class="dot rr"></span><span><b class="rr">FIFO</b> — referencia (dominado)</span></li>
-        </ul>
+      <h2 class="r">406 soluciones, en <span class="grad">tres dimensiones</span></h2>
+      <div class="grid g2 r" style="align-items:center;gap:28px;margin-top:8px">
+        <div class="huntbox"><canvas id="pareto3d" class="hunt" style="height:clamp(300px,46vh,460px)"></canvas><span class="huntlabel">f₁ espera · f₂ disparidad · f₃ desperdicio — gira solo · arrastra para rotar</span></div>
+        <div>
+          <p class="lead" style="font-size:clamp(15px,1.7vw,20px)">Cada punto es una <b>política de asignación viable</b>. El frente forma una <b>superficie</b> en el espacio de los 3 objetivos — y <b class="rr">FIFO flota por encima</b>, dominado por casi todo el frente.</p>
+          <ul class="feat" style="margin-top:18px;font-size:15px">
+            <li><span class="dot y"></span><span><b class="y">Humanitario</b> · mín f₁</span></li>
+            <li><span class="dot" style="color:#fff"></span><span><b>Equilibrio</b> · knee (compromiso)</span></li>
+            <li><span class="dot g"></span><span><b class="g">Equidad</b> · mín f₂</span></li>
+            <li><span class="dot b"></span><span><b class="b">Máx. utilización</b> · mín f₃</span></li>
+            <li><span class="dot rr"></span><span><b class="rr">FIFO</b> · dominado</span></li>
+          </ul>
+        </div>
       </div>
+    </div>
+  </section>
+
+  <!-- 9 — LAS SOLUCIONES -->
+  <section class="slide" data-time="0:55" data-notes="Enfoque en las soluciones — del frente a políticas concretas. Cada fila es una solución real con sus tres valores y cuántas visas usa. Humanitario minimiza la espera. Equidad baja la disparidad a 2.38 frente a 12.64 de FIFO. Máxima utilización usa las 140 mil visas: cero desperdicio. FIFO queda dominado en todo. Equilibrio es el punto de rodilla, intermedio.">
+    <div class="wrap">
+      <div class="kick r">09 — Las soluciones</div>
+      <h2 class="r">Cuatro políticas — <span class="gradg">elige el criterio</span></h2>
+      <table class="sol r">
+        <thead><tr><th>Escenario</th><th>f₁ espera</th><th>f₂ disparidad</th><th>f₃ desperdicio</th><th>Visas usadas</th></tr></thead>
+        <tbody>
+          <tr style="--a:var(--gold)"><td><b>Humanitario</b><span class="sub">mínima espera</span></td><td class="y">7.19</td><td>10.74</td><td>16,280</td><td>123,720</td></tr>
+          <tr style="--a:var(--green)"><td><b>Equidad</b><span class="sub">mínima brecha entre países</span></td><td>7.51</td><td class="g">2.38</td><td>8,664</td><td>131,336</td></tr>
+          <tr style="--a:var(--blue)"><td><b>Máx. utilización</b><span class="sub">cero desperdicio</span></td><td>7.26</td><td>9.36</td><td class="b">0</td><td>140,000</td></tr>
+          <tr class="fifo" style="--a:var(--red)"><td><b>FIFO</b><span class="sub">sistema actual · dominado</span></td><td>7.21</td><td>12.64</td><td>17,540</td><td>122,460</td></tr>
+        </tbody>
+      </table>
+      <p class="tag r" style="margin-top:12px">Valores reales del frente (30 corridas). <b>Equilibrio</b> = punto de rodilla, intermedio entre estos extremos · menor = mejor en los 3 objetivos.</p>
     </div>
   </section>
 
   <!-- 9 — DEMO -->
   <section class="slide" data-time="2:00" data-notes="MOMENTO DEMO (~2 min). Cambia al navegador → /simulacion. Inicia una corrida. Narra: halcones azules exploran, amarillos/naranjas asedian al objetivo (líder Pareto); la X roja es FIFO, superado; el frente azul se forma. Usa PAUSA para explicar y 2× si vas con prisa. Vuelve aquí al terminar.">
     <div class="wrap center">
-      <div class="kick r" style="justify-content:center">09 — Demostración en vivo</div>
+      <div class="kick r" style="justify-content:center">10 — Demostración en vivo</div>
       <h2 class="r">Veámoslo <span class="grad">cazar</span> en tiempo real</h2>
       <p class="lead r" style="margin:12px auto 0">Simulación vía WebSocket: 105 dimensiones, exploración → asedio, el frente formándose y el <b class="rr">fantasma FIFO</b> siendo superado.</p>
       <div class="sp r"></div>
@@ -389,7 +406,7 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
   <!-- 10 — ARQUITECTURA DE LOS PROGRAMAS -->
   <section class="slide" data-time="0:55" data-notes="Arquitectura de los programas. Stack desacoplado: el BACKEND en FastAPI/Python tiene el núcleo del algoritmo en core/ (problem, decoder, hho, mohho, fifo) y la capa api/ con 12 endpoints REST más un WebSocket para la simulación. El FRONTEND en Nuxt 4 tiene páginas, componentes de gráficas (ECharts y el canvas HawkHunt) y composables. Se comunican por REST y WebSocket; desplegado en Render con CI desde GitHub.">
     <div class="wrap">
-      <div class="kick r">10 — Arquitectura de los programas</div>
+      <div class="kick r">11 — Arquitectura de los programas</div>
       <h2 class="r">Cómo está construido <span class="grad">por dentro</span></h2>
       <div class="grid g2 r" style="gap:20px;align-items:start;margin-top:8px">
         <div class="card" style="--accent:var(--green)">
@@ -432,7 +449,7 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
   <!-- 11 — RIGOR -->
   <section class="slide" data-time="0:50" data-notes="Rigor y datos — anticipa preguntas del jurado. ¿De dónde salen los datos? USCIS FY2025 Q2, Visa Bulletin abril 2026, DHS Yearbook FY2023, y reglas de la ley INA 203(b). La línea base FIFO coincide EXACTAMENTE con la implementación original: está validada.">
     <div class="wrap">
-      <div class="kick r">11 — Rigor y fuentes</div>
+      <div class="kick r">12 — Rigor y fuentes</div>
       <h2 class="r">Datos reales, resultados <span class="gradg">validados</span></h2>
       <div class="grid g2 r" style="gap:24px">
         <ul class="feat">
@@ -453,7 +470,7 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
   <!-- 12 — CONCLUSIONES -->
   <section class="slide" data-time="0:55" data-notes="Conclusiones. Frase potente: MOHHO convierte una sola regla rígida (FIFO) en un abanico de políticas medibles, eliminando el desperdicio y reduciendo la disparidad hasta 81%. Es una herramienta de apoyo a la decisión, transparente, no una caja negra. Futuro: más objetivos, datos en tiempo real.">
     <div class="wrap">
-      <div class="kick r">12 — Conclusiones</div>
+      <div class="kick r">13 — Conclusiones</div>
       <h2 class="r">De una regla rígida a <span class="gradg">decisiones informadas</span></h2>
       <ul class="feat">
         <li class="r"><span class="dot g"></span><span><b>MOHHO supera a FIFO</b> a la vez: desperdicio a <b class="g">cero</b> y disparidad hasta <b class="g">−81%</b>, sin sacrificar la espera.</span></li>
@@ -615,8 +632,55 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
     this.target(c,this.tgt.x*W,this.tgt.y*H,phase);
   };
 
-  var hunts={};
-  ['hero-hunt','meta-hunt','end-hunt'].forEach(function(id){var el=document.getElementById(id);if(el)hunts[id]=new Hunt(el)});
+  /* ============ PARETO 3D (rotating scatter) ============ */
+  function Pareto3D(canvas){
+    this.cv=canvas;this.ctx=canvas.getContext('2d');this.t=0;this.raf=0;this.on=false;this.manual=0;this.drag=false;this.lastX=0;
+    this.pts=[];var G=14;
+    function surf(u,v){return clamp(0.86-0.42*u-0.42*v+0.18*u*v,0.05,0.97)}
+    for(var i=0;i<G;i++)for(var j=0;j<G;j++){var u=i/(G-1),v=j/(G-1);
+      this.pts.push([clamp(surf(u,v)+(Math.random()-.5)*0.05,0.03,0.98),clamp(u+(Math.random()-.5)*0.03,0,1),clamp(v+(Math.random()-.5)*0.03,0,1)]);}
+    this.scn=[{n:'Equidad',c:'#00E5A0',p:[surf(0,0.5),0,0.5]},
+              {n:'Máx. util.',c:'#6ea8ff',p:[surf(0.5,0),0.5,0]},
+              {n:'Humanitario',c:'#FFD600',p:[surf(0.95,0.92),0.95,0.92]},
+              {n:'Equilibrio',c:'#ffffff',p:[surf(0.5,0.5),0.5,0.5]}];
+    this.fifo=[0.96,0.93,0.6];
+    var s=this;this._r=function(){s.size()};
+    this._down=function(e){s.drag=true;s.lastX=(e.touches?e.touches[0].clientX:e.clientX)};
+    this._move=function(e){if(!s.drag)return;var x=(e.touches?e.touches[0].clientX:e.clientX);s.manual+=(x-s.lastX)*0.01;s.lastX=x};
+    this._up=function(){s.drag=false};
+  }
+  Pareto3D.prototype.size=Hunt.prototype.size;
+  Pareto3D.prototype.start=function(){if(this.on)return;this.on=true;this.size();addEventListener('resize',this._r);
+    this.cv.addEventListener('pointerdown',this._down);addEventListener('pointermove',this._move);addEventListener('pointerup',this._up);
+    var s=this,loop=function(){if(!s.on)return;s.step();s.raf=requestAnimationFrame(loop)};this.raf=requestAnimationFrame(loop)};
+  Pareto3D.prototype.stop=function(){this.on=false;cancelAnimationFrame(this.raf);removeEventListener('resize',this._r);
+    this.cv.removeEventListener('pointerdown',this._down);removeEventListener('pointermove',this._move);removeEventListener('pointerup',this._up)};
+  Pareto3D.prototype.proj=function(P,ca,sa,cph,sph){var x=P[0]*2-1,y=P[1]*2-1,z=P[2]*2-1;
+    var X=x*ca+z*sa,Z=-x*sa+z*ca,Y=y,Y2=Y*cph-Z*sph,Z2=Y*sph+Z*cph,sc=this.fov/(this.fov+Z2);
+    return{x:this.cx+X*sc*this.R,y:this.cy-Y2*sc*this.R,s:sc,d:Z2}};
+  Pareto3D.prototype.step=function(){var c=this.ctx,W=this.W,H=this.H;if(!W||!H){this.size();return;}
+    c.clearRect(0,0,W,H);this.t++;this.cx=W/2;this.cy=H/2+6;this.R=Math.min(W,H)*0.30;this.fov=3.4;
+    var ang=this.t*0.005+this.manual,ca=Math.cos(ang),sa=Math.sin(ang),cph=Math.cos(0.52),sph=Math.sin(0.52),s=this;
+    var O=this.proj([0,0,0],ca,sa,cph,sph),ax=[{e:[1,0,0],c:'255,214,0',l:'f₁'},{e:[0,1,0],c:'0,229,160',l:'f₂'},{e:[0,0,1],c:'110,168,255',l:'f₃'}];
+    for(var a=0;a<3;a++){var E=this.proj(ax[a].e,ca,sa,cph,sph);
+      c.strokeStyle='rgba('+ax[a].c+',.55)';c.lineWidth=1.5;c.beginPath();c.moveTo(O.x,O.y);c.lineTo(E.x,E.y);c.stroke();
+      c.fillStyle='rgba('+ax[a].c+',.95)';c.font='bold 13px monospace';c.fillText(ax[a].l,E.x+5,E.y+4);}
+    var ps=[];for(var i=0;i<this.pts.length;i++){var pr=this.proj(this.pts[i],ca,sa,cph,sph);pr.f2=this.pts[i][1];ps.push(pr);}
+    ps.sort(function(a,b){return b.d-a.d});
+    for(var i=0;i<ps.length;i++){var p=ps[i],al=clamp(0.35+0.5*(1-(p.d+1)/2),0.12,0.95),g=Math.round(150+p.f2*80);
+      c.beginPath();c.fillStyle='rgba(110,'+g+',255,'+al+')';c.arc(p.x,p.y,Math.max(1.4,2.7*p.s),0,6.2832);c.fill();}
+    for(var k=0;k<this.scn.length;k++){var sc=this.scn[k],pr=this.proj(sc.p,ca,sa,cph,sph);
+      c.beginPath();c.fillStyle=sc.c;c.arc(pr.x,pr.y,5.5*pr.s+2,0,6.2832);c.fill();
+      c.strokeStyle='rgba(255,255,255,.7)';c.lineWidth=1;c.stroke();
+      c.fillStyle=sc.c;c.font='bold 11px monospace';c.fillText(sc.n,pr.x+8,pr.y-6);}
+    var fp=this.proj(this.fifo,ca,sa,cph,sph),r=6;
+    c.strokeStyle='#FF3B6B';c.lineWidth=2;c.beginPath();
+    c.moveTo(fp.x-r,fp.y-r);c.lineTo(fp.x+r,fp.y+r);c.moveTo(fp.x+r,fp.y-r);c.lineTo(fp.x-r,fp.y+r);c.stroke();
+    c.fillStyle='#ff7595';c.font='bold 11px monospace';c.fillText('FIFO ✕',fp.x+9,fp.y-6);};
+
+  var allScenes=[];
+  ['hero-hunt','meta-hunt','end-hunt'].forEach(function(id){var el=document.getElementById(id);if(el)allScenes.push(new Hunt(el))});
+  var p3dEl=document.getElementById('pareto3d');if(p3dEl)allScenes.push(new Pareto3D(p3dEl));
 
   /* ============ DECK ============ */
   var slides=[].slice.call(document.querySelectorAll('.slide')),N=slides.length,cur=0;
@@ -655,8 +719,8 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
     ntime.textContent=slides[cur].dataset.time?('⏱ '+slides[cur].dataset.time):'';
     var sl=slides[cur];
     animateCounts(sl);animateRaces(sl);animateSVG(sl);
-    // hunts: run only on active slide
-    for(var id in hunts){var inSlide=sl.contains(hunts[id].cv);inSlide?hunts[id].start():hunts[id].stop();}
+    // canvas scenes: run only on the active slide
+    allScenes.forEach(function(s){sl.contains(s.cv)?s.start():s.stop()});
   }
   var next=function(){show(cur+1)},prev=function(){show(cur-1)};
 

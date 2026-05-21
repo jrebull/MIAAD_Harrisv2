@@ -1,7 +1,7 @@
 # Defensa — Presentación (10 min)
 
 Presentación **cinematográfica e interactiva** en HTML para la exposición final de **Visa Predict AI · MOHHO**.
-Un solo archivo, **sin dependencias ni internet**: fondo vivo animado, una cacería de halcones corriendo en canvas dentro de la propia presentación, números que cuentan hacia arriba, el frente de Pareto que se dibuja solo y barras que compiten contra FIFO.
+Un solo archivo, **sin dependencias ni internet**: fondo vivo animado, una cacería de halcones corriendo en canvas, un **frente de Pareto en 3D que gira (y se puede arrastrar)**, números que cuentan hacia arriba y barras que compiten contra FIFO.
 
 ## Cómo abrirla
 
@@ -25,23 +25,27 @@ Para presentar: pulsa **`F`** para pantalla completa.
 
 También funciona con **swipe** en pantallas táctiles y con los botones `‹ ›` de abajo.
 
-## Estructura (13 diapositivas · ~10 min)
+## Estructura (15 diapositivas · ~12 min)
 
 1. Portada
 2. El problema — 140K visas, 105 grupos
 3. La línea base — costo de FIFO
 4. Tres objetivos en conflicto (f₁, f₂, f₃)
-5. La metáfora Harris Hawks
-6. Cómo funciona — pipeline SPV → decoder
-7. **Resultados** — MOHHO vs FIFO
-8. El frente de Pareto + escenarios
-9. **Demo en vivo** → `/simulacion` (cambia al navegador aquí)
-10. Arquitectura técnica
-11. Rigor y fuentes de datos
-12. Conclusiones
-13. Gracias / preguntas
+5. **Modelo matemático y restricciones**
+6. La metáfora Harris Hawks (cacería viva)
+7. El motor — pipeline SPV → decoder
+8. **Resultados** — MOHHO vs FIFO
+9. **El frente de Pareto en 3D** (gira / arrastra)
+10. **Las soluciones** — tabla de políticas concretas
+11. **Demo en vivo** → `/simulacion` (cambia al navegador aquí)
+12. Arquitectura de los programas (mapa de módulos)
+13. Rigor y fuentes de datos
+14. Conclusiones
+15. Gracias / preguntas
 
-## Consejo para la demo (diapositiva 9)
+> Con las 15 láminas el guion ronda ~12 min. Para clavar 10, recorta la **demo a ~1:30** o aligera la metáfora. Los tiempos por lámina están en las notas (`N`).
+
+## Consejo para la demo (diapositiva 11)
 
 Ten abierta en otra pestaña **https://visa-predict-mohho.onrender.com/simulacion**.
 Inicia la corrida, usa **Pausar** para explicar una fase y **2×** si vas con prisa.
