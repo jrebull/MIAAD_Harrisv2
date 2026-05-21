@@ -25,7 +25,7 @@ Para presentar: pulsa **`F`** para pantalla completa.
 
 También funciona con **swipe** en pantallas táctiles y con los botones `‹ ›` de abajo.
 
-## Estructura (15 diapositivas · ~12 min)
+## Estructura (16 diapositivas · ~13 min)
 
 1. Portada
 2. El problema — 140K visas, 105 grupos
@@ -39,11 +39,12 @@ También funciona con **swipe** en pantallas táctiles y con los botones `‹ �
 10. **Las soluciones** — tabla de políticas concretas
 11. **Demo en vivo** → `/simulacion` (cambia al navegador aquí)
 12. Arquitectura de los programas (mapa de módulos)
-13. Rigor y fuentes de datos
-14. Conclusiones
-15. Gracias / preguntas
+13. **Flujo del sistema** — diagrama de flujo animado (datos fluyendo)
+14. Rigor y fuentes de datos
+15. Conclusiones
+16. Gracias / preguntas
 
-> Con las 15 láminas el guion ronda ~12 min. Para clavar 10, recorta la **demo a ~1:30** o aligera la metáfora. Los tiempos por lámina están en las notas (`N`).
+> Con las 16 láminas el guion ronda ~13 min. Para clavar 10, recorta la **demo a ~1:30** y aligera la metáfora. Los tiempos por lámina están en las notas (`N`).
 
 ## Consejo para la demo (diapositiva 11)
 

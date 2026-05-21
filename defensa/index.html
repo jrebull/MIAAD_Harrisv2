@@ -115,6 +115,9 @@ table.sol td:first-child{text-align:left;border-left:3px solid var(--a,var(--pri
 table.sol td:last-child{border-radius:0 11px 11px 0}
 table.sol .sub{display:block;font-size:11.5px;color:var(--mut);font-family:var(--sans);margin-top:3px;font-weight:400}
 table.sol tr.fifo td{background:rgba(255,59,107,.06);color:var(--mut)}
+.flowchart{width:100%;max-width:1140px;margin:4px auto 0;display:block}
+.flowline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-dasharray:9 7;animation:march 1.1s linear infinite}
+@keyframes march{to{stroke-dashoffset:-16}}
 
 /* hunt canvas */
 .huntbox{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);
@@ -186,7 +189,7 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
 <div id="bar"></div>
 <div id="timer">10:00</div>
 <div class="hud-hint"><b>→</b> avanzar · <b>N</b> notas · <b>T</b> timer · <b>?</b> ayuda</div>
-<div id="counter"><b>1</b> / 15</div>
+<div id="counter"><b>1</b> / 16</div>
 <div id="dots"></div>
 
 <div id="deck">
@@ -446,10 +449,100 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
     </div>
   </section>
 
+  <!-- 11b — FLOWCHART -->
+  <section class="slide" data-time="0:55" data-notes="Diagrama de flujo de extremo a extremo. Carril de arriba: el FRONTEND (Nuxt) — la página y el canvas HawkHunt. Carril de abajo: el BACKEND (FastAPI) con el pipeline del algoritmo: FastAPI recibe la petición, VisaProblem define f1f2f3, el decoder convierte orden→asignación factible, los 6 operadores HHO mueven a los halcones, y MOHHO mantiene el archivo de Pareto. El bucle naranja es la iteración (500 veces, con la energía bajando). Por REST se solicita y por WebSocket se transmite el frente en vivo de vuelta al canvas. Abajo, despliegue continuo GitHub → Render.">
+    <div class="wrap" style="max-width:1180px">
+      <div class="kick r">12 — Flujo del sistema</div>
+      <h2 class="r">Cómo fluyen los datos, <span class="grad">de extremo a extremo</span></h2>
+      <svg class="flowchart r" viewBox="0 0 1200 620">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" markerWidth="7.5" markerHeight="7.5" refX="7" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#aab4d4"/></marker>
+          <linearGradient id="laneB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(110,168,255,.10)"/><stop offset="1" stop-color="rgba(110,168,255,.02)"/></linearGradient>
+          <linearGradient id="laneG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(0,229,160,.10)"/><stop offset="1" stop-color="rgba(0,229,160,.02)"/></linearGradient>
+        </defs>
+
+        <!-- FRONTEND lane -->
+        <rect x="40" y="58" width="1120" height="150" rx="20" fill="url(#laneB)" stroke="rgba(110,168,255,.25)"/>
+        <text x="62" y="84" fill="#6ea8ff" font-size="12" letter-spacing="2" font-family="ui-monospace,monospace">FRONTEND · NUXT 4 · VUE + TYPESCRIPT</text>
+        <g>
+          <rect x="95" y="108" width="300" height="84" rx="14" fill="rgba(255,255,255,.05)" stroke="#6ea8ff" stroke-width="1.6"/>
+          <text x="245" y="146" text-anchor="middle" fill="#fff" font-size="16" font-weight="800" font-family="system-ui,sans-serif">Frontend · 10 páginas</text>
+          <text x="245" y="170" text-anchor="middle" fill="#9aa6cc" font-size="12" font-family="ui-monospace,monospace">Vue · ECharts · composables</text>
+        </g>
+        <g>
+          <rect x="765" y="108" width="320" height="84" rx="14" fill="rgba(255,255,255,.05)" stroke="#6ea8ff" stroke-width="1.6"/>
+          <text x="925" y="146" text-anchor="middle" fill="#fff" font-size="16" font-weight="800" font-family="system-ui,sans-serif">HawkHunt · canvas</text>
+          <text x="925" y="170" text-anchor="middle" fill="#9aa6cc" font-size="12" font-family="ui-monospace,monospace">simulación en vivo · gráficas</text>
+        </g>
+
+        <!-- BACKEND lane -->
+        <rect x="40" y="330" width="1120" height="214" rx="20" fill="url(#laneG)" stroke="rgba(0,229,160,.25)"/>
+        <text x="62" y="356" fill="#00E5A0" font-size="12" letter-spacing="2" font-family="ui-monospace,monospace">BACKEND · FASTAPI · PYTHON 3.12</text>
+        <!-- pipeline nodes -->
+        <g>
+          <rect x="70" y="430" width="150" height="82" rx="14" fill="rgba(255,255,255,.05)" stroke="#00E5A0" stroke-width="1.6"/>
+          <text x="145" y="466" text-anchor="middle" fill="#fff" font-size="15.5" font-weight="800" font-family="system-ui,sans-serif">FastAPI</text>
+          <text x="145" y="488" text-anchor="middle" fill="#9aa6cc" font-size="11.5" font-family="ui-monospace,monospace">api/ · ws.py</text>
+        </g>
+        <g>
+          <rect x="250" y="430" width="180" height="82" rx="14" fill="rgba(255,255,255,.05)" stroke="#00E5A0" stroke-width="1.6"/>
+          <text x="340" y="466" text-anchor="middle" fill="#fff" font-size="15.5" font-weight="800" font-family="system-ui,sans-serif">VisaProblem</text>
+          <text x="340" y="488" text-anchor="middle" fill="#9aa6cc" font-size="11.5" font-family="ui-monospace,monospace">f₁ f₂ f₃</text>
+        </g>
+        <g>
+          <rect x="460" y="430" width="190" height="82" rx="14" fill="rgba(255,255,255,.05)" stroke="#FFD600" stroke-width="1.6"/>
+          <text x="555" y="466" text-anchor="middle" fill="#fff" font-size="15.5" font-weight="800" font-family="system-ui,sans-serif">SPV + Decoder</text>
+          <text x="555" y="488" text-anchor="middle" fill="#9aa6cc" font-size="11.5" font-family="ui-monospace,monospace">caps + spillover</text>
+        </g>
+        <g>
+          <rect x="680" y="430" width="180" height="82" rx="14" fill="rgba(255,255,255,.05)" stroke="#ff8a3d" stroke-width="1.6"/>
+          <text x="770" y="466" text-anchor="middle" fill="#fff" font-size="15.5" font-weight="800" font-family="system-ui,sans-serif">Operadores HHO</text>
+          <text x="770" y="488" text-anchor="middle" fill="#9aa6cc" font-size="11.5" font-family="ui-monospace,monospace">explorar · asediar · Lévy</text>
+        </g>
+        <g>
+          <rect x="890" y="430" width="210" height="82" rx="14" fill="rgba(255,255,255,.05)" stroke="#00E5A0" stroke-width="1.6"/>
+          <text x="995" y="466" text-anchor="middle" fill="#fff" font-size="15.5" font-weight="800" font-family="system-ui,sans-serif">MOHHO · Pareto</text>
+          <text x="995" y="488" text-anchor="middle" fill="#9aa6cc" font-size="11.5" font-family="ui-monospace,monospace">no dominadas + HV</text>
+        </g>
+
+        <!-- pipeline arrows -->
+        <path class="flowline" d="M222,471 L246,471" stroke="#00E5A0" marker-end="url(#arr)"/>
+        <path class="flowline" d="M432,471 L456,471" stroke="#9bd86a" marker-end="url(#arr)"/>
+        <path class="flowline" d="M652,471 L676,471" stroke="#ffae5a" marker-end="url(#arr)"/>
+        <path class="flowline" d="M862,471 L886,471" stroke="#7fe0b0" marker-end="url(#arr)"/>
+
+        <!-- iteration loop B5 -> B2 -->
+        <path class="flowline" d="M995,430 C 995,372 340,372 340,430" stroke="#ff8a3d" marker-end="url(#arr)"/>
+        <rect x="582" y="352" width="186" height="22" rx="6" fill="rgba(5,7,16,.85)"/>
+        <text x="675" y="367" text-anchor="middle" fill="#ffae5a" font-size="12.5" font-family="ui-monospace,monospace">↻ × 500 iteraciones · E(t) ↓</text>
+        <circle r="4.5" fill="#ff8a3d"><animateMotion dur="3s" repeatCount="indefinite" path="M995,430 C 995,372 340,372 340,430"/></circle>
+
+        <!-- REST bridge (down) -->
+        <path class="flowline" d="M245,192 C 245,300 145,300 145,430" stroke="#6ea8ff" marker-end="url(#arr)"/>
+        <rect x="108" y="290" width="158" height="22" rx="6" fill="rgba(5,7,16,.85)"/>
+        <text x="187" y="305" text-anchor="middle" fill="#6ea8ff" font-size="12.5" font-family="ui-monospace,monospace">REST · POST /optimize</text>
+        <circle r="4.5" fill="#6ea8ff"><animateMotion dur="2.4s" repeatCount="indefinite" path="M245,192 C 245,300 145,300 145,430"/></circle>
+
+        <!-- WebSocket bridge (up) -->
+        <path class="flowline" d="M1010,430 C 1010,300 925,300 925,192" stroke="#FFD600" marker-end="url(#arr)"/>
+        <rect x="876" y="290" width="200" height="22" rx="6" fill="rgba(5,7,16,.85)"/>
+        <text x="976" y="305" text-anchor="middle" fill="#FFD600" font-size="12.5" font-family="ui-monospace,monospace">WebSocket · frente en vivo</text>
+        <circle r="4.5" fill="#FFD600"><animateMotion dur="2.6s" repeatCount="indefinite" path="M1010,430 C 1010,300 925,300 925,192"/></circle>
+
+        <!-- deploy strip -->
+        <rect x="400" y="566" width="150" height="38" rx="10" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.18)"/>
+        <text x="475" y="590" text-anchor="middle" fill="#c7d0ee" font-size="13" font-weight="700" font-family="system-ui,sans-serif">GitHub</text>
+        <path class="flowline" d="M552,585 L616,585" stroke="#7d88ad" marker-end="url(#arr)"/>
+        <rect x="620" y="566" width="340" height="38" rx="10" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.18)"/>
+        <text x="790" y="590" text-anchor="middle" fill="#c7d0ee" font-size="13" font-weight="700" font-family="system-ui,sans-serif">Render · frontend + backend · CI</text>
+      </svg>
+    </div>
+  </section>
+
   <!-- 11 — RIGOR -->
   <section class="slide" data-time="0:50" data-notes="Rigor y datos — anticipa preguntas del jurado. ¿De dónde salen los datos? USCIS FY2025 Q2, Visa Bulletin abril 2026, DHS Yearbook FY2023, y reglas de la ley INA 203(b). La línea base FIFO coincide EXACTAMENTE con la implementación original: está validada.">
     <div class="wrap">
-      <div class="kick r">12 — Rigor y fuentes</div>
+      <div class="kick r">13 — Rigor y fuentes</div>
       <h2 class="r">Datos reales, resultados <span class="gradg">validados</span></h2>
       <div class="grid g2 r" style="gap:24px">
         <ul class="feat">
@@ -470,7 +563,7 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
   <!-- 12 — CONCLUSIONES -->
   <section class="slide" data-time="0:55" data-notes="Conclusiones. Frase potente: MOHHO convierte una sola regla rígida (FIFO) en un abanico de políticas medibles, eliminando el desperdicio y reduciendo la disparidad hasta 81%. Es una herramienta de apoyo a la decisión, transparente, no una caja negra. Futuro: más objetivos, datos en tiempo real.">
     <div class="wrap">
-      <div class="kick r">13 — Conclusiones</div>
+      <div class="kick r">14 — Conclusiones</div>
       <h2 class="r">De una regla rígida a <span class="gradg">decisiones informadas</span></h2>
       <ul class="feat">
         <li class="r"><span class="dot g"></span><span><b>MOHHO supera a FIFO</b> a la vez: desperdicio a <b class="g">cero</b> y disparidad hasta <b class="g">−81%</b>, sin sacrificar la espera.</span></li>
