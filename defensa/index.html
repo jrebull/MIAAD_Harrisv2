@@ -102,6 +102,11 @@ ul.feat li{display:flex;gap:15px;align-items:flex-start;font-size:clamp(15px,1.7
   background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:999px;padding:7px 16px;text-decoration:none;transition:.25s}
 .pill:hover{color:#fff;border-color:rgba(0,229,160,.4);background:rgba(0,229,160,.06)}
 .tag{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.chip{font-family:var(--mono);font-size:11.5px;color:var(--mut);background:rgba(255,255,255,.05);
+  border:1px solid var(--line);border-radius:8px;padding:4px 9px}
+.chip.y{color:var(--gold);border-color:rgba(255,214,0,.3);background:rgba(255,214,0,.05)}
+.eqs .dot{width:9px;height:9px}
 
 /* hunt canvas */
 .huntbox{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);
@@ -173,7 +178,7 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
 <div id="bar"></div>
 <div id="timer">10:00</div>
 <div class="hud-hint"><b>→</b> avanzar · <b>N</b> notas · <b>T</b> timer · <b>?</b> ayuda</div>
-<div id="counter"><b>1</b> / 13</div>
+<div id="counter"><b>1</b> / 14</div>
 <div id="dots"></div>
 
 <div id="deck">
@@ -242,10 +247,43 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
     </div>
   </section>
 
+  <!-- 4b — MODELO MATEMÁTICO -->
+  <section class="slide" data-time="0:55" data-notes="El modelo formal. Variables: cuántas visas x_g asignar a cada uno de los 105 grupos. Minimizamos el vector (f1,f2,f3) sujeto a: presupuesto de 140 mil, tope por país de 25,620 (el 7% legal), topes por categoría, no asignar más que la demanda, valores enteros, y el spillover de la ley. La factibilidad la garantiza el decodificador voraz — no una penalización.">
+    <div class="wrap">
+      <div class="kick r">04 — Modelo matemático</div>
+      <h2 class="r">Formulación y <span class="gradg">restricciones</span></h2>
+      <div class="grid g2 r" style="gap:22px;align-items:start;margin-top:6px">
+        <div class="card" style="--accent:var(--primary)">
+          <div class="edge"></div>
+          <p class="tag">Variables de decisión</p>
+          <p class="mono" style="font-size:15px;margin:6px 0 16px;line-height:1.5">x<sup>g</sup> ∈ ℤ₊ — visas al grupo <span class="b">g = (país c, categoría k)</span>, g = 1…105</p>
+          <p class="tag">Minimizar <span class="mono">f(x) = ( f₁ , f₂ , f₃ )</span></p>
+          <div class="mono" style="font-size:14.5px;line-height:2;margin-top:8px">
+            <div><span class="y">f₁</span> = Σ(nᵍ−xᵍ)·wᵍ / Σnᵍ</div>
+            <div><span class="g">f₂</span> = máx<sub>c</sub> W̄<sub>c</sub> − mín<sub>c</sub> W̄<sub>c</sub></div>
+            <div><span class="rr">f₃</span> = V − Σ xᵍ</div>
+          </div>
+        </div>
+        <div class="card" style="--accent:var(--green)">
+          <div class="edge"></div>
+          <p class="tag">Sujeto a</p>
+          <ul class="feat eqs" style="gap:12px;margin-top:10px;font-size:15px">
+            <li><span class="dot b"></span><span class="mono">Σ xᵍ ≤ V = 140,000 <span class="dim">· presupuesto</span></span></li>
+            <li><span class="dot p"></span><span class="mono">Σ<sub>g∈c</sub> xᵍ ≤ P<sub>c</sub> = 25,620 <span class="dim">· tope país (7%)</span></span></li>
+            <li><span class="dot y"></span><span class="mono">Σ<sub>g∈k</sub> xᵍ ≤ K<sub>k</sub> <span class="dim">· tope categoría</span></span></li>
+            <li><span class="dot g"></span><span class="mono">0 ≤ xᵍ ≤ nᵍ <span class="dim">· no exceder demanda</span></span></li>
+            <li><span class="dot rr"></span><span>Spillover INA §203(b): <span class="mono">EB-4/5 → EB-1 → EB-2 → EB-3</span></span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="tag r" style="margin-top:14px">nᵍ = demanda en espera · wᵍ = años de rezago (peso) · W̄<sub>c</sub> = espera media ponderada del país c · la factibilidad la garantiza el <b>decodificador</b>.</p>
+    </div>
+  </section>
+
   <!-- 5 — LA CACERÍA (live) -->
   <section class="slide" data-time="1:10" data-notes="Aquí entra la metáfora — y está VIVA en pantalla. Los halcones de Harris cazan en grupo: exploran disperso y luego asedian en formación. Mapeo: cada halcón (azul→naranja) es una asignación posible; el objetivo rosa es la mejor solución del momento; la X roja es FIFO, que el enjambre supera; la curva es el frente de Pareto formándose. La energía E(t) decide exploración vs. asedio.">
     <div class="wrap">
-      <div class="kick r">04 — La metáfora, en movimiento</div>
+      <div class="kick r">05 — La metáfora, en movimiento</div>
       <h2 class="r">¿Por qué <span class="grad">Harris Hawks</span>?</h2>
       <div class="grid g2 r" style="align-items:center;gap:26px;margin-top:6px">
         <div class="huntbox"><canvas id="meta-hunt" class="hunt"></canvas><span class="huntlabel">simulación ilustrativa · halcones → solución · objetivo → líder Pareto · ✕ FIFO</span></div>
@@ -262,7 +300,7 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
   <!-- 6 — PIPELINE -->
   <section class="slide" data-time="1:00" data-notes="Punto técnico clave en un minuto. Un halcón vive en el continuo [0,1] elevado a 105. Lo ordenamos (SPV) y un decodificador voraz asigna visas en ese orden respetando topes por país, por categoría y el spillover legal EB-4/5 → EB-1 → EB-2 → EB-3. Así cada solución es SIEMPRE factible. Las no dominadas entran a un archivo de Pareto medido con hipervolumen.">
     <div class="wrap">
-      <div class="kick r">05 — El motor</div>
+      <div class="kick r">06 — El motor</div>
       <h2 class="r">De un vector continuo a una asignación <span class="gradg">factible</span></h2>
       <div class="sp r"></div>
       <div class="flow r">
@@ -285,7 +323,7 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
   <!-- 7 — RESULTADOS -->
   <section class="slide" data-time="1:10" data-notes="EL RESULTADO MÁS FUERTE — deja que las barras corran. MOHHO no solo iguala a FIFO: reduce la disparidad un 81% y lleva el desperdicio a CERO, manteniendo la espera prácticamente igual. Y no es suerte: 30 corridas con variación de solo 1.6%. Recalca el 'cero desperdicio'.">
     <div class="wrap">
-      <div class="kick r">06 — Resultados</div>
+      <div class="kick r">07 — Resultados</div>
       <h2 class="r">MOHHO <span class="dim" style="font-weight:600;font-size:.5em">vs</span> FIFO</h2>
       <div class="race r" style="margin-top:16px">
         <div class="row"><div class="nm y">f₁ Espera</div><div class="track"><div class="fill fifo" data-w="100">FIFO 7.21</div><div class="fill moh" data-w="99.6">MOHHO 7.19</div></div><div class="delta">−0.4%</div></div>
@@ -305,7 +343,7 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
   <!-- 8 — PARETO -->
   <section class="slide" data-time="1:00" data-notes="El frente no da UNA respuesta: da un menú de políticas. Cada punto es una asignación viable. Según la prioridad del decisor se elige el escenario. FIFO queda FUERA del frente — es dominado por casi todo.">
     <div class="wrap">
-      <div class="kick r">07 — El frente de Pareto</div>
+      <div class="kick r">08 — El frente de Pareto</div>
       <h2 class="r">No una respuesta — <span class="gradg">un menú de políticas</span></h2>
       <div class="grid g2 r" style="align-items:center;gap:30px;margin-top:8px">
         <svg viewBox="0 0 340 240" style="width:100%;max-width:440px">
@@ -335,7 +373,7 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
   <!-- 9 — DEMO -->
   <section class="slide" data-time="2:00" data-notes="MOMENTO DEMO (~2 min). Cambia al navegador → /simulacion. Inicia una corrida. Narra: halcones azules exploran, amarillos/naranjas asedian al objetivo (líder Pareto); la X roja es FIFO, superado; el frente azul se forma. Usa PAUSA para explicar y 2× si vas con prisa. Vuelve aquí al terminar.">
     <div class="wrap center">
-      <div class="kick r" style="justify-content:center">08 — Demostración en vivo</div>
+      <div class="kick r" style="justify-content:center">09 — Demostración en vivo</div>
       <h2 class="r">Veámoslo <span class="grad">cazar</span> en tiempo real</h2>
       <p class="lead r" style="margin:12px auto 0">Simulación vía WebSocket: 105 dimensiones, exploración → asedio, el frente formándose y el <b class="rr">fantasma FIFO</b> siendo superado.</p>
       <div class="sp r"></div>
@@ -348,24 +386,45 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
     </div>
   </section>
 
-  <!-- 10 — ARQUITECTURA -->
-  <section class="slide" data-time="0:50" data-notes="Arquitectura, breve. Migramos de un monolito Streamlit a un stack desacoplado: backend FastAPI con el algoritmo en Python, frontend Nuxt 4 con ECharts, y un WebSocket para la simulación en vivo. Todo desplegado en Render con CI desde GitHub. 12 endpoints, reproducible, con pruebas.">
+  <!-- 10 — ARQUITECTURA DE LOS PROGRAMAS -->
+  <section class="slide" data-time="0:55" data-notes="Arquitectura de los programas. Stack desacoplado: el BACKEND en FastAPI/Python tiene el núcleo del algoritmo en core/ (problem, decoder, hho, mohho, fifo) y la capa api/ con 12 endpoints REST más un WebSocket para la simulación. El FRONTEND en Nuxt 4 tiene páginas, componentes de gráficas (ECharts y el canvas HawkHunt) y composables. Se comunican por REST y WebSocket; desplegado en Render con CI desde GitHub.">
     <div class="wrap">
-      <div class="kick r">09 — Arquitectura</div>
-      <h2 class="r">Stack desacoplado y desplegado</h2>
-      <div class="sp r"></div>
-      <div class="flow r">
-        <div class="step"><div class="n">FRONTEND</div><div class="t b">Nuxt 4 · Vue 3</div><div class="d">TypeScript · ECharts · 10 páginas</div></div>
-        <div class="arr">⇄</div>
-        <div class="step"><div class="n">API</div><div class="t y">REST + WebSocket</div><div class="d">12 endpoints · streaming en vivo</div></div>
-        <div class="arr">⇄</div>
-        <div class="step"><div class="n">BACKEND</div><div class="t g">FastAPI · Python</div><div class="d">MOHHO · decoder · FIFO · 30 runs</div></div>
+      <div class="kick r">10 — Arquitectura de los programas</div>
+      <h2 class="r">Cómo está construido <span class="grad">por dentro</span></h2>
+      <div class="grid g2 r" style="gap:20px;align-items:start;margin-top:8px">
+        <div class="card" style="--accent:var(--green)">
+          <div class="edge"></div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><b class="g" style="font-size:19px">Backend</b><span class="tag">FastAPI · Python 3.12</span></div>
+          <p class="tag" style="margin-top:14px">core/ · algoritmo MOHHO</p>
+          <div class="chips">
+            <span class="chip">problem.py · f₁f₂f₃</span><span class="chip">decoder.py · SPV+greedy</span>
+            <span class="chip">hho.py · 6 operadores</span><span class="chip">mohho.py · Pareto+HV</span>
+            <span class="chip">fifo.py · baseline</span>
+          </div>
+          <p class="tag" style="margin-top:14px">api/ · servicios</p>
+          <div class="chips">
+            <span class="chip">REST · 12 endpoints</span><span class="chip y">ws.py · WebSocket</span><span class="chip">data/ · 30 runs</span>
+          </div>
+        </div>
+        <div class="card" style="--accent:var(--blue)">
+          <div class="edge"></div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><b class="b" style="font-size:19px">Frontend</b><span class="tag">Nuxt 4 · Vue 3 · TS</span></div>
+          <p class="tag" style="margin-top:14px">pages/ · 10 vistas</p>
+          <div class="chips">
+            <span class="chip">modelo</span><span class="chip">pareto</span><span class="chip">asignación</span><span class="chip">convergencia</span><span class="chip y">simulación</span>
+          </div>
+          <p class="tag" style="margin-top:14px">components/ + composables/</p>
+          <div class="chips">
+            <span class="chip">charts/ · ECharts</span><span class="chip y">HawkHunt · canvas</span>
+            <span class="chip">useApi</span><span class="chip">useOptimizer</span><span class="chip">useSimulation</span>
+          </div>
+        </div>
       </div>
-      <div class="sp r"></div>
-      <div class="grid g3 r">
-        <div class="card" style="--accent:var(--blue)"><div class="edge"></div><b class="b">Reproducible</b><p class="ks" style="font-size:13.5px">Semilla fija → mismo resultado · 20 pruebas automatizadas</p></div>
-        <div class="card" style="--accent:var(--gold)"><div class="edge"></div><b class="y">Streaming</b><p class="ks" style="font-size:13.5px">El frente se transmite iteración por iteración por WebSocket</p></div>
-        <div class="card" style="--accent:var(--green)"><div class="edge"></div><b class="g">Cloud</b><p class="ks" style="font-size:13.5px">Render · despliegue continuo desde GitHub</p></div>
+      <div class="r" style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:18px;flex-wrap:wrap">
+        <span class="pill">REST · JSON</span>
+        <span class="pill"><span class="y">WebSocket</span> · streaming en vivo</span>
+        <span class="dim mono">→</span>
+        <span class="pill"><span class="g">GitHub → Render</span> · 2 servicios · CI</span>
       </div>
     </div>
   </section>
@@ -373,7 +432,7 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
   <!-- 11 — RIGOR -->
   <section class="slide" data-time="0:50" data-notes="Rigor y datos — anticipa preguntas del jurado. ¿De dónde salen los datos? USCIS FY2025 Q2, Visa Bulletin abril 2026, DHS Yearbook FY2023, y reglas de la ley INA 203(b). La línea base FIFO coincide EXACTAMENTE con la implementación original: está validada.">
     <div class="wrap">
-      <div class="kick r">10 — Rigor y fuentes</div>
+      <div class="kick r">11 — Rigor y fuentes</div>
       <h2 class="r">Datos reales, resultados <span class="gradg">validados</span></h2>
       <div class="grid g2 r" style="gap:24px">
         <ul class="feat">
@@ -394,7 +453,7 @@ kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid va
   <!-- 12 — CONCLUSIONES -->
   <section class="slide" data-time="0:55" data-notes="Conclusiones. Frase potente: MOHHO convierte una sola regla rígida (FIFO) en un abanico de políticas medibles, eliminando el desperdicio y reduciendo la disparidad hasta 81%. Es una herramienta de apoyo a la decisión, transparente, no una caja negra. Futuro: más objetivos, datos en tiempo real.">
     <div class="wrap">
-      <div class="kick r">11 — Conclusiones</div>
+      <div class="kick r">12 — Conclusiones</div>
       <h2 class="r">De una regla rígida a <span class="gradg">decisiones informadas</span></h2>
       <ul class="feat">
         <li class="r"><span class="dot g"></span><span><b>MOHHO supera a FIFO</b> a la vez: desperdicio a <b class="g">cero</b> y disparidad hasta <b class="g">−81%</b>, sin sacrificar la espera.</span></li>
