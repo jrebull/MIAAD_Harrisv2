@@ -17,6 +17,13 @@ interface SimulationState {
   completed: boolean
 }
 
+// Cinematic base interval (ms per iteration) at 1x speed, adaptive to length.
+function baseInterval(maxIter: number): number {
+  if (maxIter <= 100) return 360
+  if (maxIter <= 200) return 240
+  return 130
+}
+
 export const useSimulation = () => {
   const { wsUrl } = useApi()
 
@@ -32,11 +39,56 @@ export const useSimulation = () => {
     completed: false,
   }))
 
-  let ws: WebSocket | null = null
+  // Playback controls — the server streams as fast as it can; the client
+  // paces the animation, so speed / pause are fully client-side.
+  const speed = useState<number>('simSpeed', () => 1)   // 0.5 | 1 | 2
+  const paused = useState<boolean>('simPaused', () => false)
 
-  function start(popSize: number = 30, maxIter: number = 100, seed: number = 42) {
-    // Close existing connection — null handlers first to prevent stale
-    // onclose from setting running=false after we reset state
+  let ws: WebSocket | null = null
+  let buffer: IterationSnapshot[] = []   // raw incoming frames (non-reactive)
+  let cursor = 0                          // next frame index to display
+  let serverDone = false
+  let baseMs = 360
+  let playbackTimer: ReturnType<typeof setTimeout> | null = null
+
+  function applySnapshot(snap: IterationSnapshot) {
+    state.value.iteration = snap.iteration
+    state.value.archiveSize = snap.archiveSize
+    state.value.hv = snap.hv
+    state.value.hvHistory = [...state.value.hvHistory, snap.hv]
+    state.value.paretoFront = snap.paretoFront
+    state.value.history = [...state.value.history, snap]
+  }
+
+  function scheduleNext() {
+    if (playbackTimer) clearTimeout(playbackTimer)
+    const delay = paused.value ? 120 : Math.max(40, baseMs / speed.value)
+    playbackTimer = setTimeout(playbackTick, delay)
+  }
+
+  function playbackTick() {
+    if (paused.value) { scheduleNext(); return }
+
+    if (cursor < buffer.length) {
+      applySnapshot(buffer[cursor])
+      cursor++
+      scheduleNext()
+    } else if (serverDone) {
+      // Played every buffered frame and the server is finished.
+      state.value.running = false
+      if (state.value.iteration > 0) state.value.completed = true
+      playbackTimer = null
+    } else {
+      // Waiting for more frames to arrive.
+      scheduleNext()
+    }
+  }
+
+  function clearPlayback() {
+    if (playbackTimer) { clearTimeout(playbackTimer); playbackTimer = null }
+  }
+
+  function closeSocket() {
     if (ws) {
       ws.onopen = null
       ws.onmessage = null
@@ -45,8 +97,18 @@ export const useSimulation = () => {
       ws.close()
       ws = null
     }
+  }
 
-    // Full reset of state
+  function start(popSize: number = 30, maxIter: number = 100, seed: number = 42) {
+    closeSocket()
+    clearPlayback()
+
+    buffer = []
+    cursor = 0
+    serverDone = false
+    baseMs = baseInterval(maxIter)
+    paused.value = false
+
     state.value = {
       running: true,
       iteration: 0,
@@ -67,53 +129,35 @@ export const useSimulation = () => {
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data)
-
       if (data.type === 'iteration') {
-        state.value.iteration = data.iteration
-        state.value.maxIter = data.max_iter
-        state.value.archiveSize = data.archive_size
-        state.value.hv = data.hv
-        state.value.hvHistory = [...state.value.hvHistory, data.hv]
-        state.value.paretoFront = data.pareto_front
-
-        // Store snapshot for scrubber replay
-        state.value.history = [...state.value.history, {
+        buffer.push({
           iteration: data.iteration,
           archiveSize: data.archive_size,
           hv: data.hv,
           paretoFront: data.pareto_front,
-        }]
+        })
       } else if (data.type === 'complete') {
-        state.value.running = false
-        state.value.completed = true
+        serverDone = true
       } else if (data.type === 'error') {
-        state.value.running = false
+        serverDone = true
         console.error('Simulation error:', data.message)
       }
     }
 
-    ws.onerror = () => {
-      state.value.running = false
-    }
+    // A dropped/failed connection still lets playback drain whatever arrived.
+    ws.onerror = () => { serverDone = true }
+    ws.onclose = () => { serverDone = true }
 
-    ws.onclose = () => {
-      // Only set running=false if not already completed —
-      // prevents stale onclose from interfering with completion state
-      if (!state.value.completed) {
-        state.value.running = false
-      }
-    }
+    scheduleNext()
   }
 
   function stop() {
-    if (ws) {
-      ws.close()
-      ws = null
-    }
+    closeSocket()
+    clearPlayback()
     state.value.running = false
   }
 
-  // Scrub to a specific iteration in history
+  // Scrub to a specific iteration in history (used after the run completes).
   function seekTo(historyIdx: number) {
     const snap = state.value.history[historyIdx]
     if (!snap) return
@@ -123,6 +167,17 @@ export const useSimulation = () => {
     state.value.paretoFront = snap.paretoFront
   }
 
+  function setSpeed(s: number) {
+    speed.value = s
+    if (paused.value) paused.value = false
+    scheduleNext()
+  }
+
+  function togglePause() {
+    paused.value = !paused.value
+    scheduleNext()
+  }
+
   const progress = computed(() => {
     if (state.value.maxIter === 0) return 0
     return Math.round((state.value.iteration / state.value.maxIter) * 100)
@@ -130,9 +185,13 @@ export const useSimulation = () => {
 
   return {
     state,
+    speed,
+    paused,
     start,
     stop,
     seekTo,
+    setSpeed,
+    togglePause,
     progress,
   }
 }

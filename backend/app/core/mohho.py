@@ -1,6 +1,5 @@
 """Multi-Objective Harris Hawks Optimization (MOHHO)."""
 
-import random
 from typing import Callable
 
 import numpy as np
@@ -81,6 +80,7 @@ def update_archive(
     new_pos: NDArray[np.float64],
     new_fit: Fitness3,
     max_size: int,
+    rng: np.random.Generator,
 ) -> None:
     if _is_duplicate(new_fit, archive_fitnesses):
         return
@@ -106,7 +106,7 @@ def update_archive(
             min_cd_idx = min(finite_indices, key=lambda i: cd[i])
         else:
             n = len(archive_positions)
-            min_cd_idx = random.randint(1, n - 2) if n > 2 else 0
+            min_cd_idx = int(rng.integers(1, n - 1)) if n > 2 else 0
         archive_positions.pop(min_cd_idx)
         archive_fitnesses.pop(min_cd_idx)
 
@@ -143,11 +143,11 @@ def _step_hawk(i, population, fitnesses, archive_positions, archive_fitnesses,
     if abs_e >= 1:
         new_pos = _exploration_step(population, i, x_rabbit, x_mean, pop_size, rng)
         _accept_and_archive(i, new_pos, population, fitnesses,
-                            archive_positions, archive_fitnesses, archive_size, problem)
+                            archive_positions, archive_fitnesses, archive_size, problem, rng)
     elif rng.random() >= 0.5:
         new_pos = _siege_step(population[i], x_rabbit, e, abs_e, rng)
         _accept_and_archive(i, new_pos, population, fitnesses,
-                            archive_positions, archive_fitnesses, archive_size, problem)
+                            archive_positions, archive_fitnesses, archive_size, problem, rng)
     else:
         _levy_step(i, population, fitnesses, x_rabbit, x_mean, e, abs_e,
                    archive_positions, archive_fitnesses, archive_size, problem, rng)
@@ -180,17 +180,17 @@ def _levy_step(i, population, fitnesses, x_rabbit, x_mean, e, abs_e,
         fitnesses[i] = fit_new
     for cand_pos, cand_fit in candidates:
         update_archive(archive_positions, archive_fitnesses,
-                       cand_pos, cand_fit, archive_size)
+                       cand_pos, cand_fit, archive_size, rng)
 
 
 def _accept_and_archive(i, new_pos, population, fitnesses,
-                        archive_positions, archive_fitnesses, archive_size, problem):
+                        archive_positions, archive_fitnesses, archive_size, problem, rng):
     _, fit_new = evaluate_hawk(new_pos, problem)
     if dominates(fit_new, fitnesses[i]):
         population[i] = new_pos
         fitnesses[i] = fit_new
     update_archive(archive_positions, archive_fitnesses,
-                   new_pos, fit_new, archive_size)
+                   new_pos, fit_new, archive_size, rng)
 
 
 def run_mohho(
@@ -214,7 +214,7 @@ def run_mohho(
     archive_fitnesses: list[Fitness3] = []
     for i in range(pop_size):
         update_archive(archive_positions, archive_fitnesses,
-                       population[i], fitnesses[i], archive_size)
+                       population[i], fitnesses[i], archive_size, rng)
 
     hv_history: list[float] = []
 

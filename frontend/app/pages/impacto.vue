@@ -28,22 +28,31 @@ const quickScenarios = [
 ]
 
 // ── Init ──
-onMounted(async () => {
-  const [p, s, impact, gd] = await Promise.all([fetchPareto(), fetchSummary(), fetchImpact('equilibrio'), fetchGroups()])
-  pareto.value = p
-  summary.value = s
-  groupsData.value = gd
-  impactRows.value = impact.rows
-  // Store FIFO baseline per country
-  impact.rows.forEach(r => fifoMap.value.set(r.country, { fifo_visas: r.fifo_visas, max_wait: r.max_wait }))
-  // Set equilibrio as initial selection
-  if (p.points.length) {
-    const knee = computeKnee(p.points)
-    selectedPoint.value = knee
+const loadError = ref<string | null>(null)
+async function loadData() {
+  loadError.value = null
+  initialLoading.value = true
+  try {
+    const [p, s, impact, gd] = await Promise.all([fetchPareto(), fetchSummary(), fetchImpact('equilibrio'), fetchGroups()])
+    pareto.value = p
+    summary.value = s
+    groupsData.value = gd
+    impactRows.value = impact.rows
+    // Store FIFO baseline per country
+    impact.rows.forEach(r => fifoMap.value.set(r.country, { fifo_visas: r.fifo_visas, max_wait: r.max_wait }))
+    // Set equilibrio as initial selection
+    if (p.points.length) {
+      const knee = computeKnee(p.points)
+      selectedPoint.value = knee
+    }
+  } catch (e: any) {
+    loadError.value = e?.message || 'Error de conexión con el servidor'
+  } finally {
+    initialLoading.value = false
+    loading.value = false
   }
-  initialLoading.value = false
-  loading.value = false
-})
+}
+onMounted(loadData)
 
 // ── Knee point ──
 function computeKnee(pts: ParetoPoint[]): ParetoPoint {
@@ -621,6 +630,7 @@ const waitTimeOption = computed<EChartsOption>(() => {
 
 <template>
   <div class="space-y-6">
+    <ApiErrorBanner :error="loadError" @retry="loadData" />
     <h1 class="section-title">Impacto por País</h1>
 
     <div v-if="initialLoading" class="flex justify-center py-16">

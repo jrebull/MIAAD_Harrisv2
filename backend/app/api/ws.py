@@ -1,12 +1,12 @@
 """WebSocket endpoint for live MOHHO simulation.
 
 Key design: the optimization thread runs at full speed and stores ALL
-iteration messages in a list.  The send loop walks through that list at
-a **fixed pace** (one message every SEND_INTERVAL seconds), so every
-single iteration is shown to the client — never skipped.  If the
-optimizer finishes before the send loop catches up, the send loop keeps
-going until every iteration has been sent; only then does it emit
-"complete".  This guarantees a slow, dramatic, cinematic animation.
+iteration messages in a list.  The send loop streams every one of those
+messages to the client as soon as it is available (a tiny sleep keeps the
+event loop cooperative without throttling delivery).  The **frontend** then
+buffers the frames and plays them back at a cinematic, user-controllable
+pace (pause / 0.5x / 1x / 2x).  Every iteration is still shown — never
+skipped — and "complete" is only emitted once every frame has been sent.
 """
 
 import asyncio
@@ -20,17 +20,9 @@ from app.core.mohho import run_mohho, compute_hypervolume, Fitness3
 
 router = APIRouter()
 
-# Target animation pace.  Adaptive: shorter simulations get more time
-# per frame so the total wall-clock stays in a sweet 30–60 s range.
-#   max_iter ≤ 100  → 0.40 s/iter → 40 s total
-#   max_iter ≤ 200  → 0.25 s/iter → 50 s total
-#   max_iter ≤ 500  → 0.12 s/iter → 60 s total
-def _send_interval(max_iter: int) -> float:
-    if max_iter <= 100:
-        return 0.40
-    if max_iter <= 200:
-        return 0.25
-    return 0.12
+# Stream frames as fast as they are produced; the client controls the
+# cinematic playback pace.  A tiny sleep keeps the event loop cooperative.
+STREAM_INTERVAL = 0.02
 
 
 @router.websocket("/ws/simulation")
@@ -84,16 +76,15 @@ async def simulation_ws(websocket: WebSocket):
         thread = threading.Thread(target=run_optimization, daemon=True)
         thread.start()
 
-        interval = _send_interval(max_iter)
         cursor = 0  # next message index to send
 
-        # Walk through every iteration at a fixed cinematic pace
+        # Stream every iteration to the client as soon as it is available.
         while True:
             # Wait for the next message to become available
             while cursor >= len(messages):
                 if done.is_set():
                     break  # optimizer finished, no more messages coming
-                await asyncio.sleep(0.03)
+                await asyncio.sleep(0.02)
 
             # If optimizer is done and we've sent everything, exit
             if cursor >= len(messages):
@@ -101,7 +92,7 @@ async def simulation_ws(websocket: WebSocket):
 
             await websocket.send_text(json.dumps(messages[cursor]))
             cursor += 1
-            await asyncio.sleep(interval)
+            await asyncio.sleep(STREAM_INTERVAL)
 
         await websocket.send_text(json.dumps({"type": "complete"}))
 

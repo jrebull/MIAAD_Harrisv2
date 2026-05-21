@@ -4,6 +4,14 @@
 
 > Tesis de Maestría en Ingeniería de Análisis y Aprendizaje de Datos (MIAAD) — UACJ 2026
 
+## 🚀 Demo en Vivo
+
+**🦅 Simulación MOHHO en tiempo real → [visa-predict-mohho.onrender.com/simulacion](https://visa-predict-mohho.onrender.com/simulacion)**
+
+Dashboard completo: **[visa-predict-mohho.onrender.com](https://visa-predict-mohho.onrender.com)**
+
+> Nota: alojado en el plan gratuito de Render — la primera carga puede tardar ~30 s mientras el servicio "despierta".
+
 ## Descripción
 
 Este sistema aplica el algoritmo **MOHHO** (Multi-Objective Harris Hawks Optimization) para optimizar la asignación de **140,000 visas EB** anuales de EE.UU. entre 21 países y 5 categorías de empleo, buscando simultáneamente:
@@ -11,7 +19,7 @@ Este sistema aplica el algoritmo **MOHHO** (Multi-Objective Harris Hawks Optimiz
 | Objetivo | Fórmula | Meta |
 |----------|---------|------|
 | **f₁** — Carga de Espera | `Σ(nᵍ - xᵍ)·wᵍ / Σnᵍ` | Minimizar años de espera ponderados |
-| **f₂** — Disparidad | `max \|W̄c₁ - W̄c���\|` | Minimizar brecha entre países |
+| **f₂** — Disparidad | `máx(W̄_c) − mín(W̄_c)` | Minimizar brecha entre países |
 | **f₃** — Desperdicio | `V - Σxᵍ` | Minimizar visas sin usar |
 
 El sistema genera un **frente de Pareto** con cientos de soluciones que mejoran sustancialmente sobre el sistema FIFO actual.
@@ -83,7 +91,7 @@ Harris2/
 │   └── Dockerfile
 ├── frontend/
 │   ├── app/
-│   │   ├── pages/          # 8 páginas: inicio, modelo, pareto, asignación, impacto, convergencia, simulación, datos
+│   │   ├── pages/          # 10 páginas: inicio, modelo, algoritmo, pareto, asignación, impacto, convergencia, simulación, análisis, datos
 │   │   ├── components/     # charts/ (ECharts) + ui/ (layout)
 │   │   ├── composables/    # useApi, useScenario, useOptimizer, useSimulation, useEcharts
 │   │   ├── utils/          # formatters.ts
@@ -102,11 +110,13 @@ Harris2/
 |--------|------|-------------|
 | Inicio | `/` | KPIs, descripción del problema, FIFO vs MOHHO |
 | Modelo | `/modelo` | Formulación matemática (página estática) |
+| Algoritmo | `/algoritmo` | Arquitectura, operadores HHO y código del MOHHO |
 | Pareto | `/pareto` | Frente de Pareto con proyecciones f₁/f₂/f₃ |
 | Asignación | `/asignacion` | Heatmap + barras apiladas por país/categoría |
 | Impacto | `/impacto` | Comparación delta vs FIFO por país |
 | Convergencia | `/convergencia` | Curva HV, barras por corrida, explorador de Pareto individual |
-| Simulación | `/simulacion` | MOHHO en vivo vía WebSocket |
+| Simulación | [`/simulacion`](https://visa-predict-mohho.onrender.com/simulacion) | MOHHO en vivo vía WebSocket |
+| Análisis | `/analisis` | Análisis crítico de resultados y limitaciones |
 | Datos | `/datos` | Tabla de 105 grupos con procedencia de datos |
 
 ## 5 Escenarios

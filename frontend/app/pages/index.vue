@@ -47,12 +47,19 @@ const { fetchSummary, fetchGroups } = useOptimizer()
 
 const summary = ref<SummaryData | null>(null)
 const groups = ref<GroupsData | null>(null)
+const loadError = ref<string | null>(null)
 
-onMounted(async () => {
-  const [s, g] = await Promise.all([fetchSummary(), fetchGroups()])
-  summary.value = s
-  groups.value = g
-})
+async function loadData() {
+  loadError.value = null
+  try {
+    const [s, g] = await Promise.all([fetchSummary(), fetchGroups()])
+    summary.value = s
+    groups.value = g
+  } catch (e: any) {
+    loadError.value = e?.message || 'Error de conexión con el servidor'
+  }
+}
+onMounted(loadData)
 
 const totalBacklog = computed(() => groups.value ? formatNumber(groups.value.total_demand) : '...')
 const maxWait = computed(() => {
@@ -103,6 +110,7 @@ const animParetoSize = useCountUp(expParetoSize, 2200)
 
 <template>
   <div class="space-y-10">
+    <ApiErrorBanner :error="loadError" @retry="loadData" />
 
     <!-- ══════════════════════════════════════════════════════ -->
     <!-- CINEMATIC HERO                                        -->

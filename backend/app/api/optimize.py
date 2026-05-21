@@ -4,7 +4,7 @@ from fastapi import APIRouter
 
 from app.core.config import V
 from app.core.problem import VisaProblem
-from app.core.mohho import run_mohho, compute_hypervolume
+from app.core.mohho import run_mohho
 from app.core.models import OptimizeRequest, Fitness
 
 router = APIRouter()

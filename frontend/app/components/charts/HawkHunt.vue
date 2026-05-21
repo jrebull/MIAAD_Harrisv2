@@ -15,6 +15,7 @@ const props = defineProps<{
   running: boolean
   completed: boolean
   popSize?: number
+  fifo?: { f1: number; f2: number; f3: number }
 }>()
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -53,6 +54,16 @@ const hudGlow = computed(() => {
   return 'shadow-[0_0_15px_rgba(251,146,60,0.15)]'
 })
 
+// Narrative caption synced to the algorithm phase (shown over the canvas).
+const caption = computed(() => {
+  if (props.completed) return 'Captura — frente de Pareto óptimo encontrado'
+  if (props.iteration <= 0) return ''
+  const p = hudProgress.value
+  if (p < 0.3) return 'Exploración — los halcones se dispersan por el espacio de 105 dimensiones'
+  if (p < 0.65) return 'Transición — saltos de Lévy escapan de óptimos locales'
+  return 'Asedio cooperativo — el enjambre rodea y refina la mejor solución'
+})
+
 // ═══════════════════ TYPES ═══════════════════
 
 interface Star { x: number; y: number; r: number; tw: number; sp: number }
@@ -86,6 +97,7 @@ let rabbitTx = 0.5, rabbitTy = 0.5
 let rabbitPulse = 0
 
 let paretoNorm: Array<{ x: number; y: number }> = []
+let fifoNorm: { x: number; y: number } | null = null
 let progress = 0
 let dispIter = 0
 let finished = false
@@ -149,6 +161,15 @@ function normalize(pts: Array<{ f1: number; f2: number }>) {
     x: m + (1 - 2 * m) * (p.f1 - f1min) / Math.max(f1max - f1min, 0.001),
     y: m + (1 - 2 * m) * (p.f2 - f2min) / Math.max(f2max - f2min, 0.001),
   }))
+}
+
+// Map a single (f1,f2) point using explicit bounds, clamped to stay on-canvas.
+// Used to place the static FIFO baseline relative to the live Pareto front.
+function mapPoint(f1: number, f2: number, f1min: number, f1max: number, f2min: number, f2max: number) {
+  const m = 0.12
+  const x = m + (1 - 2 * m) * (f1 - f1min) / Math.max(f1max - f1min, 0.001)
+  const y = m + (1 - 2 * m) * (f2 - f2min) / Math.max(f2max - f2min, 0.001)
+  return { x: clamp(x, 0.03, 0.97), y: clamp(y, 0.03, 0.97) }
 }
 
 function fullReset() {
@@ -215,6 +236,11 @@ watch(() => props.popSize, (n) => {
 watch(() => props.paretoFront, (front) => {
   if (!front?.length) return
   paretoNorm = normalize(front)
+  if (props.fifo) {
+    const ff1 = front.map(p => p.f1), ff2 = front.map(p => p.f2)
+    fifoNorm = mapPoint(props.fifo.f1, props.fifo.f2,
+      Math.min(...ff1), Math.max(...ff1), Math.min(...ff2), Math.max(...ff2))
+  }
   progress = props.maxIter > 0 ? props.iteration / props.maxIter : 0
   dispIter = props.iteration
 
@@ -347,6 +373,41 @@ function drawParetoFront(ctx: CanvasRenderingContext2D, W: number, H: number) {
     ctx.beginPath(); ctx.fillStyle = `rgba(60,140,255,${pulse * 0.7})`
     ctx.arc(p.x * W, p.y * H, 4, 0, Math.PI * 2); ctx.fill()
   })
+}
+
+// Static "ghost" marker for the current FIFO system — the swarm visibly
+// converges past it, dramatizing how MOHHO beats the status quo.
+function drawFifoGhost(ctx: CanvasRenderingContext2D, W: number, H: number) {
+  if (!fifoNorm) return
+  const gx = fifoNorm.x * W, gy = fifoNorm.y * H
+  const pulse = 0.5 + 0.5 * Math.sin(fc * 0.03)
+
+  // Faint danger glow
+  ctx.beginPath()
+  ctx.fillStyle = `rgba(255,70,70,${0.04 + 0.03 * pulse})`
+  ctx.arc(gx, gy, 24, 0, Math.PI * 2); ctx.fill()
+
+  // Dashed warning ring
+  ctx.beginPath()
+  ctx.strokeStyle = 'rgba(255,90,90,0.45)'
+  ctx.lineWidth = 1.5; ctx.setLineDash([4, 4])
+  ctx.arc(gx, gy, 13, 0, Math.PI * 2); ctx.stroke()
+  ctx.setLineDash([])
+
+  // X marker
+  ctx.strokeStyle = `rgba(255,110,110,${0.75 + 0.2 * pulse})`
+  ctx.lineWidth = 2; ctx.lineCap = 'round'
+  const c = 5.5
+  ctx.beginPath()
+  ctx.moveTo(gx - c, gy - c); ctx.lineTo(gx + c, gy + c)
+  ctx.moveTo(gx + c, gy - c); ctx.lineTo(gx - c, gy + c)
+  ctx.stroke()
+
+  // Label
+  ctx.textAlign = 'center'
+  ctx.font = 'bold 10px "JetBrains Mono", monospace'
+  ctx.fillStyle = `rgba(255,120,120,${0.65 + 0.2 * pulse})`
+  ctx.fillText('FIFO (actual)', gx, gy - 19)
 }
 
 function drawBeams(ctx: CanvasRenderingContext2D, W: number, H: number) {
@@ -776,6 +837,7 @@ function frame() {
 
   drawConstellations(ctx, W, H)
   drawParetoFront(ctx, W, H)
+  drawFifoGhost(ctx, W, H)
   drawSiegeZone(ctx, W, H)
   drawFormationRings(ctx, W, H)
   drawBeams(ctx, W, H)
@@ -989,6 +1051,23 @@ onUnmounted(() => {
       <span class="flex items-center gap-1.5 bg-black/50 px-2 py-1 rounded-md backdrop-blur-sm">
         <span class="w-2 h-2 rounded-full bg-blue-600 shadow-[0_0_6px_rgba(0,100,255,0.8)]" /> Frente Pareto
       </span>
+    </div>
+
+    <!-- Phase caption (top center, HTML overlay) -->
+    <div
+      v-if="caption"
+      class="absolute top-3 left-1/2 -translate-x-1/2 max-w-[70%] pointer-events-none"
+    >
+      <div
+        class="flex items-center gap-2 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full border"
+        :class="hudBorder"
+      >
+        <span
+          class="w-2 h-2 rounded-full shrink-0"
+          :class="props.completed ? 'bg-emerald-400' : hudProgress < 0.3 ? 'bg-blue-400' : hudProgress < 0.65 ? 'bg-yellow-400' : 'bg-orange-400'"
+        />
+        <span class="text-[11px] md:text-xs font-medium" :class="hudText">{{ caption }}</span>
+      </div>
     </div>
 
     <!-- HUD Panel (bottom-right, HTML overlay) -->

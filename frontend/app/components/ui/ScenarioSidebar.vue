@@ -1,13 +1,15 @@
 <script setup lang="ts">
 const { scenario, scenarios, currentScenario, selectedRun, setScenario } = useScenario()
 const { allocation, loading, fetchAllocation } = useOptimizer()
+const { fifo: FIFO_BASELINE, ensureFifo } = useFifoBaseline()
 
 onMounted(() => {
-  fetchAllocation()
+  ensureFifo()
+  fetchAllocation().catch(() => {})
 })
 
 watch(scenario, () => {
-  fetchAllocation()
+  fetchAllocation().catch(() => {})
 })
 
 // Scenario accent colors
@@ -19,8 +21,8 @@ const scenarioColors: Record<string, { from: string; to: string; ring: string; t
   fifo: { from: 'from-gray-500/20', to: 'to-gray-500/5', ring: 'ring-gray-500/40', text: 'text-gray-400', bg: 'bg-gray-500' },
 }
 
-// FIFO baselines for comparison
-const FIFO_BASELINE = { f1: 7.2138, f2: 12.6377, f3: 17540 }
+// FIFO baseline now comes from /api/summary via useFifoBaseline()
+// (falls back to the verified constants if the API is unavailable).
 
 // Compute improvement percentages vs FIFO
 const improvements = computed(() => {

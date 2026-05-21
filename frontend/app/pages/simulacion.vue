@@ -2,8 +2,9 @@
 import type { AllocationData } from '~/composables/useOptimizer'
 import { formatNumber } from '~/utils/formatters'
 
-const { state, start, stop, seekTo, progress } = useSimulation()
+const { state, start, stop, seekTo, progress, speed, paused, setSpeed, togglePause } = useSimulation()
 const { fetchCustomAllocation } = useOptimizer()
+const { fifo: FIFO, ensureFifo } = useFifoBaseline()
 
 const popSize = ref(30)
 const maxIter = ref(100)
@@ -14,10 +15,11 @@ const scrubbing = ref(false)
 // Allocation for selected iteration
 const simAllocation = ref<AllocationData | null>(null)
 const allocLoading = ref(false)
+let lastAllocIter = 0
 const categories = ['EB-1', 'EB-2', 'EB-3', 'EB-4', 'EB-5']
 
-// FIFO baseline (verified)
-const FIFO = { f1: 7.2138, f2: 12.6377, f3: 17540 }
+// FIFO baseline comes from /api/summary via useFifoBaseline() (verified fallback).
+onMounted(() => { ensureFifo() })
 
 // Live fitness values from the current Pareto front leader
 const leaderF1 = computed(() => state.value.paretoFront[0]?.f1 ?? 0)
@@ -72,6 +74,7 @@ const f3History = computed(() =>
 function handleStart() {
   scrubbing.value = false
   simAllocation.value = null
+  lastAllocIter = 0
   start(popSize.value, maxIter.value, seed.value)
 }
 
@@ -113,6 +116,15 @@ watch(() => state.value.history.length, (len) => {
 // Auto-fetch allocation when simulation completes
 watch(() => state.value.completed, (done) => {
   if (done) loadAllocation()
+})
+
+// Live allocation preview: refresh the heatmap every ~25 iterations while running.
+watch(() => state.value.iteration, (iter) => {
+  if (!state.value.running || scrubbing.value) return
+  if (state.value.paretoFront.length && !allocLoading.value && iter - lastAllocIter >= 25) {
+    lastAllocIter = iter
+    loadAllocation()
+  }
 })
 
 // ═══════════════════════════════════════════════
@@ -265,7 +277,7 @@ const visasSaved = computed(() => {
           <label class="text-xs text-gray-500 uppercase">Iteraciones</label>
           <input
             v-model.number="maxIter"
-            type="range" min="20" max="300" step="10"
+            type="range" min="20" max="500" step="10"
             class="w-full"
             :disabled="state.running"
           >
@@ -310,6 +322,30 @@ const visasSaved = computed(() => {
             :style="{ width: progress + '%' }"
           />
         </div>
+      </div>
+
+      <!-- Playback speed controls (during run) -->
+      <div v-if="state.running" class="mt-4 pt-3 border-t border-dark-border flex items-center gap-3 flex-wrap">
+        <span class="text-[10px] text-gray-500 uppercase tracking-wider">Velocidad</span>
+        <div class="flex items-center gap-1">
+          <button
+            v-for="s in [0.5, 1, 2]"
+            :key="s"
+            class="text-xs px-2.5 py-1 rounded-md font-mono transition-colors"
+            :class="!paused && speed === s ? 'bg-primary/25 text-primary-300 border border-primary/30' : 'bg-dark-bg2 text-gray-400 hover:text-white border border-transparent'"
+            @click="setSpeed(s)"
+          >{{ s }}×</button>
+        </div>
+        <button
+          class="text-xs px-3 py-1 rounded-md transition-colors"
+          :class="paused ? 'bg-accent-yellow/20 text-accent-yellow' : 'bg-dark-bg2 text-gray-400 hover:text-white'"
+          @click="togglePause"
+        >
+          {{ paused ? 'Reanudar' : 'Pausar' }}
+        </button>
+        <span class="text-[10px] text-gray-500 font-mono ml-auto">
+          {{ paused ? 'En pausa' : 'Reproduciendo ' + speed + '×' }}
+        </span>
       </div>
 
       <!-- Scrubber control (after completion) -->
@@ -557,6 +593,7 @@ const visasSaved = computed(() => {
           :running="state.running"
           :completed="state.completed"
           :pop-size="popSize"
+          :fifo="FIFO"
         />
       </div>
     </ClientOnly>

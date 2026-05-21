@@ -520,18 +520,26 @@ function pickScenario(sc: string) {
 }
 
 // ---- Init ----
-onMounted(async () => {
-  const [p, s] = await Promise.all([fetchPareto(), fetchSummary(), loadFifoAllocation()])
-  pareto.value = p
-  summary.value = s
-  fetchAllocation()
-})
+const loadError = ref<string | null>(null)
+async function loadData() {
+  loadError.value = null
+  try {
+    const [p, s] = await Promise.all([fetchPareto(), fetchSummary(), loadFifoAllocation()])
+    pareto.value = p
+    summary.value = s
+    await fetchAllocation()
+  } catch (e: any) {
+    loadError.value = e?.message || 'Error de conexión con el servidor'
+  }
+}
+onMounted(loadData)
 
 watch(scenario, () => fetchAllocation())
 </script>
 
 <template>
   <div class="space-y-6">
+    <ApiErrorBanner :error="loadError" @retry="loadData" />
 
     <!-- ===== CINEMATIC HERO ===== -->
     <section class="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-dark-bg1 via-[#0a0a2e] to-dark-bg1">

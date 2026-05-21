@@ -11,12 +11,19 @@ const summary = ref<SummaryData | null>(null)
 const selectedRunIdx = ref<number | null>(null)
 const selectedRunData = ref<ParetoRunData | null>(null)
 
-onMounted(async () => {
-  const [c, r, s] = await Promise.all([fetchConvergence(), fetchRunsHV(), fetchSummary()])
-  convergence.value = c
-  runsHV.value = r
-  summary.value = s
-})
+const loadError = ref<string | null>(null)
+async function loadData() {
+  loadError.value = null
+  try {
+    const [c, r, s] = await Promise.all([fetchConvergence(), fetchRunsHV(), fetchSummary()])
+    convergence.value = c
+    runsHV.value = r
+    summary.value = s
+  } catch (e: any) {
+    loadError.value = e?.message || 'Error de conexión con el servidor'
+  }
+}
+onMounted(loadData)
 
 async function loadRun(runIdx: number) {
   selectedRunIdx.value = runIdx
@@ -379,6 +386,7 @@ const runParetoOption = computed<EChartsOption>(() => {
 
 <template>
   <div class="space-y-6">
+    <ApiErrorBanner :error="loadError" @retry="loadData" />
     <h1 class="section-title">Convergencia del Algoritmo</h1>
 
     <!-- ===== INTRO ===== -->

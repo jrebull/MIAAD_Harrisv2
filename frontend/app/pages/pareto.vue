@@ -15,11 +15,18 @@ const sortKey = ref<'f1' | 'f2' | 'f3' | 'visas_used'>('f1')
 const sortAsc = ref(true)
 const showTable = ref(false)
 
-onMounted(async () => {
-  const [p, s] = await Promise.all([fetchPareto(), fetchSummary()])
-  pareto.value = p
-  summary.value = s
-})
+const loadError = ref<string | null>(null)
+async function loadData() {
+  loadError.value = null
+  try {
+    const [p, s] = await Promise.all([fetchPareto(), fetchSummary()])
+    pareto.value = p
+    summary.value = s
+  } catch (e: any) {
+    loadError.value = e?.message || 'Error de conexión con el servidor'
+  }
+}
+onMounted(loadData)
 
 function handleSelect(point: ParetoPoint) {
   selectedPoint.value = point
@@ -718,6 +725,7 @@ const tradeoffOption = computed<EChartsOption>(() => {
 
 <template>
   <div class="space-y-6">
+    <ApiErrorBanner :error="loadError" @retry="loadData" />
     <div class="flex items-center justify-between flex-wrap gap-3">
       <h1 class="section-title">Frente de Pareto Interactivo</h1>
       <div class="flex gap-2">
