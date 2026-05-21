@@ -45,7 +45,7 @@ También funciona con **swipe** en pantallas táctiles y con los botones `‹ �
 16. Conclusiones
 17. Gracias / preguntas
 
-> Con las 16 láminas el guion ronda ~13 min. Para clavar 10, recorta la **demo a ~1:30** y aligera la metáfora. Los tiempos por lámina están en las notas (`N`).
+> Con las 17 láminas el guion ronda ~14 min. Para clavar 10, recorta la **demo a ~1:30** y aligera la metáfora. Los tiempos por lámina están en las notas (`N`).
 
 ## Consejo para la demo (diapositiva 11)
 
