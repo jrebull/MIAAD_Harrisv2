@@ -2,396 +2,436 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Defensa — Visa Predict AI · MOHHO</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Visa Predict AI — MOHHO · Defensa</title>
 <style>
-  :root{
-    --bg1:#05060f; --bg2:#0a0a1e; --bg3:#0c1230;
-    --primary:#1a5fd4; --primary-d:#003CA6; --primary-l:#5b8def;
-    --green:#00E5A0; --yellow:#FFD600; --red:#FF3366; --purple:#a78bfa; --blue:#60a5fa;
-    --txt:#eef2ff; --muted:#9aa3c0; --dim:#5a6488; --line:rgba(255,255,255,.08);
-    --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
-    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;overflow:hidden}
-  body{
-    background:radial-gradient(120% 120% at 80% -10%,#10204e 0%,var(--bg2) 45%,var(--bg1) 100%);
-    color:var(--txt); font-family:var(--sans); -webkit-font-smoothing:antialiased;
-  }
+:root{
+  --primary:#2f6df0; --primary-d:#003CA6; --primary-l:#6ea0ff;
+  --green:#00E5A0; --gold:#FFD600; --red:#FF3B6B; --purple:#b794f6; --blue:#6ea8ff;
+  --ink:#f3f6ff; --mut:#9aa6cc; --dim:#586089; --line:rgba(255,255,255,.09);
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:#04050d}
+body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;position:relative}
 
-  /* ---------- progress + chrome ---------- */
-  #bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--green));
-       z-index:50;transition:width .35s ease;box-shadow:0 0 12px rgba(0,229,160,.5)}
-  #counter{position:fixed;bottom:18px;right:22px;font-family:var(--mono);font-size:13px;color:var(--dim);z-index:50}
-  #counter b{color:var(--txt)}
-  #timer{position:fixed;top:14px;left:20px;font-family:var(--mono);font-size:15px;color:var(--muted);z-index:50;
-         background:rgba(0,0,0,.35);padding:4px 12px;border-radius:999px;border:1px solid var(--line);letter-spacing:.05em}
-  #timer.run{color:var(--green);border-color:rgba(0,229,160,.3)}
-  #timer.warn{color:var(--yellow);border-color:rgba(255,214,0,.4)}
-  #timer.over{color:var(--red);border-color:rgba(255,51,102,.5);animation:pulse 1s infinite}
-  @keyframes pulse{50%{opacity:.5}}
-  #nav{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:50;display:flex;gap:8px}
-  #nav button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.04);
-    color:var(--muted);font-size:18px;cursor:pointer;transition:.2s}
-  #nav button:hover{background:rgba(255,255,255,.1);color:#fff}
-  .hint{position:fixed;bottom:20px;left:22px;font-size:11px;color:var(--dim);z-index:50}
-  .hint b{color:var(--muted)}
+/* ---- living background ---- */
+#bg{position:fixed;inset:0;z-index:0}
+#vignette{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 40%,transparent 40%,rgba(2,3,10,.55) 100%)}
+#grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.035;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
 
-  /* ---------- slides ---------- */
-  #deck{position:relative;width:100%;height:100%}
-  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
-    padding:clamp(28px,5vw,80px);opacity:0;visibility:hidden;transform:translateY(14px) scale(.99);
-    transition:opacity .45s ease,transform .45s ease;pointer-events:none}
-  .slide.active{opacity:1;visibility:visible;transform:none;pointer-events:auto}
-  .wrap{max-width:1080px;width:100%;margin:0 auto}
-  .kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--primary-l);margin-bottom:14px}
-  h1{font-size:clamp(34px,6vw,76px);font-weight:900;line-height:1.02;letter-spacing:-.02em}
-  h2{font-size:clamp(26px,3.6vw,46px);font-weight:800;line-height:1.08;letter-spacing:-.01em;margin-bottom:8px}
-  .lead{font-size:clamp(15px,1.7vw,21px);color:var(--muted);line-height:1.55;max-width:42em}
-  .grad{background:linear-gradient(120deg,#fff 0%,var(--primary-l) 45%,var(--green) 100%);
-        -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .grad-g{background:linear-gradient(120deg,var(--green),#7cf0c8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .mut{color:var(--muted)} .dim{color:var(--dim)} .mono{font-family:var(--mono)}
-  .y{color:var(--yellow)} .g{color:var(--green)} .r{color:var(--red)} .b{color:var(--blue)} .p{color:var(--purple)}
-  .spacer{height:18px}
+/* ---- chrome ---- */
+#bar{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;
+  background:linear-gradient(90deg,var(--primary),var(--green));box-shadow:0 0 16px rgba(0,229,160,.6);transition:width .5s var(--ease)}
+#dots{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:7px}
+#dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.16);cursor:pointer;transition:.3s var(--ease)}
+#dots i:hover{background:rgba(255,255,255,.4)}
+#dots i.on{width:26px;border-radius:5px;background:linear-gradient(90deg,var(--primary),var(--green));box-shadow:0 0 12px rgba(0,229,160,.5)}
+#counter{position:fixed;bottom:18px;right:24px;z-index:60;font-family:var(--mono);font-size:13px;color:var(--dim)}
+#counter b{color:var(--ink)}
+#timer{position:fixed;top:16px;left:22px;z-index:60;font-family:var(--mono);font-size:15px;letter-spacing:.06em;color:var(--mut);
+  background:rgba(8,10,22,.5);border:1px solid var(--line);border-radius:999px;padding:5px 14px;backdrop-filter:blur(8px)}
+#timer.run{color:var(--green);border-color:rgba(0,229,160,.35)}
+#timer.warn{color:var(--gold);border-color:rgba(255,214,0,.45)}
+#timer.over{color:var(--red);border-color:rgba(255,59,107,.5);animation:beat 1s infinite}
+@keyframes beat{50%{opacity:.45}}
+.hud-hint{position:fixed;top:16px;right:22px;z-index:60;font-size:11px;color:var(--dim)}
+.hud-hint b{color:var(--mut)}
 
-  .grid{display:grid;gap:16px}
-  .g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
-  @media(max-width:780px){.g2,.g3,.g4{grid-template-columns:1fr}}
+/* ---- deck ---- */
+#deck{position:fixed;inset:0;z-index:5}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(30px,5vw,90px);opacity:0;visibility:hidden;pointer-events:none;
+  transform:translateY(28px) scale(.985);filter:blur(10px);
+  transition:opacity .55s var(--ease),transform .7s var(--ease),filter .55s var(--ease)}
+.slide.active{opacity:1;visibility:visible;pointer-events:auto;transform:none;filter:none}
+.slide.prev{transform:translateY(-22px) scale(.985)}
+.wrap{width:100%;max-width:1120px;margin:0 auto;position:relative;z-index:2}
 
-  .card{background:linear-gradient(160deg,rgba(255,255,255,.05),rgba(255,255,255,.015));
-    border:1px solid var(--line);border-radius:18px;padding:20px 22px;position:relative;overflow:hidden}
-  .card .top{position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,var(--primary),transparent)}
-  .kpi{font-family:var(--mono);font-size:clamp(28px,4vw,46px);font-weight:800;line-height:1}
-  .kpi-l{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--dim);margin-top:8px}
-  .kpi-s{font-size:12px;color:var(--muted);margin-top:6px}
+/* reveal stagger */
+.r{opacity:0;transform:translateY(22px)}
+.active .r{animation:reveal .7s var(--ease) forwards}
+.active .r:nth-child(1){animation-delay:.05s}.active .r:nth-child(2){animation-delay:.13s}
+.active .r:nth-child(3){animation-delay:.21s}.active .r:nth-child(4){animation-delay:.29s}
+.active .r:nth-child(5){animation-delay:.37s}.active .r:nth-child(6){animation-delay:.45s}
+.active .r:nth-child(7){animation-delay:.53s}
+@keyframes reveal{to{opacity:1;transform:none}}
 
-  ul.feat{list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:14px}
-  ul.feat li{display:flex;gap:14px;align-items:flex-start;font-size:clamp(15px,1.7vw,19px);line-height:1.45}
-  ul.feat .dot{flex:0 0 auto;width:11px;height:11px;border-radius:50%;margin-top:7px;box-shadow:0 0 10px currentColor}
-  .pill{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:13px;color:var(--muted);
-    background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:999px;padding:6px 14px}
+/* type */
+.kick{font-family:var(--mono);font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:var(--primary-l);
+  display:inline-flex;align-items:center;gap:12px;margin-bottom:18px}
+.kick::before{content:"";width:34px;height:1px;background:linear-gradient(90deg,var(--primary-l),transparent)}
+h1{font-size:clamp(40px,8.5vw,118px);font-weight:900;line-height:.95;letter-spacing:-.03em}
+h2{font-size:clamp(28px,4.6vw,60px);font-weight:850;line-height:1.04;letter-spacing:-.02em;margin-bottom:14px}
+.lead{font-size:clamp(15px,1.8vw,22px);color:var(--mut);line-height:1.55;max-width:44em}
+.big{font-size:clamp(60px,13vw,180px);font-weight:900;line-height:.9;letter-spacing:-.04em}
+.grad{background:linear-gradient(110deg,#fff 10%,var(--primary-l) 45%,var(--green) 95%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  background-size:220% auto;animation:sweep 7s linear infinite}
+.gradg{background:linear-gradient(110deg,var(--green),#9af5d4 60%,#fff);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.gradr{background:linear-gradient(110deg,var(--red),#ff86a4);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+@keyframes sweep{to{background-position:220% center}}
+.mut{color:var(--mut)} .dim{color:var(--dim)} .mono{font-family:var(--mono)}
+.y{color:var(--gold)} .g{color:var(--green)} .rr{color:var(--red)} .b{color:var(--blue)} .p{color:var(--purple)}
+.sp{height:clamp(14px,2.4vh,30px)}
 
-  .hawk{width:64px;height:64px;color:var(--yellow);filter:drop-shadow(0 0 18px rgba(255,214,0,.35))}
-  .tag{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.grid{display:grid;gap:16px} .g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:820px){.g2,.g3,.g4{grid-template-columns:1fr}}
 
-  /* comparison bars */
-  .cmp{display:flex;flex-direction:column;gap:8px;margin:4px 0 2px}
-  .cmp .row{display:flex;align-items:center;gap:12px}
-  .cmp .name{width:215px;font-size:14px;color:var(--muted)}
-  @media(max-width:780px){.cmp .name{width:120px;font-size:12px}}
-  .track{flex:1;height:26px;background:rgba(255,255,255,.05);border-radius:8px;position:relative;overflow:hidden}
-  .fill{position:absolute;inset:0 auto 0 0;border-radius:8px;display:flex;align-items:center;padding:0 10px;
-    font-family:var(--mono);font-size:12px;color:#04140d;font-weight:700}
-  .fill.fifo{background:linear-gradient(90deg,#7a1f33,#ff3366);color:#fff}
-  .fill.moh{background:linear-gradient(90deg,#0f7d63,var(--green))}
-  .delta{width:84px;text-align:right;font-family:var(--mono);font-weight:700;font-size:15px}
+.card{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:20px;padding:22px 24px;
+  background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,.015));
+  box-shadow:0 20px 50px -30px rgba(0,0,0,.8)}
+.card .edge{position:absolute;top:0;left:0;width:100%;height:2px;
+  background:linear-gradient(90deg,var(--accent,var(--primary)),transparent)}
+.card.glow{box-shadow:0 0 0 1px var(--line),0 24px 60px -28px var(--accent,var(--primary))}
+.kpi{font-family:var(--mono);font-size:clamp(30px,4.4vw,52px);font-weight:800;line-height:1}
+.kl{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--dim);margin-top:10px}
+.ks{font-size:12.5px;color:var(--mut);margin-top:6px;line-height:1.4}
 
-  .flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}
-  .step{flex:1;min-width:120px;background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}
-  .step .n{font-family:var(--mono);font-size:11px;color:var(--primary-l)}
-  .step .t{font-weight:700;margin-top:6px;font-size:15px}
-  .step .d{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.35}
-  .arrow{display:flex;align-items:center;color:var(--dim);font-size:22px}
-  @media(max-width:780px){.arrow{transform:rotate(90deg)}}
+ul.feat{list-style:none;display:flex;flex-direction:column;gap:15px;margin-top:8px}
+ul.feat li{display:flex;gap:15px;align-items:flex-start;font-size:clamp(15px,1.75vw,20px);line-height:1.45}
+.dot{flex:0 0 auto;width:12px;height:12px;border-radius:50%;margin-top:7px;background:currentColor;box-shadow:0 0 12px currentColor}
+.pill{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:13px;color:var(--mut);
+  background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:999px;padding:7px 16px;text-decoration:none;transition:.25s}
+.pill:hover{color:#fff;border-color:rgba(0,229,160,.4);background:rgba(0,229,160,.06)}
+.tag{font-family:var(--mono);font-size:12px;color:var(--dim)}
 
-  a.link{color:var(--green);text-decoration:none;border-bottom:1px dashed rgba(0,229,160,.4)}
-  a.link:hover{border-bottom-style:solid}
+/* hunt canvas */
+.huntbox{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);
+  background:radial-gradient(120% 120% at 70% 10%,rgba(20,40,90,.4),rgba(4,6,16,.6))}
+.hunt{display:block;width:100%}
+.huntlabel{position:absolute;bottom:12px;left:14px;font-family:var(--mono);font-size:11px;color:var(--mut);
+  background:rgba(0,0,0,.4);padding:4px 10px;border-radius:8px;backdrop-filter:blur(6px)}
+#hero-hunt{position:absolute;inset:0;z-index:1;opacity:.62}
 
-  /* speaker notes */
-  #notes{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(4,5,12,.96);
-    border-top:1px solid var(--line);padding:14px 22px 16px;transform:translateY(110%);transition:.3s;backdrop-filter:blur(8px)}
-  #notes.show{transform:none}
-  #notes .nt{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--primary-l)}
-  #notes .nb{margin-top:6px;font-size:15px;color:#dfe5ff;line-height:1.5;max-width:60em}
-  #notes .ntime{float:right;color:var(--yellow)}
+/* race bars */
+.race{display:flex;flex-direction:column;gap:11px}
+.race .row{display:flex;align-items:center;gap:14px}
+.race .nm{width:200px;font-size:14.5px;color:var(--mut)}
+@media(max-width:820px){.race .nm{width:120px;font-size:12px}}
+.track{flex:1;height:30px;border-radius:9px;background:rgba(255,255,255,.05);position:relative;overflow:hidden}
+.fill{position:absolute;top:0;left:0;bottom:0;width:0;border-radius:9px;display:flex;align-items:center;
+  padding:0 12px;font-family:var(--mono);font-size:12.5px;font-weight:700;white-space:nowrap;
+  transition:width 1.3s var(--ease)}
+.fill.fifo{background:linear-gradient(90deg,#7a1f3a,var(--red));color:#fff;z-index:1;opacity:.55}
+.fill.moh{background:linear-gradient(90deg,#0e7d63,var(--green));color:#04140d;z-index:2;box-shadow:0 0 18px rgba(0,229,160,.4)}
+.delta{width:78px;text-align:right;font-family:var(--mono);font-weight:800;font-size:16px;color:var(--green)}
 
-  /* help */
-  #help{position:fixed;inset:0;z-index:70;background:rgba(4,5,12,.92);display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
-  #help.show{display:flex}
-  #help .box{max-width:460px;background:var(--bg3);border:1px solid var(--line);border-radius:18px;padding:28px 32px}
-  #help h3{margin-bottom:14px}
-  #help table{width:100%;font-size:14px;border-collapse:collapse}
-  #help td{padding:7px 0;color:var(--muted)} #help td:first-child{width:130px}
-  #help kbd{font-family:var(--mono);background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:6px;padding:2px 8px;color:#fff;font-size:12px}
-  .build{animation:rise .6s ease both}.build:nth-child(2){animation-delay:.08s}.build:nth-child(3){animation-delay:.16s}
-  .build:nth-child(4){animation-delay:.24s}.build:nth-child(5){animation-delay:.32s}
-  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+/* flow */
+.flow{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap}
+.step{flex:1;min-width:130px;border:1px solid var(--line);border-radius:16px;padding:16px;text-align:center;
+  background:rgba(255,255,255,.035)}
+.step .n{font-family:var(--mono);font-size:11px;color:var(--primary-l);letter-spacing:.15em}
+.step .t{font-weight:800;margin-top:7px;font-size:16px}
+.step .d{font-size:12.5px;color:var(--mut);margin-top:5px;line-height:1.4}
+.arr{display:flex;align-items:center;color:var(--dim);font-size:24px}
+@media(max-width:820px){.arr{transform:rotate(90deg);justify-content:center}}
+
+/* pareto svg draw */
+.draw-path{stroke-dasharray:600;stroke-dashoffset:600;transition:stroke-dashoffset 2s var(--ease)}
+.active .draw-path.go{stroke-dashoffset:0}
+.pt{opacity:0;transition:opacity .5s var(--ease)}
+.active .pt.go{opacity:1}
+
+a.link{color:var(--green);text-decoration:none;border-bottom:1px dashed rgba(0,229,160,.45)}
+a.link:hover{border-bottom-style:solid}
+
+/* notes */
+#notes{position:fixed;left:0;right:0;bottom:0;z-index:70;transform:translateY(110%);transition:.35s var(--ease);
+  background:rgba(5,7,16,.96);border-top:1px solid var(--line);padding:16px 24px 18px;backdrop-filter:blur(10px)}
+#notes.show{transform:none}
+#notes .nt{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--primary-l)}
+#notes .ntime{float:right;color:var(--gold)}
+#notes .nb{margin-top:7px;font-size:15.5px;color:#e3e8ff;line-height:1.55;max-width:62em}
+
+/* help */
+#help{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;
+  background:rgba(4,5,12,.93);backdrop-filter:blur(8px)}
+#help.show{display:flex}
+#help .box{max-width:480px;border:1px solid var(--line);border-radius:20px;padding:30px 34px;
+  background:linear-gradient(160deg,rgba(30,40,80,.6),rgba(8,10,22,.8))}
+#help h3{margin-bottom:16px;font-size:22px}
+#help table{width:100%;font-size:14px} #help td{padding:7px 0;color:var(--mut)} #help td:first-child{width:150px}
+kbd{font-family:var(--mono);background:rgba(255,255,255,.09);border:1px solid var(--line);border-radius:6px;padding:2px 9px;color:#fff;font-size:12px}
+
+.center{text-align:center}
+.fade-stat{font-size:clamp(16px,2vw,24px);color:var(--mut)}
 </style>
 </head>
 <body>
+<canvas id="bg"></canvas>
+<div id="vignette"></div>
+<div id="grain"></div>
+
 <div id="bar"></div>
 <div id="timer">10:00</div>
+<div class="hud-hint"><b>→</b> avanzar · <b>N</b> notas · <b>T</b> timer · <b>?</b> ayuda</div>
 <div id="counter"><b>1</b> / 13</div>
-<div id="nav"><button data-go="prev">‹</button><button data-go="next">›</button></div>
-<div class="hint"><b>→</b> avanzar · <b>N</b> notas · <b>T</b> timer · <b>F</b> pantalla · <b>?</b> ayuda</div>
+<div id="dots"></div>
 
 <div id="deck">
 
-  <!-- 1 PORTADA -->
-  <section class="slide" data-notes="Bienvenida. Preséntate y al equipo en 1 frase. 'Hoy les muestro cómo un algoritmo inspirado en halcones puede repartir 140 mil visas de forma más justa y eficiente que el sistema actual.'" data-time="0:45">
-    <div class="wrap" style="text-align:center">
-      <svg class="hawk build" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M22 4c-1 3-3.5 5.5-7 7l-2 1-1 4-3-1 1-3-5-2 1-3 4 1 1-2c1.5-3.5 4-6 7-7z" fill="currentColor" opacity="0.12"/>
-        <path d="M22 4c-1 3-3.5 5.5-7 7l-2 1-1 4-3-1 1-3-5-2 1-3 4 1 1-2c1.5-3.5 4-6 7-7z"/>
-        <path d="M2 21l7-7"/><path d="M9 14l-2 5 5-2"/>
-      </svg>
-      <div class="kicker build" style="margin-top:18px">Tesis · MIAAD · UACJ 2026</div>
-      <h1 class="build">Visa Predict <span class="grad">AI</span></h1>
-      <p class="lead build" style="margin:18px auto 0;font-size:clamp(17px,2.2vw,24px)">
-        Optimización Multiobjetivo de Visas de Empleo (EB) de EE.UU.<br>
-        con <b class="y">Harris Hawks Optimization</b> (MOHHO)
+  <!-- 1 — PORTADA -->
+  <section class="slide" data-time="0:40" data-notes="Bienvenida. Tú y el equipo en una frase. 'Hoy verán cómo un algoritmo inspirado en cómo cazan los halcones reparte 140 mil visas de forma más justa y eficiente que el sistema actual.'">
+    <canvas id="hero-hunt" class="hunt"></canvas>
+    <div class="wrap center">
+      <div class="kick r" style="justify-content:center">Tesis · MIAAD · UACJ 2026</div>
+      <h1 class="r">Visa Predict <span class="grad">AI</span></h1>
+      <p class="lead r" style="margin:22px auto 0;font-size:clamp(17px,2.3vw,26px)">
+        Optimización multiobjetivo de visas de empleo (EB) de EE.&nbsp;UU.<br>
+        con <b class="y">Multi-Objective Harris Hawks Optimization</b>
       </p>
-      <div class="spacer"></div>
-      <div class="build" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px">
+      <div class="sp"></div>
+      <div class="r" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px">
         <span class="pill">Yazmín Flores</span><span class="pill">Javier Rebull</span>
         <span class="pill">FastAPI · Nuxt 4 · ECharts</span>
       </div>
     </div>
   </section>
 
-  <!-- 2 PROBLEMA -->
-  <section class="slide" data-notes="El problema. EE.UU. otorga 140 mil visas EB al año, pero la demanda es de cientos de miles. El reparto se hace por orden de llegada (FIFO) con topes por país, lo que genera esperas de décadas para India y China, y deja visas sin usar." data-time="1:00">
+  <!-- 2 — PROBLEMA -->
+  <section class="slide" data-time="0:55" data-notes="El problema. EE.UU. otorga 140 mil visas EB al año, pero la demanda es de cientos de miles. El reparto se hace por orden de llegada con topes por país: esperas de décadas para India y China, y cupos que se pierden.">
     <div class="wrap">
-      <div class="kicker">01 · El problema</div>
-      <h2>140,000 visas. <span class="grad">Demanda multimillonaria.</span></h2>
-      <p class="lead">Cada año EE.UU. reparte visas de empleo entre <b class="b">21 países</b> y <b class="b">5 categorías</b> (EB-1…EB-5) — <b>105 grupos</b> — bajo reglas rígidas de orden de llegada y topes por país.</p>
-      <div class="spacer"></div>
-      <div class="grid g4">
-        <div class="card"><div class="top"></div><div class="kpi y">140K</div><div class="kpi-l">visas / año</div></div>
-        <div class="card"><div class="top"></div><div class="kpi b">105</div><div class="kpi-l">grupos país×cat</div></div>
-        <div class="card"><div class="top"></div><div class="kpi p">25,620</div><div class="kpi-l">tope por país</div></div>
-        <div class="card"><div class="top"></div><div class="kpi r">décadas</div><div class="kpi-l">de espera</div></div>
+      <div class="kick r">01 — El problema</div>
+      <h2 class="r"><span class="big grad" data-count data-to="140000" data-suffix="">0</span></h2>
+      <p class="lead r" style="margin-top:-6px">visas de empleo cada año — repartidas entre <b class="b">21 países</b> × <b class="b">5 categorías</b> = <b class="b">105 grupos</b>, bajo reglas rígidas de orden de llegada y topes por país.</p>
+      <div class="sp r"></div>
+      <div class="grid g4 r">
+        <div class="card" style="--accent:var(--blue)"><div class="edge"></div><div class="kpi b"><span data-count data-to="105">0</span></div><div class="kl">grupos país×categoría</div></div>
+        <div class="card" style="--accent:var(--purple)"><div class="edge"></div><div class="kpi p"><span data-count data-to="25620">0</span></div><div class="kl">tope por país</div></div>
+        <div class="card" style="--accent:var(--gold)"><div class="edge"></div><div class="kpi y">décadas</div><div class="kl">de espera (India, China)</div></div>
+        <div class="card" style="--accent:var(--red)"><div class="edge"></div><div class="kpi rr">FIFO</div><div class="kl">sistema actual = injusto</div></div>
       </div>
-      <p class="lead" style="margin-top:20px">El sistema actual — <b class="r">FIFO</b>, primero en llegar — es simple pero <b>injusto e ineficiente</b>: concentra la espera y desperdicia cupos.</p>
     </div>
   </section>
 
-  <!-- 3 COSTO FIFO -->
-  <section class="slide" data-notes="Cuantificamos el costo de FIFO con datos reales. Tres números: espera ponderada 7.21 años, una brecha de disparidad entre países de 12.64, y 17,540 visas que se pierden cada año. Estos son nuestra línea base verificada." data-time="0:55">
+  <!-- 3 — COSTO FIFO -->
+  <section class="slide" data-time="0:55" data-notes="Cuantificamos el costo de FIFO con datos reales y verificados (USCIS FY2025, Visa Bulletin Abr-2026). Tres números: 7.21 años de espera ponderada, 12.64 de disparidad entre países, y 17,540 visas perdidas cada año. Esta es nuestra línea base.">
     <div class="wrap">
-      <div class="kicker">02 · La línea base</div>
-      <h2>Lo que cuesta el sistema actual</h2>
-      <p class="lead">Reprodujimos FIFO con datos oficiales (USCIS FY2025, Visa Bulletin Abr-2026). Estos valores están <b class="g">verificados</b> y son nuestra referencia.</p>
-      <div class="spacer"></div>
-      <div class="grid g3">
-        <div class="card"><div class="top"></div><div class="kpi y">7.21</div><div class="kpi-l">f₁ · carga de espera</div><div class="kpi-s">años ponderados</div></div>
-        <div class="card"><div class="top"></div><div class="kpi g">12.64</div><div class="kpi-l">f₂ · disparidad</div><div class="kpi-s">brecha entre países</div></div>
-        <div class="card"><div class="top"></div><div class="kpi r">17,540</div><div class="kpi-l">f₃ · desperdicio</div><div class="kpi-s">visas sin usar / año</div></div>
+      <div class="kick r">02 — La línea base</div>
+      <h2 class="r">El costo real del <span class="gradr">statu quo</span></h2>
+      <p class="lead r">Reprodujimos FIFO con datos oficiales. Estos valores están <b class="g">verificados</b> y son la referencia contra la que medimos todo.</p>
+      <div class="sp r"></div>
+      <div class="grid g3 r">
+        <div class="card" style="--accent:var(--gold)"><div class="edge"></div><div class="kpi y"><span data-count data-to="7.21" data-dec="2">0</span></div><div class="kl">f₁ · carga de espera</div><div class="ks">años ponderados</div></div>
+        <div class="card" style="--accent:var(--green)"><div class="edge"></div><div class="kpi g"><span data-count data-to="12.64" data-dec="2">0</span></div><div class="kl">f₂ · disparidad</div><div class="ks">brecha entre países</div></div>
+        <div class="card glow" style="--accent:var(--red)"><div class="edge"></div><div class="kpi rr"><span data-count data-to="17540">0</span></div><div class="kl">f₃ · desperdicio</div><div class="ks">visas sin usar al año</div></div>
       </div>
-      <p class="lead" style="margin-top:22px"><b class="r">17,540 visas</b> se pierden cada año bajo FIFO — y la espera no se reparte de forma equitativa.</p>
+      <p class="lead r" style="margin-top:22px"><b class="rr">17,540 visas se pierden cada año</b> — y la espera se concentra en unos pocos países.</p>
     </div>
   </section>
 
-  <!-- 4 OBJETIVOS -->
-  <section class="slide" data-notes="No hay una sola 'mejor' solución: los tres objetivos están en conflicto. Bajar la disparidad puede subir el desperdicio, etc. Por eso buscamos un FRENTE de soluciones de compromiso, no un único punto. Esto es optimización multiobjetivo." data-time="0:55">
+  <!-- 4 — OBJETIVOS -->
+  <section class="slide" data-time="0:55" data-notes="No existe una sola 'mejor' solución: los tres objetivos están en conflicto. Bajar la disparidad puede subir el desperdicio. Por eso buscamos un FRENTE de soluciones de compromiso, no un único punto. Eso es optimización multiobjetivo.">
     <div class="wrap">
-      <div class="kicker">03 · Tres objetivos en conflicto</div>
-      <h2>Minimizar <span class="y">espera</span>, <span class="g">disparidad</span> y <span class="r">desperdicio</span></h2>
+      <div class="kick r">03 — Tres fuerzas en tensión</div>
+      <h2 class="r">Minimizar <span class="y">espera</span>, <span class="g">disparidad</span> y <span class="rr">desperdicio</span></h2>
       <ul class="feat">
-        <li><span class="dot" style="color:var(--yellow)"></span><span><b class="y">f₁ — Carga de espera.</b> <span class="mono mut">Σ(nᵍ−xᵍ)·wᵍ / Σnᵍ</span> · años de espera ponderados por el rezago.</span></li>
-        <li><span class="dot" style="color:var(--green)"></span><span><b class="g">f₂ — Disparidad.</b> <span class="mono mut">máx(W̄_c) − mín(W̄_c)</span> · brecha de espera entre el país mejor y peor servido.</span></li>
-        <li><span class="dot" style="color:var(--red)"></span><span><b class="r">f₃ — Desperdicio.</b> <span class="mono mut">V − Σxᵍ</span> · visas que quedan sin asignar.</span></li>
+        <li class="r"><span class="dot y"></span><span><b class="y">f₁ — Carga de espera.</b> <span class="mono mut">Σ(nᵍ−xᵍ)·wᵍ / Σnᵍ</span> — años de espera ponderados por el rezago.</span></li>
+        <li class="r"><span class="dot g"></span><span><b class="g">f₂ — Disparidad.</b> <span class="mono mut">máx(W̄_c) − mín(W̄_c)</span> — brecha entre el país mejor y peor servido.</span></li>
+        <li class="r"><span class="dot rr"></span><span><b class="rr">f₃ — Desperdicio.</b> <span class="mono mut">V − Σxᵍ</span> — visas que quedan sin asignar.</span></li>
       </ul>
-      <p class="lead" style="margin-top:20px">Están <b>en conflicto</b> → no existe un único óptimo, sino un <b class="grad-g">frente de Pareto</b> de soluciones de compromiso.</p>
+      <p class="lead r" style="margin-top:22px">En conflicto entre sí → no hay un óptimo único, sino un <b class="gradg">frente de Pareto</b> de soluciones de compromiso.</p>
     </div>
   </section>
 
-  <!-- 5 METAFORA MOHHO -->
-  <section class="slide" data-notes="¿Por qué halcones? Los halcones de Harris cazan en grupo: exploran disperso y luego asedian cooperativamente a la presa. Mapeo: cada HALCÓN es una posible asignación de las 105 cuotas; el CONEJO es la mejor solución encontrada; la ENERGÍA E(t) decide si exploran o asedian." data-time="1:05">
+  <!-- 5 — LA CACERÍA (live) -->
+  <section class="slide" data-time="1:10" data-notes="Aquí entra la metáfora — y está VIVA en pantalla. Los halcones de Harris cazan en grupo: exploran disperso y luego asedian en formación. Mapeo: cada halcón (azul→naranja) es una asignación posible; el objetivo rosa es la mejor solución del momento; la X roja es FIFO, que el enjambre supera; la curva es el frente de Pareto formándose. La energía E(t) decide exploración vs. asedio.">
     <div class="wrap">
-      <div class="kicker">04 · La metáfora</div>
-      <h2>¿Por qué <span class="grad">Harris Hawks</span>?</h2>
-      <p class="lead">Los halcones de Harris son de las pocas aves que cazan <b>en grupo</b>: se dispersan a explorar y luego <b class="y">asedian en formación</b> a la presa. Esa cooperación equilibra exploración y explotación.</p>
-      <div class="spacer"></div>
-      <div class="grid g3">
-        <div class="card"><div class="top"></div><div class="t b" style="font-weight:800;font-size:18px">🦅 Halcón</div><p class="kpi-s" style="font-size:14px">Una solución candidata: vector de 105 valores → una asignación de visas.</p></div>
-        <div class="card"><div class="top"></div><div class="t r" style="font-weight:800;font-size:18px">🎯 Conejo</div><p class="kpi-s" style="font-size:14px">El líder del archivo de Pareto: la mejor solución no dominada del momento.</p></div>
-        <div class="card"><div class="top"></div><div class="t y" style="font-weight:800;font-size:18px">⚡ Energía E(t)</div><p class="kpi-s" style="font-size:14px">Decrece con el tiempo: alta → exploran; baja → asedian y refinan.</p></div>
-      </div>
-      <p class="tag" style="margin-top:18px">6 operadores: exploración (×2), asedio suave/duro (×2) y asedio con vuelos de Lévy (×2).</p>
-    </div>
-  </section>
-
-  <!-- 6 PIPELINE -->
-  <section class="slide" data-notes="Punto técnico clave en 1 minuto: un halcón vive en el continuo [0,1]^105. Lo ordenamos (SPV) y un decodificador voraz asigna visas en ese orden respetando topes por país, por categoría y el spillover legal EB-4/5→EB-1→EB-2→EB-3. Así cada solución es SIEMPRE factible. Las no dominadas entran a un archivo de Pareto medido con hipervolumen." data-time="1:05">
-    <div class="wrap">
-      <div class="kicker">05 · Cómo funciona</div>
-      <h2>De un vector continuo a una asignación factible</h2>
-      <div class="spacer"></div>
-      <div class="flow">
-        <div class="step"><div class="n">PASO 1</div><div class="t b">Posición</div><div class="d">Vector continuo [0,1]<sup>105</sup> (un halcón)</div></div>
-        <div class="arrow">→</div>
-        <div class="step"><div class="n">PASO 2</div><div class="t">SPV</div><div class="d">Se ordena → prioridad de los 105 grupos</div></div>
-        <div class="arrow">→</div>
-        <div class="step"><div class="n">PASO 3</div><div class="t y">Decoder voraz</div><div class="d">Asigna respetando topes país/categoría + spillover</div></div>
-        <div class="arrow">→</div>
-        <div class="step"><div class="n">PASO 4</div><div class="t g">Asignación</div><div class="d">Entera y factible · se evalúa f₁,f₂,f₃</div></div>
-      </div>
-      <div class="spacer"></div>
-      <div class="grid g2">
-        <div class="card"><div class="top"></div><b>Spillover legal (INA 203b)</b><p class="kpi-s" style="font-size:14px">Cupos no usados cascada: <span class="mono">EB-4/5 → EB-1 → EB-2 → EB-3</span></p></div>
-        <div class="card"><div class="top"></div><b>Archivo de Pareto</b><p class="kpi-s" style="font-size:14px">Soluciones no dominadas · <span class="mono">crowding distance</span> para diversidad · calidad medida con <span class="mono">hipervolumen</span>.</p></div>
+      <div class="kick r">04 — La metáfora, en movimiento</div>
+      <h2 class="r">¿Por qué <span class="grad">Harris Hawks</span>?</h2>
+      <div class="grid g2 r" style="align-items:center;gap:26px;margin-top:6px">
+        <div class="huntbox"><canvas id="meta-hunt" class="hunt"></canvas><span class="huntlabel">simulación ilustrativa · halcones → solución · objetivo → líder Pareto · ✕ FIFO</span></div>
+        <ul class="feat">
+          <li><span class="dot b"></span><span><b class="b">Halcón</b> = una solución candidata (vector de 105 cuotas).</span></li>
+          <li><span class="dot rr"></span><span><b class="rr">Objetivo</b> = la mejor solución no dominada del archivo.</span></li>
+          <li><span class="dot y"></span><span><b class="y">Energía E(t)</b> ↓ con el tiempo: alta → exploran; baja → asedian.</span></li>
+          <li><span class="dot p"></span><span><b class="p">6 operadores</b>: exploración, asedio suave/duro y vuelos de Lévy.</span></li>
+        </ul>
       </div>
     </div>
   </section>
 
-  <!-- 7 RESULTADOS -->
-  <section class="slide" data-notes="EL RESULTADO MÁS FUERTE. MOHHO no solo iguala a FIFO: reduce la disparidad un 81% y lleva el desperdicio a CERO, manteniendo la espera prácticamente igual. Y no es suerte: 30 corridas con variación de solo 1.6%. Recalca el 'cero desperdicio'." data-time="1:10">
+  <!-- 6 — PIPELINE -->
+  <section class="slide" data-time="1:00" data-notes="Punto técnico clave en un minuto. Un halcón vive en el continuo [0,1] elevado a 105. Lo ordenamos (SPV) y un decodificador voraz asigna visas en ese orden respetando topes por país, por categoría y el spillover legal EB-4/5 → EB-1 → EB-2 → EB-3. Así cada solución es SIEMPRE factible. Las no dominadas entran a un archivo de Pareto medido con hipervolumen.">
     <div class="wrap">
-      <div class="kicker">06 · Resultados</div>
-      <h2>MOHHO vs FIFO <span class="dim" style="font-weight:600;font-size:.5em">· mejor solución por objetivo</span></h2>
-      <div class="cmp" style="margin-top:18px">
-        <div class="row"><div class="name y">f₁ Espera</div><div class="track"><div class="fill fifo" style="width:100%">FIFO 7.21</div><div class="fill moh" style="width:99.6%">MOHHO 7.19</div></div><div class="delta g">−0.4%</div></div>
-        <div class="row"><div class="name g">f₂ Disparidad</div><div class="track"><div class="fill fifo" style="width:100%">FIFO 12.64</div><div class="fill moh" style="width:18.8%">2.38</div></div><div class="delta g">−81%</div></div>
-        <div class="row"><div class="name r">f₃ Desperdicio</div><div class="track"><div class="fill fifo" style="width:100%">FIFO 17,540</div><div class="fill moh" style="width:1.5%">0</div></div><div class="delta g">−100%</div></div>
+      <div class="kick r">05 — El motor</div>
+      <h2 class="r">De un vector continuo a una asignación <span class="gradg">factible</span></h2>
+      <div class="sp r"></div>
+      <div class="flow r">
+        <div class="step"><div class="n">01</div><div class="t b">Posición</div><div class="d">Vector [0,1]<sup>105</sup> — un halcón</div></div>
+        <div class="arr">→</div>
+        <div class="step"><div class="n">02</div><div class="t">SPV</div><div class="d">Se ordena → prioridad de los 105 grupos</div></div>
+        <div class="arr">→</div>
+        <div class="step"><div class="n">03</div><div class="t y">Decoder voraz</div><div class="d">Asigna respetando topes + spillover</div></div>
+        <div class="arr">→</div>
+        <div class="step"><div class="n">04</div><div class="t g">Asignación</div><div class="d">Entera y factible · evalúa f₁f₂f₃</div></div>
       </div>
-      <div class="spacer"></div>
-      <div class="grid g4">
-        <div class="card"><div class="kpi b">406</div><div class="kpi-l">soluciones Pareto</div></div>
-        <div class="card"><div class="kpi y">30</div><div class="kpi-l">corridas × 500 iter</div></div>
-        <div class="card"><div class="kpi g">0</div><div class="kpi-l">visas desperdiciadas</div></div>
-        <div class="card"><div class="kpi p">1.6%</div><div class="kpi-l">variación (CV) → robusto</div></div>
+      <div class="sp r"></div>
+      <div class="grid g2 r">
+        <div class="card" style="--accent:var(--primary)"><div class="edge"></div><b>Spillover legal · INA §203(b)</b><p class="ks" style="font-size:14px">Cupos no usados en cascada: <span class="mono">EB-4/5 → EB-1 → EB-2 → EB-3</span></p></div>
+        <div class="card" style="--accent:var(--green)"><div class="edge"></div><b>Archivo de Pareto</b><p class="ks" style="font-size:14px">No dominadas · <span class="mono">crowding distance</span> para diversidad · calidad medida con <span class="mono">hipervolumen</span>.</p></div>
       </div>
     </div>
   </section>
 
-  <!-- 8 PARETO + ESCENARIOS -->
-  <section class="slide" data-notes="El frente de Pareto no da UNA respuesta: da un menú de políticas. Cada punto es una asignación viable. Según la prioridad del tomador de decisiones se elige el escenario: humanitario, equilibrio, equidad o máxima utilización. FIFO queda fuera del frente — es dominado." data-time="1:00">
+  <!-- 7 — RESULTADOS -->
+  <section class="slide" data-time="1:10" data-notes="EL RESULTADO MÁS FUERTE — deja que las barras corran. MOHHO no solo iguala a FIFO: reduce la disparidad un 81% y lleva el desperdicio a CERO, manteniendo la espera prácticamente igual. Y no es suerte: 30 corridas con variación de solo 1.6%. Recalca el 'cero desperdicio'.">
     <div class="wrap">
-      <div class="kicker">07 · El frente de Pareto</div>
-      <h2>No una respuesta — <span class="grad-g">un menú de políticas</span></h2>
-      <div class="grid g2" style="align-items:center;margin-top:10px">
-        <svg viewBox="0 0 320 220" style="width:100%;max-width:420px">
-          <line x1="40" y1="185" x2="305" y2="185" stroke="rgba(255,214,0,.5)" stroke-width="1.2"/>
-          <line x1="40" y1="185" x2="40" y2="15" stroke="rgba(0,229,160,.5)" stroke-width="1.2"/>
-          <text x="170" y="208" fill="#9aa3c0" font-size="11" text-anchor="middle" font-family="monospace">f₁ — espera →</text>
-          <text x="14" y="100" fill="#9aa3c0" font-size="11" text-anchor="middle" font-family="monospace" transform="rotate(-90 14 100)">f₂ — disparidad →</text>
-          <path d="M55 40 C 110 55, 150 95, 175 120 S 250 165, 290 172" fill="none" stroke="#60a5fa" stroke-width="2.5" opacity=".85"/>
-          <circle cx="55" cy="40" r="5" fill="#FFD600"/><text x="62" y="38" fill="#FFD600" font-size="10">humanitario</text>
-          <circle cx="290" cy="172" r="5" fill="#00E5A0"/><text x="232" y="168" fill="#00E5A0" font-size="10">equidad</text>
-          <circle cx="172" cy="118" r="7" fill="#fff" stroke="#1a5fd4" stroke-width="3"/><text x="120" y="112" fill="#fff" font-size="10">equilibrio (knee)</text>
-          <circle cx="270" cy="55" r="6" fill="none" stroke="#FF3366" stroke-width="2" stroke-dasharray="3 3"/>
-          <text x="205" y="52" fill="#FF6b80" font-size="10">✕ FIFO (dominado)</text>
+      <div class="kick r">06 — Resultados</div>
+      <h2 class="r">MOHHO <span class="dim" style="font-weight:600;font-size:.5em">vs</span> FIFO</h2>
+      <div class="race r" style="margin-top:16px">
+        <div class="row"><div class="nm y">f₁ Espera</div><div class="track"><div class="fill fifo" data-w="100">FIFO 7.21</div><div class="fill moh" data-w="99.6">MOHHO 7.19</div></div><div class="delta">−0.4%</div></div>
+        <div class="row"><div class="nm g">f₂ Disparidad</div><div class="track"><div class="fill fifo" data-w="100">FIFO 12.64</div><div class="fill moh" data-w="18.8">2.38</div></div><div class="delta">−81%</div></div>
+        <div class="row"><div class="nm rr">f₃ Desperdicio</div><div class="track"><div class="fill fifo" data-w="100">FIFO 17,540</div><div class="fill moh" data-w="2">0</div></div><div class="delta">−100%</div></div>
+      </div>
+      <div class="sp r"></div>
+      <div class="grid g4 r">
+        <div class="card" style="--accent:var(--blue)"><div class="edge"></div><div class="kpi b"><span data-count data-to="406">0</span></div><div class="kl">soluciones Pareto</div></div>
+        <div class="card" style="--accent:var(--gold)"><div class="edge"></div><div class="kpi y"><span data-count data-to="30">0</span></div><div class="kl">corridas × 500 iter</div></div>
+        <div class="card glow" style="--accent:var(--green)"><div class="edge"></div><div class="kpi g">0</div><div class="kl">visas desperdiciadas</div></div>
+        <div class="card" style="--accent:var(--purple)"><div class="edge"></div><div class="kpi p"><span data-count data-to="1.6" data-dec="1" data-suffix="%">0</span></div><div class="kl">variación → robusto</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 — PARETO -->
+  <section class="slide" data-time="1:00" data-notes="El frente no da UNA respuesta: da un menú de políticas. Cada punto es una asignación viable. Según la prioridad del decisor se elige el escenario. FIFO queda FUERA del frente — es dominado por casi todo.">
+    <div class="wrap">
+      <div class="kick r">07 — El frente de Pareto</div>
+      <h2 class="r">No una respuesta — <span class="gradg">un menú de políticas</span></h2>
+      <div class="grid g2 r" style="align-items:center;gap:30px;margin-top:8px">
+        <svg viewBox="0 0 340 240" style="width:100%;max-width:440px">
+          <defs><linearGradient id="pf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6ea8ff"/><stop offset="1" stop-color="#00E5A0"/></linearGradient></defs>
+          <line x1="44" y1="200" x2="324" y2="200" stroke="rgba(255,214,0,.5)" stroke-width="1.2"/>
+          <line x1="44" y1="200" x2="44" y2="16" stroke="rgba(0,229,160,.5)" stroke-width="1.2"/>
+          <text x="185" y="224" fill="#9aa6cc" font-size="11" text-anchor="middle" font-family="monospace">f₁ — espera →</text>
+          <text x="16" y="108" fill="#9aa6cc" font-size="11" text-anchor="middle" font-family="monospace" transform="rotate(-90 16 108)">f₂ — disparidad →</text>
+          <path class="draw-path" d="M60 44 C 120 60, 160 104, 188 132 S 270 182, 312 188" fill="none" stroke="url(#pf)" stroke-width="3" stroke-linecap="round"/>
+          <circle class="pt" cx="60" cy="44" r="5.5" fill="#FFD600"/><text class="pt" x="68" y="42" fill="#FFD600" font-size="10.5">humanitario</text>
+          <circle class="pt" cx="312" cy="188" r="5.5" fill="#00E5A0"/><text class="pt" x="248" y="184" fill="#00E5A0" font-size="10.5">equidad</text>
+          <circle class="pt" cx="188" cy="130" r="7.5" fill="#fff" stroke="#2f6df0" stroke-width="3"/><text class="pt" x="120" y="122" fill="#fff" font-size="10.5">equilibrio (knee)</text>
+          <circle class="pt" cx="292" cy="58" r="6.5" fill="none" stroke="#FF3B6B" stroke-width="2" stroke-dasharray="3 3"/>
+          <text class="pt" x="222" y="54" fill="#ff7595" font-size="10.5">✕ FIFO (dominado)</text>
         </svg>
         <ul class="feat">
           <li><span class="dot y"></span><span><b class="y">Humanitario</b> — mínima espera (f₁)</span></li>
           <li><span class="dot" style="color:#fff"></span><span><b>Equilibrio</b> — punto de rodilla, mejor compromiso</span></li>
           <li><span class="dot g"></span><span><b class="g">Equidad</b> — mínima disparidad (f₂)</span></li>
           <li><span class="dot b"></span><span><b class="b">Máx. utilización</b> — cero desperdicio (f₃)</span></li>
-          <li><span class="dot r"></span><span><b class="r">FIFO</b> — el sistema actual, como referencia</span></li>
+          <li><span class="dot rr"></span><span><b class="rr">FIFO</b> — referencia (dominado)</span></li>
         </ul>
       </div>
     </div>
   </section>
 
-  <!-- 9 DEMO -->
-  <section class="slide" data-notes="MOMENTO DEMO (~2 min). Cambia al navegador → /simulacion. Inicia una corrida. Narra: los halcones azules exploran, se vuelven amarillos/naranjas al asediar al conejo (líder Pareto); la X roja es FIFO, que el enjambre supera; el frente azul se va formando. Usa PAUSA para explicar y 2× si vas con prisa. Vuelve aquí al terminar." data-time="2:00">
-    <div class="wrap" style="text-align:center">
-      <div class="kicker">08 · Demostración en vivo</div>
-      <h2>Veámoslo <span class="grad">cazar</span> en tiempo real</h2>
-      <p class="lead" style="margin:10px auto 0">Simulación del algoritmo vía WebSocket: 105 dimensiones, fases de exploración → asedio, frente de Pareto formándose, y el <b class="r">fantasma FIFO</b> siendo superado.</p>
-      <div class="spacer"></div>
-      <div class="card" style="display:inline-block;padding:18px 26px">
+  <!-- 9 — DEMO -->
+  <section class="slide" data-time="2:00" data-notes="MOMENTO DEMO (~2 min). Cambia al navegador → /simulacion. Inicia una corrida. Narra: halcones azules exploran, amarillos/naranjas asedian al objetivo (líder Pareto); la X roja es FIFO, superado; el frente azul se forma. Usa PAUSA para explicar y 2× si vas con prisa. Vuelve aquí al terminar.">
+    <div class="wrap center">
+      <div class="kick r" style="justify-content:center">08 — Demostración en vivo</div>
+      <h2 class="r">Veámoslo <span class="grad">cazar</span> en tiempo real</h2>
+      <p class="lead r" style="margin:12px auto 0">Simulación vía WebSocket: 105 dimensiones, exploración → asedio, el frente formándose y el <b class="rr">fantasma FIFO</b> siendo superado.</p>
+      <div class="sp r"></div>
+      <div class="card r" style="display:inline-block;--accent:var(--green)">
+        <div class="edge"></div>
         <div class="tag">abrir en el navegador</div>
-        <a class="link mono" style="font-size:clamp(15px,2vw,22px)" href="https://visa-predict-mohho.onrender.com/simulacion" target="_blank" rel="noopener">visa-predict-mohho.onrender.com/simulacion</a>
+        <a class="link mono" style="font-size:clamp(15px,2.2vw,24px)" href="https://visa-predict-mohho.onrender.com/simulacion" target="_blank" rel="noopener">visa-predict-mohho.onrender.com/simulacion</a>
       </div>
-      <p class="tag" style="margin-top:18px">Controles: ▶ iniciar · ⏸ pausar para explicar · 0.5× / 1× / 2× velocidad</p>
+      <p class="tag r" style="margin-top:18px">▶ iniciar · ⏸ pausar para explicar · 0.5× / 1× / 2× velocidad</p>
     </div>
   </section>
 
-  <!-- 10 ARQUITECTURA -->
-  <section class="slide" data-notes="Arquitectura, breve. Migramos de un monolito Streamlit a un stack desacoplado: backend FastAPI con el algoritmo en Python, frontend Nuxt 4 con ECharts, y un WebSocket para la simulación en vivo. Todo desplegado en Render. Menciona los 12 endpoints y el streaming." data-time="0:50">
+  <!-- 10 — ARQUITECTURA -->
+  <section class="slide" data-time="0:50" data-notes="Arquitectura, breve. Migramos de un monolito Streamlit a un stack desacoplado: backend FastAPI con el algoritmo en Python, frontend Nuxt 4 con ECharts, y un WebSocket para la simulación en vivo. Todo desplegado en Render con CI desde GitHub. 12 endpoints, reproducible, con pruebas.">
     <div class="wrap">
-      <div class="kicker">09 · Arquitectura</div>
-      <h2>Stack desacoplado y desplegado</h2>
-      <div class="spacer"></div>
-      <div class="flow">
-        <div class="step"><div class="n">FRONTEND</div><div class="t b">Nuxt 4 + Vue 3</div><div class="d">TypeScript · ECharts · 10 páginas</div></div>
-        <div class="arrow">⇄</div>
-        <div class="step"><div class="n">API</div><div class="t y">REST + WebSocket</div><div class="d">12 endpoints · simulación en vivo</div></div>
-        <div class="arrow">⇄</div>
+      <div class="kick r">09 — Arquitectura</div>
+      <h2 class="r">Stack desacoplado y desplegado</h2>
+      <div class="sp r"></div>
+      <div class="flow r">
+        <div class="step"><div class="n">FRONTEND</div><div class="t b">Nuxt 4 · Vue 3</div><div class="d">TypeScript · ECharts · 10 páginas</div></div>
+        <div class="arr">⇄</div>
+        <div class="step"><div class="n">API</div><div class="t y">REST + WebSocket</div><div class="d">12 endpoints · streaming en vivo</div></div>
+        <div class="arr">⇄</div>
         <div class="step"><div class="n">BACKEND</div><div class="t g">FastAPI · Python</div><div class="d">MOHHO · decoder · FIFO · 30 runs</div></div>
       </div>
-      <div class="spacer"></div>
-      <div class="grid g3">
-        <div class="card"><b class="b">Reproducible</b><p class="kpi-s" style="font-size:13px">Semilla fija → mismo resultado · 20 tests automatizados</p></div>
-        <div class="card"><b class="y">Streaming en vivo</b><p class="kpi-s" style="font-size:13px">El frente se transmite iteración por iteración por WebSocket</p></div>
-        <div class="card"><b class="g">Cloud</b><p class="kpi-s" style="font-size:13px">Desplegado en Render · CI desde GitHub</p></div>
+      <div class="sp r"></div>
+      <div class="grid g3 r">
+        <div class="card" style="--accent:var(--blue)"><div class="edge"></div><b class="b">Reproducible</b><p class="ks" style="font-size:13.5px">Semilla fija → mismo resultado · 20 pruebas automatizadas</p></div>
+        <div class="card" style="--accent:var(--gold)"><div class="edge"></div><b class="y">Streaming</b><p class="ks" style="font-size:13.5px">El frente se transmite iteración por iteración por WebSocket</p></div>
+        <div class="card" style="--accent:var(--green)"><div class="edge"></div><b class="g">Cloud</b><p class="ks" style="font-size:13.5px">Render · despliegue continuo desde GitHub</p></div>
       </div>
     </div>
   </section>
 
-  <!-- 11 VALIDACION -->
-  <section class="slide" data-notes="Rigor y datos. Anticipa preguntas del jurado: ¿de dónde salen los datos? USCIS FY2025 Q2, Visa Bulletin de abril 2026, DHS Yearbook FY2023, y reglas de la ley INA 203(b). La línea base FIFO coincide exactamente con la implementación original — está validada." data-time="0:50">
+  <!-- 11 — RIGOR -->
+  <section class="slide" data-time="0:50" data-notes="Rigor y datos — anticipa preguntas del jurado. ¿De dónde salen los datos? USCIS FY2025 Q2, Visa Bulletin abril 2026, DHS Yearbook FY2023, y reglas de la ley INA 203(b). La línea base FIFO coincide EXACTAMENTE con la implementación original: está validada.">
     <div class="wrap">
-      <div class="kicker">10 · Rigor y fuentes</div>
-      <h2>Datos reales, resultados validados</h2>
-      <div class="grid g2">
+      <div class="kick r">10 — Rigor y fuentes</div>
+      <h2 class="r">Datos reales, resultados <span class="gradg">validados</span></h2>
+      <div class="grid g2 r" style="gap:24px">
         <ul class="feat">
-          <li><span class="dot g"></span><span><b>USCIS FY2025 Q2</b> — peticiones I-140/I-360/I-526 aprobadas en espera</span></li>
-          <li><span class="dot b"></span><span><b>Visa Bulletin Abr-2026</b> — fechas de acción final (Dept. of State)</span></li>
+          <li><span class="dot g"></span><span><b>USCIS FY2025 Q2</b> — peticiones I-140/I-360/I-526 en espera</span></li>
+          <li><span class="dot b"></span><span><b>Visa Bulletin Abr-2026</b> — fechas de acción final (DOS)</span></li>
           <li><span class="dot y"></span><span><b>DHS Yearbook FY2023</b> — cuotas por país</span></li>
           <li><span class="dot p"></span><span><b>INA §203(b)</b> — reglas legales de spillover</span></li>
         </ul>
-        <div class="card" style="align-self:center">
-          <div class="top"></div>
+        <div class="card glow" style="--accent:var(--green);align-self:center">
+          <div class="edge"></div>
           <b class="g">✓ Validación</b>
-          <p class="kpi-s" style="font-size:14px;line-height:1.6">FIFO reproduce exactamente la app original<br><span class="mono">f₁=7.2138 · f₂=12.6377 · f₃=17540</span><br>20 pruebas unitarias · reproducibilidad por semilla</p>
+          <p class="ks" style="font-size:14.5px;line-height:1.7">FIFO reproduce exactamente la app original:<br><span class="mono y">f₁=7.2138 · f₂=12.6377 · f₃=17540</span><br>20 pruebas unitarias · reproducibilidad por semilla</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 12 CONCLUSIONES -->
-  <section class="slide" data-notes="Conclusiones. Una frase potente: MOHHO convierte una sola regla rígida (FIFO) en un abanico de políticas medibles, eliminando el desperdicio y reduciendo la disparidad hasta 81%. Es una herramienta de apoyo a la decisión, no una caja negra. Trabajo futuro: más objetivos, datos en tiempo real." data-time="0:55">
+  <!-- 12 — CONCLUSIONES -->
+  <section class="slide" data-time="0:55" data-notes="Conclusiones. Frase potente: MOHHO convierte una sola regla rígida (FIFO) en un abanico de políticas medibles, eliminando el desperdicio y reduciendo la disparidad hasta 81%. Es una herramienta de apoyo a la decisión, transparente, no una caja negra. Futuro: más objetivos, datos en tiempo real.">
     <div class="wrap">
-      <div class="kicker">11 · Conclusiones</div>
-      <h2>De una regla rígida a <span class="grad-g">decisiones informadas</span></h2>
+      <div class="kick r">11 — Conclusiones</div>
+      <h2 class="r">De una regla rígida a <span class="gradg">decisiones informadas</span></h2>
       <ul class="feat">
-        <li><span class="dot g"></span><span><b>MOHHO supera a FIFO</b> simultáneamente: desperdicio a <b class="g">cero</b> y disparidad hasta <b class="g">−81%</b>, sin sacrificar la espera.</span></li>
-        <li><span class="dot b"></span><span><b>406 políticas óptimas</b> entre las cuales elegir según el criterio (humanitario, equidad, eficiencia…).</span></li>
-        <li><span class="dot y"></span><span><b>Herramienta transparente</b> de apoyo a la decisión — visual, reproducible y validada.</span></li>
-        <li><span class="dot p"></span><span><b>Trabajo futuro:</b> más objetivos (costos, prioridades familiares), datos en vivo y restricciones dinámicas.</span></li>
+        <li class="r"><span class="dot g"></span><span><b>MOHHO supera a FIFO</b> a la vez: desperdicio a <b class="g">cero</b> y disparidad hasta <b class="g">−81%</b>, sin sacrificar la espera.</span></li>
+        <li class="r"><span class="dot b"></span><span><b>406 políticas óptimas</b> entre las que elegir según el criterio (humanitario, equidad, eficiencia…).</span></li>
+        <li class="r"><span class="dot y"></span><span><b>Herramienta transparente</b> de apoyo a la decisión — visual, reproducible y validada.</span></li>
+        <li class="r"><span class="dot p"></span><span><b>Trabajo futuro:</b> más objetivos, datos en vivo y restricciones dinámicas.</span></li>
       </ul>
     </div>
   </section>
 
-  <!-- 13 GRACIAS -->
-  <section class="slide" data-notes="Cierre. Agradece e invita a preguntas. Ten a mano el link de la demo por si quieren explorar. Respira — lo hiciste bien." data-time="0:30">
-    <div class="wrap" style="text-align:center">
-      <svg class="hawk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="color:var(--green)">
-        <path d="M22 4c-1 3-3.5 5.5-7 7l-2 1-1 4-3-1 1-3-5-2 1-3 4 1 1-2c1.5-3.5 4-6 7-7z" fill="currentColor" opacity="0.12"/>
-        <path d="M22 4c-1 3-3.5 5.5-7 7l-2 1-1 4-3-1 1-3-5-2 1-3 4 1 1-2c1.5-3.5 4-6 7-7z"/>
-        <path d="M2 21l7-7"/><path d="M9 14l-2 5 5-2"/>
-      </svg>
-      <h1 style="margin-top:16px">Gracias</h1>
-      <p class="lead" style="margin:14px auto 0">¿Preguntas?</p>
-      <div class="spacer"></div>
-      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-        <a class="pill link" href="https://visa-predict-mohho.onrender.com" target="_blank" rel="noopener">visa-predict-mohho.onrender.com</a>
-        <a class="pill link" href="https://github.com/jrebull/MIAAD_Harrisv2" target="_blank" rel="noopener">github.com/jrebull/MIAAD_Harrisv2</a>
+  <!-- 13 — GRACIAS -->
+  <section class="slide" data-time="0:30" data-notes="Cierre. Agradece e invita a preguntas. Ten a mano el link de la demo. Respira — lo hiciste bien.">
+    <canvas id="end-hunt" class="hunt" style="position:absolute;inset:0;z-index:1;opacity:.5"></canvas>
+    <div class="wrap center">
+      <h1 class="r"><span class="gradg">Gracias</span></h1>
+      <p class="lead r" style="margin:14px auto 0;font-size:clamp(18px,2.4vw,28px)">¿Preguntas?</p>
+      <div class="sp"></div>
+      <div class="r" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <a class="pill" href="https://visa-predict-mohho.onrender.com" target="_blank" rel="noopener">visa-predict-mohho.onrender.com</a>
+        <a class="pill" href="https://github.com/jrebull/MIAAD_Harrisv2" target="_blank" rel="noopener">github.com/jrebull/MIAAD_Harrisv2</a>
       </div>
-      <p class="tag" style="margin-top:22px">Yazmín Flores · Javier Rebull — MIAAD · UACJ 2026</p>
+      <p class="tag r" style="margin-top:24px">Yazmín Flores · Javier Rebull — MIAAD · UACJ 2026</p>
     </div>
   </section>
 
 </div>
 
-<!-- speaker notes -->
 <div id="notes"><div class="nt">Nota del orador <span class="ntime" id="ntime"></span></div><div class="nb" id="nbody"></div></div>
 
-<!-- help -->
 <div id="help"><div class="box">
-  <h3>Atajos de teclado</h3>
+  <h3>Atajos</h3>
   <table>
     <tr><td><kbd>→</kbd> <kbd>Espacio</kbd></td><td>Siguiente</td></tr>
     <tr><td><kbd>←</kbd></td><td>Anterior</td></tr>
     <tr><td><kbd>Inicio</kbd> <kbd>Fin</kbd></td><td>Primera / última</td></tr>
     <tr><td><kbd>N</kbd></td><td>Notas del orador</td></tr>
-    <tr><td><kbd>T</kbd></td><td>Iniciar / pausar timer 10:00</td></tr>
-    <tr><td><kbd>R</kbd></td><td>Reiniciar timer</td></tr>
+    <tr><td><kbd>T</kbd> / <kbd>R</kbd></td><td>Timer 10:00 · reiniciar</td></tr>
     <tr><td><kbd>F</kbd></td><td>Pantalla completa</td></tr>
     <tr><td><kbd>?</kbd></td><td>Esta ayuda</td></tr>
   </table>
@@ -400,45 +440,181 @@
 
 <script>
 (function(){
-  const slides=[...document.querySelectorAll('.slide')];
-  const N=slides.length;
-  let cur=0;
-  const bar=document.getElementById('bar'), counter=document.getElementById('counter');
-  const notes=document.getElementById('notes'), nbody=document.getElementById('nbody'), ntime=document.getElementById('ntime');
-  const help=document.getElementById('help');
+  "use strict";
+  var clamp=function(v,a,b){return Math.max(a,Math.min(b,v))};
+
+  /* ============ LIVING BACKGROUND ============ */
+  (function bg(){
+    var c=document.getElementById('bg'),x=c.getContext('2d'),W,H,DPR,parts,t=0;
+    function size(){DPR=Math.min(window.devicePixelRatio||1,2);W=c.width=innerWidth*DPR;H=c.height=innerHeight*DPR;x.setTransform(DPR,0,0,DPR,0,0)}
+    function init(){var n=Math.round(Math.min(110,innerWidth/16));parts=Array.from({length:n},function(){return{x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18,r:Math.random()*1.7+.4,tw:Math.random()*6.28}})}
+    function loop(){
+      t++;var w=innerWidth,h=innerHeight;
+      x.clearRect(0,0,w,h);
+      // aurora
+      var auroras=[['#13245c',.55,.30],['#0c3b3a',.78,.72],['#241048',.30,.78]];
+      for(var i=0;i<auroras.length;i++){
+        var a=auroras[i],tt=t*0.0006+i*2.1;
+        var cx=w*(a[1]+0.14*Math.sin(tt)),cy=h*(a[2]+0.14*Math.cos(tt*0.8));
+        var rad=Math.max(w,h)*0.5,g=x.createRadialGradient(cx,cy,0,cx,cy,rad);
+        g.addColorStop(0,a[0]);g.addColorStop(1,'transparent');
+        x.globalAlpha=0.5;x.fillStyle=g;x.fillRect(0,0,w,h);
+      }
+      x.globalAlpha=1;
+      // particles + links
+      for(var i=0;i<parts.length;i++){var p=parts[i];p.x+=p.vx;p.y+=p.vy;p.tw+=0.02;
+        if(p.x<0)p.x+=w;if(p.x>w)p.x-=w;if(p.y<0)p.y+=h;if(p.y>h)p.y-=h;
+        var al=0.25+0.45*(0.5+0.5*Math.sin(p.tw));
+        x.beginPath();x.fillStyle='rgba(150,180,255,'+al+')';x.arc(p.x,p.y,p.r,0,6.2832);x.fill();
+      }
+      x.lineWidth=0.6;
+      for(var i=0;i<parts.length;i++)for(var j=i+1;j<parts.length;j++){
+        var dx=parts[i].x-parts[j].x,dy=parts[i].y-parts[j].y,d=dx*dx+dy*dy;
+        if(d<13000){var a=0.10*(1-d/13000);x.strokeStyle='rgba(110,150,255,'+a+')';
+          x.beginPath();x.moveTo(parts[i].x,parts[i].y);x.lineTo(parts[j].x,parts[j].y);x.stroke();}
+      }
+      requestAnimationFrame(loop);
+    }
+    addEventListener('resize',function(){size();init()});size();init();requestAnimationFrame(loop);
+  })();
+
+  /* ============ HUNT SCENE ============ */
+  function Hunt(canvas){
+    this.cv=canvas;this.ctx=canvas.getContext('2d');this.t=0;this.raf=0;this.on=false;
+    var n=22;this.h=[];for(var i=0;i<n;i++)this.h.push({x:Math.random(),y:Math.random(),ang:Math.random()*6.28,trail:[],i:i});
+    this.tgt={x:.5,y:.5};
+    this.pf=[];for(var i=0;i<20;i++){var u=i/19;this.pf.push({x:.18+u*.64,y:.20+Math.pow(u,1.7)*.62})}
+    this.fifo={x:.84,y:.26};
+    var s=this;this._r=function(){s.size()};
+  }
+  Hunt.prototype.size=function(){var r=this.cv.getBoundingClientRect();if(!r.width)return;
+    var dpr=Math.min(window.devicePixelRatio||1,2);
+    this.cv.width=Math.max(2,r.width*dpr);this.cv.height=Math.max(2,r.height*dpr);
+    this.ctx.setTransform(dpr,0,0,dpr,0,0);this.W=r.width;this.H=r.height;};
+  Hunt.prototype.start=function(){if(this.on)return;this.on=true;this.size();addEventListener('resize',this._r);
+    var s=this,loop=function(){if(!s.on)return;s.step();s.raf=requestAnimationFrame(loop)};this.raf=requestAnimationFrame(loop)};
+  Hunt.prototype.stop=function(){this.on=false;cancelAnimationFrame(this.raf);removeEventListener('resize',this._r)};
+  Hunt.prototype.chevron=function(c,h,col,a){
+    var W=this.W,H=this.H,px=h.x*W,py=h.y*H,sz=Math.min(W,H)*0.022;
+    var ca=Math.cos(h.ang-1.5708),sa=Math.sin(h.ang-1.5708),pa=Math.cos(h.ang),qa=Math.sin(h.ang);
+    if(h.trail.length>1){for(var i=1;i<h.trail.length;i++){var t0=h.trail[i-1],t1=h.trail[i],tl=(i/h.trail.length)*0.5*a;
+      c.strokeStyle='rgba('+col[0]+','+col[1]+','+col[2]+','+tl+')';c.lineWidth=1.6;c.beginPath();
+      c.moveTo(t0.x*W,t0.y*H);c.lineTo(t1.x*W,t1.y*H);c.stroke();}}
+    var tx=px+ca*sz,ty=py+sa*sz, lx=px-ca*sz*.4+pa*sz*.6,ly=py-sa*sz*.4+qa*sz*.6,
+        nx=px-ca*sz*.15,ny=py-sa*sz*.15, rx=px-ca*sz*.4-pa*sz*.6,ry=py-sa*sz*.4-qa*sz*.6;
+    c.beginPath();c.moveTo(tx,ty);c.lineTo(lx,ly);c.lineTo(nx,ny);c.lineTo(rx,ry);c.closePath();
+    c.fillStyle='rgba('+col[0]+','+col[1]+','+col[2]+','+(.55*a)+')';
+    c.strokeStyle='rgba('+col[0]+','+col[1]+','+col[2]+','+(.9*a)+')';c.lineWidth=1.4;c.fill();c.stroke();
+    c.beginPath();c.fillStyle='rgba(255,255,255,'+(.85*a)+')';c.arc(px,py,1.8,0,6.2832);c.fill();
+  };
+  Hunt.prototype.target=function(c,x,y,phase){
+    var col=phase==='siege'?[255,90,120]:[255,70,110],cs=col.join(',');
+    var pr=(this.t*0.04)%1;
+    for(var i=0;i<3;i++){var pp=(pr+i/3)%1,r=14+pp*46,al=(1-pp)*0.3;
+      c.beginPath();c.strokeStyle='rgba('+cs+','+al+')';c.lineWidth=2*(1-pp);c.arc(x,y,r,0,6.2832);c.stroke();}
+    c.beginPath();c.fillStyle='rgba('+cs+',.10)';c.arc(x,y,26,0,6.2832);c.fill();
+    var rot=this.t*0.02,d=9;c.beginPath();
+    c.moveTo(x+Math.cos(rot)*d,y+Math.sin(rot)*d);c.lineTo(x+Math.cos(rot+1.5708)*d,y+Math.sin(rot+1.5708)*d);
+    c.lineTo(x+Math.cos(rot+3.1416)*d,y+Math.sin(rot+3.1416)*d);c.lineTo(x+Math.cos(rot+4.712)*d,y+Math.sin(rot+4.712)*d);
+    c.closePath();c.fillStyle='rgba('+cs+',.8)';c.fill();c.strokeStyle='rgba(255,255,255,.6)';c.lineWidth=1.2;c.stroke();
+    c.beginPath();c.fillStyle='#fff';c.arc(x,y,2.4,0,6.2832);c.fill();
+  };
+  Hunt.prototype.step=function(){
+    var c=this.ctx,W=this.W,H=this.H;if(!W||!H){this.size();return;}
+    c.clearRect(0,0,W,H);this.t++;
+    var period=1000,p=(this.t%period)/period;
+    var phase=p<.42?'explore':(p<.78?'transition':'siege');
+    var col=phase==='explore'?[110,168,255]:(phase==='transition'?[255,205,90]:[255,135,60]);
+    var knee=this.pf[Math.floor(this.pf.length*0.45)];
+    this.tgt.x+=(knee.x-this.tgt.x)*0.03;this.tgt.y+=(knee.y-this.tgt.y)*0.03;
+    // pareto polyline
+    c.lineWidth=2;c.strokeStyle='rgba(96,168,255,.30)';c.beginPath();
+    for(var i=0;i<this.pf.length;i++){var X=this.pf[i].x*W,Y=this.pf[i].y*H;i?c.lineTo(X,Y):c.moveTo(X,Y);}c.stroke();
+    for(var i=0;i<this.pf.length;i++){var pu=0.4+0.6*Math.sin(this.t*0.04+i*0.3);
+      c.beginPath();c.fillStyle='rgba(96,150,255,'+(pu*0.5)+')';c.arc(this.pf[i].x*W,this.pf[i].y*H,3,0,6.2832);c.fill();}
+    // FIFO ghost
+    var gx=this.fifo.x*W,gy=this.fifo.y*H,gp=0.5+0.5*Math.sin(this.t*0.03);
+    c.beginPath();c.fillStyle='rgba(255,70,70,'+(0.05+0.03*gp)+')';c.arc(gx,gy,22,0,6.2832);c.fill();
+    c.strokeStyle='rgba(255,90,90,.5)';c.lineWidth=1.5;c.setLineDash([4,4]);c.beginPath();c.arc(gx,gy,12,0,6.2832);c.stroke();c.setLineDash([]);
+    c.strokeStyle='rgba(255,110,110,'+(.75+.2*gp)+')';c.lineWidth=2;c.beginPath();
+    c.moveTo(gx-5,gy-5);c.lineTo(gx+5,gy+5);c.moveTo(gx+5,gy-5);c.lineTo(gx-5,gy+5);c.stroke();
+    c.fillStyle='rgba(255,120,120,.8)';c.font='bold 10px '+'monospace';c.textAlign='center';c.fillText('FIFO',gx,gy-18);
+    c.textAlign='start';
+    // hawks
+    for(var k=0;k<this.h.length;k++){var h=this.h[k],tx,ty;
+      if(phase==='siege'){var ring=h.i%3,r=0.045+ring*0.034,a=(h.i/this.h.length)*6.2832+this.t*0.012*(1+ring*0.3);
+        tx=this.tgt.x+Math.cos(a)*r;ty=this.tgt.y+Math.sin(a)*r;}
+      else{var g=this.pf[h.i%this.pf.length],sc=phase==='explore'?0.17:0.10;
+        tx=g.x+Math.cos(h.i+this.t*0.012)*sc;ty=g.y+Math.sin(h.i*1.3+this.t*0.014)*sc;}
+      tx=clamp(tx,.05,.95);ty=clamp(ty,.08,.9);
+      var sp=phase==='siege'?0.07:0.03;h.x+=(tx-h.x)*sp;h.y+=(ty-h.y)*sp;
+      var dx=tx-h.x,dy=ty-h.y;if(Math.abs(dx)+Math.abs(dy)>1e-4){var want=Math.atan2(dy,dx)+1.5708,dd=want-h.ang;
+        while(dd>3.1416)dd-=6.2832;while(dd<-3.1416)dd+=6.2832;h.ang+=dd*0.12;}
+      h.trail.push({x:h.x,y:h.y});if(h.trail.length>9)h.trail.shift();
+      this.chevron(c,h,col,1);
+    }
+    this.target(c,this.tgt.x*W,this.tgt.y*H,phase);
+  };
+
+  var hunts={};
+  ['hero-hunt','meta-hunt','end-hunt'].forEach(function(id){var el=document.getElementById(id);if(el)hunts[id]=new Hunt(el)});
+
+  /* ============ DECK ============ */
+  var slides=[].slice.call(document.querySelectorAll('.slide')),N=slides.length,cur=0;
+  var bar=document.getElementById('bar'),counter=document.getElementById('counter'),
+      notes=document.getElementById('notes'),nbody=document.getElementById('nbody'),ntime=document.getElementById('ntime'),
+      help=document.getElementById('help'),dots=document.getElementById('dots');
+  slides.forEach(function(_,i){var d=document.createElement('i');d.onclick=function(){show(i)};dots.appendChild(d)});
+  var dotEls=[].slice.call(dots.children);
+
+  function animateCounts(sl){
+    sl.querySelectorAll('[data-count]').forEach(function(el){
+      var to=parseFloat(el.dataset.to),dec=parseInt(el.dataset.dec||'0'),suf=el.dataset.suffix||'',pre=el.dataset.prefix||'',t0=null,dur=1500;
+      function fmt(v){return pre+v.toLocaleString('es-MX',{minimumFractionDigits:dec,maximumFractionDigits:dec})+suf}
+      function tick(ts){if(!t0)t0=ts;var k=Math.min((ts-t0)/dur,1),e=1-Math.pow(2,-10*k);el.textContent=fmt(to*e);if(k<1)requestAnimationFrame(tick);else el.textContent=fmt(to)}
+      el.textContent=fmt(0);requestAnimationFrame(tick);
+    });
+  }
+  function animateRaces(sl){
+    sl.querySelectorAll('.fill').forEach(function(f){f.style.width='0%'});
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      sl.querySelectorAll('.fill').forEach(function(f){f.style.width=f.dataset.w+'%'});});});
+  }
+  function animateSVG(sl){
+    sl.querySelectorAll('.draw-path').forEach(function(p){p.classList.remove('go');void p.getBBox();setTimeout(function(){p.classList.add('go')},60)});
+    var pts=sl.querySelectorAll('.pt');pts.forEach(function(p,i){p.classList.remove('go');setTimeout(function(){p.classList.add('go')},700+i*120)});
+  }
 
   function show(i){
-    cur=Math.max(0,Math.min(N-1,i));
-    slides.forEach((s,k)=>s.classList.toggle('active',k===cur));
+    if(i<0||i>=N)return;
+    var old=cur;cur=i;
+    slides.forEach(function(s,k){s.classList.toggle('active',k===cur);s.classList.toggle('prev',k<cur)});
+    dotEls.forEach(function(d,k){d.classList.toggle('on',k===cur)});
     bar.style.width=((cur+1)/N*100)+'%';
     counter.innerHTML='<b>'+(cur+1)+'</b> / '+N;
     nbody.textContent=slides[cur].dataset.notes||'—';
     ntime.textContent=slides[cur].dataset.time?('⏱ '+slides[cur].dataset.time):'';
-    // re-trigger entrance animations
-    slides[cur].querySelectorAll('.build').forEach(el=>{el.style.animation='none';el.offsetHeight;el.style.animation=''});
+    var sl=slides[cur];
+    animateCounts(sl);animateRaces(sl);animateSVG(sl);
+    // hunts: run only on active slide
+    for(var id in hunts){var inSlide=sl.contains(hunts[id].cv);inSlide?hunts[id].start():hunts[id].stop();}
   }
-  const next=()=>show(cur+1), prev=()=>show(cur-1);
+  var next=function(){show(cur+1)},prev=function(){show(cur-1)};
 
-  document.querySelectorAll('#nav button').forEach(b=>b.onclick=e=>{e.stopPropagation();b.dataset.go==='next'?next():prev()});
-
-  // ---- timer ----
-  const tEl=document.getElementById('timer'); let left=600,tick=null;
+  /* timer */
+  var tEl=document.getElementById('timer'),left=600,tick=null;
   function fmt(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
-  function render(){tEl.textContent=fmt(left);tEl.classList.toggle('warn',left<=60&&left>0);tEl.classList.toggle('over',left<=0)}
-  function toggleTimer(){
-    if(tick){clearInterval(tick);tick=null;tEl.classList.remove('run')}
-    else{tEl.classList.add('run');tick=setInterval(()=>{left=Math.max(left-1,-9999);if(left<=0){left=0;render();}else render();},1000)}
-  }
-  function resetTimer(){clearInterval(tick);tick=null;left=600;tEl.classList.remove('run','warn','over');render()}
-  render();
+  function rt(){tEl.textContent=fmt(Math.max(left,0));tEl.classList.toggle('warn',left<=60&&left>0);tEl.classList.toggle('over',left<=0)}
+  function toggleTimer(){if(tick){clearInterval(tick);tick=null;tEl.classList.remove('run')}else{tEl.classList.add('run');tick=setInterval(function(){left--;rt()},1000)}}
+  function resetTimer(){clearInterval(tick);tick=null;left=600;tEl.classList.remove('run','warn','over');rt()}
+  rt();
 
-  // ---- keys ----
-  addEventListener('keydown',e=>{
+  addEventListener('keydown',function(e){
     if(help.classList.contains('show')){help.classList.remove('show');return}
     switch(e.key){
       case 'ArrowRight':case ' ':case 'PageDown':case 'l':e.preventDefault();next();break;
       case 'ArrowLeft':case 'PageUp':case 'h':e.preventDefault();prev();break;
-      case 'Home':show(0);break; case 'End':show(N-1);break;
+      case 'Home':show(0);break;case 'End':show(N-1);break;
       case 'n':case 'N':notes.classList.toggle('show');break;
       case 't':case 'T':toggleTimer();break;
       case 'r':case 'R':resetTimer();break;
@@ -446,13 +622,13 @@
       case '?':help.classList.add('show');break;
     }
   });
+  // swipe
+  var x0=null;
+  addEventListener('touchstart',function(e){x0=e.touches[0].clientX},{passive:true});
+  addEventListener('touchend',function(e){if(x0===null)return;var dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)dx<0?next():prev();x0=null},{passive:true});
 
-  // ---- touch swipe ----
-  let x0=null;
-  addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
-  addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)dx<0?next():prev();x0=null},{passive:true});
-
-  show(0);
+  var initial=parseInt((location.hash||'').replace('#',''),10);
+  show(initial>=1&&initial<=N?initial-1:0);
 })();
 </script>
 </body>

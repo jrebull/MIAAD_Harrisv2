@@ -1,13 +1,14 @@
 # Defensa — Presentación (10 min)
 
-Presentación interactiva en HTML para la exposición final de **Visa Predict AI · MOHHO**.
+Presentación **cinematográfica e interactiva** en HTML para la exposición final de **Visa Predict AI · MOHHO**.
+Un solo archivo, **sin dependencias ni internet**: fondo vivo animado, una cacería de halcones corriendo en canvas dentro de la propia presentación, números que cuentan hacia arriba, el frente de Pareto que se dibuja solo y barras que compiten contra FIFO.
 
 ## Cómo abrirla
 
-Doble clic en **`index.html`** (se abre en cualquier navegador, **funciona sin internet**).
+Doble clic en **`index.html`** (se abre en cualquier navegador, **funciona offline**).
 Para presentar: pulsa **`F`** para pantalla completa.
 
-> En VS Code también puedes usar "Open with Live Server", pero no es necesario — es un solo archivo autónomo.
+> Tip: puedes saltar directo a una diapositiva con el ancla `#N` en la URL — p. ej. `index.html#9` abre la diapositiva de la demo.
 
 ## Atajos de teclado
 
