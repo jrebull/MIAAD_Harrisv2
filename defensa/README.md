@@ -25,7 +25,7 @@ Para presentar: pulsa **`F`** para pantalla completa.
 
 También funciona con **swipe** en pantallas táctiles y con los botones `‹ ›` de abajo.
 
-## Estructura (16 diapositivas · ~13 min)
+## Estructura (17 diapositivas · ~14 min)
 
 1. Portada
 2. El problema — 140K visas, 105 grupos
@@ -39,10 +39,11 @@ También funciona con **swipe** en pantallas táctiles y con los botones `‹ �
 10. **Las soluciones** — tabla de políticas concretas
 11. **Demo en vivo** → `/simulacion` (cambia al navegador aquí)
 12. Arquitectura de los programas (mapa de módulos)
-13. **El algoritmo, por dentro** — anatomía de MOHHO codificado (bucle real, 6 operadores, corriente animada)
-14. Rigor y fuentes de datos
-15. Conclusiones
-16. Gracias / preguntas
+13. **El algoritmo, paso a paso** — el bucle de MOHHO (init → loop → return)
+14. **Los 6 operadores** — ramificación por energía (exploración / asedio / Lévy) + código
+15. Rigor y fuentes de datos
+16. Conclusiones
+17. Gracias / preguntas
 
 > Con las 16 láminas el guion ronda ~13 min. Para clavar 10, recorta la **demo a ~1:30** y aligera la metáfora. Los tiempos por lámina están en las notas (`N`).
 
