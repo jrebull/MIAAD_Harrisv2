@@ -46,3 +46,6 @@ reporte_final/*.zip
 
 # stray large archive
 backend.zip
+
+# audit handoff bundles (no se pushean)
+_audit_handoff/
