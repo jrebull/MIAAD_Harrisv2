@@ -120,6 +120,19 @@ CLAIMS = [
      "anova.eta2_interaction_AxB", 0.01, "abs"),
     ("c2x2_interaction_significant", True, "factorial_2x2_conditions.json",
      "anova.interaction_significant", 0, "exact"),
+    # ---- v6 FASE 2: competent across 4 structures (structures_v6.json) ----
+    ("struct_competent_knapsack_pos", 1, "structures_v6.json",
+     "placement.knapsack.competent_position_of_7", 0, "exact"),
+    ("struct_competent_knapsack_rank", 1.13, "structures_v6.json",
+     "placement.knapsack.competent_avg_rank", 0.05, "abs"),
+    ("struct_competent_knapsack_perm_best", False, "structures_v6.json",
+     "placement.knapsack.perm_native_still_best", 0, "exact"),
+    ("struct_competent_visa_pos", 2, "structures_v6.json",
+     "placement.visa.competent_position_of_7", 0, "exact"),
+    ("struct_competent_tsp_pos", 5, "structures_v6.json",
+     "placement.TSP.competent_position_of_7", 0, "exact"),
+    ("struct_competent_flowshop_pos", 2, "structures_v6.json",
+     "placement.flow-shop.competent_position_of_7", 0, "exact"),
 ]
 
 

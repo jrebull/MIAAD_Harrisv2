@@ -1,5 +1,5 @@
 {
-  "n_claims_checked": 55,
+  "n_claims_checked": 61,
   "n_mismatch": 0,
   "rows": [
     {
@@ -385,6 +385,48 @@
       "status": "OK",
       "paper": true,
       "json": true,
+      "delta": 0.0
+    },
+    {
+      "name": "struct_competent_knapsack_pos",
+      "status": "OK",
+      "paper": 1,
+      "json": 1,
+      "delta": 0.0
+    },
+    {
+      "name": "struct_competent_knapsack_rank",
+      "status": "OK",
+      "paper": 1.13,
+      "json": 1.133,
+      "delta": 0.0030000000000001137
+    },
+    {
+      "name": "struct_competent_knapsack_perm_best",
+      "status": "OK",
+      "paper": false,
+      "json": false,
+      "delta": 0.0
+    },
+    {
+      "name": "struct_competent_visa_pos",
+      "status": "OK",
+      "paper": 2,
+      "json": 2,
+      "delta": 0.0
+    },
+    {
+      "name": "struct_competent_tsp_pos",
+      "status": "OK",
+      "paper": 5,
+      "json": 5,
+      "delta": 0.0
+    },
+    {
+      "name": "struct_competent_flowshop_pos",
+      "status": "OK",
+      "paper": 2,
+      "json": 2,
       "delta": 0.0
     }
   ],
