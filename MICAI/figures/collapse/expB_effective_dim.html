@@ -1,0 +1,25 @@
+<!doctype html><html><head><meta charset="utf-8">
+<title>Exp B - Dimensionalidad efectiva del frente (PCA)</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#fff;margin:0;padding:24px;color:#1a1a1a}
+h2{color:#003DA5;margin:0 0 4px}.sub{color:#666;margin:0 0 16px;font-size:13px}#c{width:980px;height:520px}</style>
+</head><body>
+<h2>Dimensionalidad efectiva del frente de Pareto (PCA sobre objetivos min-max)</h2>
+<p class="sub">Varianza explicada por componente principal, por metodo. Si PC1 concentra ~toda la varianza, el frente es efectivamente 1-D (mono-objetivo); si PC1+PC2 reparten, hay trade-off multi-objetivo genuino.</p>
+<div id="c"></div>
+<script>
+var ch=echarts.init(document.getElementById('c'));
+ch.setOption({
+ color:['#003DA5','#F2A900','#9AA0A6'],
+ tooltip:{trigger:'axis',axisPointer:{type:'shadow'},valueFormatter:v=>v+'%'},
+ legend:{data:['PC1','PC2','PC3'],top:8},
+ grid:{left:60,right:30,bottom:90,top:50},
+ xAxis:{type:'category',data:["mohho_realcoded", "nsga2_realcoded", "random_restart", "perm_nsga2", "perm_moead", "discrete_mohho"],axisLabel:{rotate:25,fontSize:12}},
+ yAxis:{type:'value',name:'Varianza explicada (%)',max:100},
+ series:[
+  {name:'PC1',type:'bar',stack:'v',data:[81.6, 87.8, 90.6, 81.2, 87.4, 90.8],label:{show:true,formatter:'{c}%',position:'inside'}},
+  {name:'PC2',type:'bar',stack:'v',data:[17.2, 11.2, 7.8, 17.7, 11.8, 7.9],label:{show:true,formatter:'{c}%',position:'inside'}},
+  {name:'PC3',type:'bar',stack:'v',data:[1.2, 1.0, 1.6, 1.1, 0.8, 1.3]}
+ ]
+});
+</script></body></html>

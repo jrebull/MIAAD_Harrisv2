@@ -1,0 +1,555 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MICAI / Springer LNCS submission
+% "Feasibility-Preserving Multi-Objective Harris Hawks Optimization
+%  for Employment-Based Visa Allocation"
+%
+% Compile: pdflatex main  (x2-3 passes to resolve refs)
+% Bibliography: inline thebibliography (no BibTeX pass needed).
+%
+% ---------------------------------------------------------------------------
+% DOUBLE-BLIND SUBMISSION:  MICAI reviews anonymously. To anonymize, (1) comment
+% out the \author / \institute blocks below and use the ANONYMOUS block marked
+% "% >>> REVIEW", (2) comment out the Acknowledgements, and (3) remove the repo
+% URL in the Data Availability statement. The body is otherwise identical.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[runningheads]{llncs}
+
+% --- A4 trap fix: force a true A4 MediaBox without touching the LNCS text block.
+\AtBeginDocument{\pdfpagewidth=210mm \pdfpageheight=297mm}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}   % scalable fonts (required for microtype expansion)
+\usepackage{graphicx}
+\usepackage{xcolor}
+% amsmath + llncs emit one benign "Unable to redefine math accent \vec" warning
+% (modern robust accents); silence just that during amsmath's load, then restore.
+\makeatletter
+\let\vp@oldwarn\PackageWarningNoLine
+\renewcommand\PackageWarningNoLine[2]{}
+\usepackage{amsmath,amssymb}
+\let\PackageWarningNoLine\vp@oldwarn
+\makeatother
+\setlength{\emergencystretch}{1em}  % gentle: absorb tight lines in narrow columns
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{float}
+\usepackage{algpseudocode}
+% lightweight "algorithm" float (avoids the algorithms bundle; on Overleaf the
+% standard \usepackage{algorithm} also works and yields the same result)
+\floatstyle{ruled}
+\newfloat{algorithm}{tbp}{loa}
+\floatname{algorithm}{Algorithm}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+\renewcommand\UrlFont{\color{black}\rmfamily}
+
+% consistent metric/acronym capitalization
+\newcommand{\HV}{\textsf{HV}}
+\newcommand{\IGD}{\textsf{IGD}}
+
+\graphicspath{{figures/}}
+
+\begin{document}
+
+\title{Representation, Not Metaheuristic, Governs Feasibility-Preserving Multi-Objective Optimization: A Study on United States Employment-Based Visa Allocation}
+\titlerunning{Representation Governs Decoder-Based Multi-Objective Search}
+
+\author{Anonymous Author(s)}
+\authorrunning{Anonymous}
+\institute{Affiliation withheld for double-blind review}
+
+\maketitle
+
+\begin{abstract}
+Many hard constrained combinatorial problems are solved by pairing a metaheuristic with a feasibility-preserving decoder, yet the true driver of performance is seldom isolated. Across \emph{four} structurally distinct multi-objective problems, performance is governed far more by the match between representation and search operators than by the metaheuristic family. We develop this on a real case: allocating roughly 140{,}000 U.S.\ employment-based visas per year under a per-country ceiling and a spillover cascade, cast as a three-objective integer program (waiting load, inter-country disparity, visa waste) under six hard constraints and solved with multi-objective Harris Hawks Optimization (MOHHO). Its core is a smallest-position-value random-key mapping composed with a greedy assignment that satisfies every constraint by construction---no penalties, no repair. A controlled six-method ladder isolates the cause: the decoder alone (random restart) already beats a real-coded NSGA-II, and matching operators to the representation lifts three distinct paradigms (genetic algorithm, decomposition, and swarm) above every random-key method---our representation-matched Discrete-MOHHO being the most stable. Replicated on a knapsack, a travelling salesman, and a flow-shop, a matched operator is the best optimizer on \emph{every} structure, while the collapse of a tuned GA below random sampling proves specific to selection landscapes. Parameters are fixed by a Taguchi design; the recovered front Pareto-dominates the incumbent first-in, first-out policy chiefly by eliminating visa waste, yielding an auditable menu of trade-offs as decision support, not a single recommendation.
+
+\keywords{Multi-objective optimization \and Harris Hawks Optimization \and Constraint handling \and Random-key decoder \and Permutation encoding \and Taguchi design of experiments \and Resource allocation}
+\end{abstract}
+
+%===============================================================================
+\section{Introduction}
+\label{sec:intro}
+
+Each fiscal year the United States Congress authorizes approximately 140{,}000 employment-based (EB) immigrant visas, distributed across five categories (EB-1 to EB-5). Two structural rules govern the distribution: a \emph{per-country ceiling} ($P_c \approx 25{,}620$ visas, the statutory 7\,\% cross-preference limit) that no single country may exceed, and a \emph{spillover} mechanism that cascades unused visas across categories (EB-4/5 $\rightarrow$ EB-1 $\rightarrow$ EB-2 $\rightarrow$ EB-3). The incumbent system processes petitions strictly first-in, first-out (FIFO) by priority date. The interaction of these rules makes the incumbent policy dysfunctional: two countries concentrate roughly three-quarters of demand and accumulate waits of 10--13 years, while the clash between per-country and per-category ceilings leaves thousands of visas unused.
+
+This matters beyond accounting. Behind every backlogged petition is a household whose relocation, employment, and family reunification hinge on a priority date, so the allocation rule has direct welfare consequences. The problem admits three legitimate, mutually conflicting goals: serve the longest-waiting petitions (\emph{efficiency}), distribute opportunity evenly across nationalities (\emph{equity}), and waste no visas (\emph{utilization}). No single allocation optimizes all three; the policy-relevant object is the set of best compromises---a Pareto front.
+
+Computing that front is hard for three reasons. First, the allocation is \emph{combinatorial}: it assigns integer visa counts to 105 country$\times$category groups under six simultaneous constraints, and its feasible set generalizes the multidimensional knapsack problem, which is NP-hard~\cite{garey}. Second, the objectives are genuinely \emph{conflicting}, so the solution is a front rather than a point. Third---and most often underestimated---the \emph{hard constraints} are unforgiving: a continuous population metaheuristic naturally proposes infeasible candidates, and the usual remedies (penalty functions, aggressive repair) either require delicate tuning or distort the very search landscape the metaheuristic explores.
+
+We address these challenges with a multi-objective adaptation of Harris Hawks Optimization (MOHHO) whose centerpiece is a \emph{feasibility-preserving decoder}. Our central contribution is methodological and general: a controlled, mechanistically explained demonstration---across four structurally distinct multi-objective problems---that for decoder-based search the \emph{representation--operator match}, not the metaheuristic family, governs performance; the U.S.\ visa problem is the lead case study through which we establish and stress-test it. Concretely, this paper makes five contributions: \emph{(i)}~a decoder that couples a smallest-position-value (SPV) random-key mapping with a deterministic greedy assignment, guaranteeing all six policy constraints \emph{by construction}---without penalties or repair, and therefore without perturbing the search landscape; \emph{(ii)}~a multi-objective HHO that pairs this decoder with a crowding-pruned external archive and applies it to a real, constraint-heavy allocation problem rather than to synthetic benchmarks; \emph{(iii)}~a Taguchi L9 orthogonal-array tuning of the population size and iteration budget, replacing empirical parameter choices with a systematic experimental design validated by a confirmation run; \emph{(iv)}~a controlled six-method ladder that, by lifting three distinct paradigms (a genetic algorithm (GA), decomposition, and a representation-matched \emph{Discrete-MOHHO} we introduce) to within about $1\,\%$ of one another once operators match the representation, shows that the feasibility-preserving decoder and the representation--operator match, not the choice of metaheuristic, govern performance---with a direct operator-order-preservation measurement that explains \emph{why} (interpolating GA operators are near-identity on the decoded permutation); and \emph{(v)}~a rigorous empirical protocol (30 runs, omnibus Friedman/Nemenyi tests with effect sizes, domination of FIFO, robustness across five perturbed-demand instances, and a four-structure generalization---knapsack, travelling salesman (TSP), and flow-shop---that delineates which findings transfer, the representation--operator law, and which are landscape-specific, the GA-below-random collapse) that makes every claim reproducible.
+
+%===============================================================================
+\section{Background and Related Work}
+\label{sec:related}
+
+\paragraph{Harris Hawks Optimization.}
+Harris Hawks Optimization (HHO)~\cite{heidari} is a population-based metaheuristic inspired by the cooperative hunting of Harris's hawks. Its defining feature is a continuous transition between exploration and exploitation governed by a single physical quantity, the prey's \emph{escape energy} $E$, which decays with the iteration count; when $|E|\!\ge\!1$ the hawks explore, and when $|E|\!<\!1$ they exploit through soft or hard besieges, optionally with rapid Lévy-flight dives. HHO was introduced for single-objective continuous optimization and has since been extended to the multi-objective setting.
+
+\paragraph{Multi-objective HHO.}
+Kuşoğlu and Yüzgeç~\cite{kusoglu} adapt HHO to multiple objectives with an external archive and crowding-based leader selection, and Çerçi and Dönmez~\cite{cerci} combine elite non-dominated sorting with a grid index. More recent work folds elitist non-dominated sorting into HHO directly~\cite{jangir} and enhances its operators for both single- and multi-objective settings~\cite{choo}. These variants are validated mostly on continuous benchmark functions; their application to a \emph{constrained combinatorial} allocation problem, where feasibility---not just convergence---is the binding difficulty, is comparatively unexplored. Our work occupies that gap.
+
+\paragraph{Bridging continuous search and combinatorial structure.}
+The random-key representation of Bean~\cite{bean} encodes a permutation as a real vector and recovers it by sorting---the SPV rule. Random keys let a continuous operator move freely in $\mathbb{R}^{d}$ while a decoder interprets each point as a feasible discrete solution. We exploit exactly this separation of concerns: the hawks search a smooth box-constrained space, and a decoder absorbs all combinatorial structure. The idea has matured into biased random-key genetic algorithms~\cite{londe} and, most recently, a general random-key optimizer that pairs a problem-specific decoder with \emph{any} metaheuristic~\cite{chaves}---the paradigm we instantiate here for HHO, and which our ladder probes directly by varying the metaheuristic while holding the decoder fixed.
+
+\paragraph{Constraint handling in metaheuristics.}
+Three families dominate (see Rahimi et al.~\cite{rahimi} for a recent survey). \emph{Penalty methods} fold constraint violations into the objective, but require problem-specific weights and blur the boundary between feasible and infeasible regions. \emph{Repair operators} project infeasible candidates back into the feasible set, but aggressive repair can collapse diversity and overwrite the stochasticity that drives exploration. \emph{Decoder (feasibility-preserving) approaches} guarantee feasibility by construction, leaving the search landscape intact. We adopt the third family: our greedy decoder makes every decoded candidate satisfy all six constraints exactly, so no penalty weight is ever tuned and no repair is ever applied.
+
+\paragraph{Baseline and methodology.}
+NSGA-II (Non-dominated Sorting Genetic Algorithm~II)~\cite{deb} is the canonical multi-objective evolutionary algorithm and our benchmark; such algorithms are the standard tooling for hard allocation and scheduling problems~\cite{zhang}. For parameter selection we use the Taguchi orthogonal-array design~\cite{montgomery}, a standard tool for tuning stochastic algorithms with few experiments and increasingly applied to metaheuristics~\cite{alrafei}. We assess fronts with the hypervolume indicator~\cite{zitzler} and with inverted generational distance and spacing~\cite{coello}, and we test significance with nonparametric procedures~\cite{derrac} and the $A_{12}$ effect size~\cite{vargha}.
+
+%===============================================================================
+\section{Problem Formulation}
+\label{sec:formulation}
+
+\paragraph{Decision variables.}
+The problem is discretized into $G = C \times |\mathcal{J}| = 21 \times 5 = 105$ \emph{groups}, where each group $g$ is a (country~$c$, category~$j$) pair. The decision vector is
+\(
+\mathbf{x} = (x_1,\dots,x_{105}),\; x_g \in \mathbb{Z}^{+}_0,
+\)
+where $x_g$ is the number of visas assigned to group $g$. Each group has a demand (backlog) $n_g$ and a \emph{waiting weight} $w_g = t_{\text{now}} - d_g$, the years elapsed since its priority date $d_g$.
+
+\paragraph{Problem instance.}
+The demands $n_g$ and priority dates $d_g$ form a representative instance calibrated to the \emph{documented aggregate structure} of the U.S.\ employment-based queue: a total backlog of about $1{,}800{,}000$ pending cases, with India ($\approx 63\,\%$) and China ($\approx 14\,\%$) together accounting for roughly three-quarters of demand, the remainder a long tail over the other countries, and decade-scale waits concentrated in the oversubscribed India and China EB-2/EB-3 categories~\cite{cato,dos}. We are explicit about provenance: the \emph{country-level totals} are anchored to these published aggregates, but the per-(country, category) split and the priority dates $d_g$ are a plausible \emph{synthetic disaggregation} consistent with them, not an observed per-applicant census---only four high-demand blocs (India, China, the Philippines, Mexico) have category-level demand grounded directly in published data, and the remainder is estimated. Section~\ref{sec:generalization} confirms the method comparison is stable under $\pm 20\,\%$ demand perturbation; we note this probes magnitude error, not structural mis-specification of the disaggregation, so the internal method comparison (identical data for all methods) is what we rely on, and the policy reading is illustrative.
+
+\paragraph{Objectives.}
+We minimize three conflicting objectives:
+\begin{align}
+f_1(\mathbf{x}) &= \frac{\sum_{g}(n_g - x_g)\,w_g}{\sum_{g} n_g}
+&&\text{unserved waiting load (efficiency),}\\
+f_2(\mathbf{x}) &= \max_{c_1,c_2 \in \mathcal{C}}\bigl|\bar{W}_{c_1} - \bar{W}_{c_2}\bigr|
+&&\text{maximum inter-country disparity (equity),}\\
+f_3(\mathbf{x}) &= V - \textstyle\sum_{g} x_g
+&&\text{wasted (unassigned) visas (utilization),}
+\end{align}
+where $V$ is the total available visas and $\bar{W}_c = \big(\sum_{g:\,c(g)=c} x_g w_g\big)\big/\big(\sum_{g:\,c(g)=c} x_g\big)$ is the visa-weighted mean wait of country $c$. Thus $f_2$ measures the gap between the longest- and shortest-waiting nationalities: the smaller $f_2$, the more equitable the distribution. By convention, a country that receives no visas takes its worst backlog wait as $\bar{W}_c$, so starving a nationality maximally penalizes equity---an unserved country is treated as maximally disadvantaged rather than silently dropped from the disparity. This makes $f_2$ an implicit anti-starvation pressure; FIFO and all reported equity solutions in fact serve every country, so the convention does not drive any headline result.
+
+\paragraph{Constraints.}
+The feasible set $\mathcal{F}$ is defined by six hard constraints:
+\begin{align}
+&\text{R1:}\;\; \textstyle\sum_{g} x_g \le V = 140{,}000 && \text{(total visas)}\nonumber\\
+&\text{R2:}\;\; \textstyle\sum_{g:\,c(g)=c} x_g \le P_c = 25{,}620 \;\;\forall c && \text{(7\,\% per-country ceiling)}\nonumber\\
+&\text{R3:}\;\; \textstyle\sum_{g:\,j(g)=j} x_g \le K_j^{\text{eff}} \;\;\forall j && \text{(effective per-category cap)}\nonumber\\
+&\text{R4:}\;\; 0 \le x_g \le n_g \;\;\forall g && \text{(do not exceed demand)}\nonumber\\
+&\text{R5:}\;\; x_g \in \mathbb{Z}^{+}_0 \;\;\forall g && \text{(integrality)}\nonumber\\
+&\text{R6:}\;\; \text{FIFO order within each } (c,j) \text{ queue} && \text{(seniority within a group)}\nonumber
+\end{align}
+where $K_j^{\text{eff}}$ is the per-category cap after the spillover cascade. The cascade is part of the formulation for generality, but we note it is \emph{inert on the instances studied here}: under the documented backlog every category is oversubscribed (demand exceeds its base cap by $3$--$22\times$), so the redistributable slack is zero and $K_j^{\text{eff}}=K_j^{\text{base}}$; spillover would bind only in an undersubscribed regime. The result is a three-objective integer program with six constraints whose feasible space grows combinatorially with $G$, motivating a metaheuristic rather than exact enumeration.
+
+\paragraph{Pareto optimality.}
+A solution $\mathbf{x}$ \emph{dominates} $\mathbf{x}'$ ($\mathbf{x}\prec\mathbf{x}'$) iff $f_i(\mathbf{x})\le f_i(\mathbf{x}')$ for all $i$ and $f_i(\mathbf{x})<f_i(\mathbf{x}')$ for some $i$. The \emph{Pareto front} is $\mathcal{P}^{*}=\{\mathbf{x}\in\mathcal{F}\mid \nexists\,\mathbf{x}'\in\mathcal{F}:\mathbf{x}'\prec\mathbf{x}\}$. MOHHO approximates $\mathcal{P}^{*}$ through an external archive.
+
+%===============================================================================
+\section{Methods}
+\label{sec:methods}
+
+\subsection{Multi-objective Harris Hawks Optimization}
+\label{sec:mohho}
+
+Each hawk is a position $\mathbf{H}\in\mathbb{R}^{105}$ in the box $[0,1]^{105}$. At iteration $t$ the escape energy is
+\begin{equation}
+E = 2E_0\!\left(1 - \tfrac{t}{T}\right), \qquad E_0 \sim U(-1,1),
+\label{eq:energy}
+\end{equation}
+which drives the choice among six movement operators selected by $|E|$ and uniform draws $q,r\in U(0,1)$ (Table~\ref{tab:operators}). The multi-objective adaptation introduces three elements. First, the \emph{leader} (``rabbit'') is not a single global best but a solution drawn from the external archive with probability proportional to its crowding distance, which biases search toward sparsely populated regions of the front. Second, an \emph{external archive} stores non-dominated solutions and, when it overflows, is pruned by removing the solution with the smallest crowding distance. Third, the archive is updated after every move using the non-dominance relation. The archive size is treated as a tunable parameter (Section~\ref{sec:taguchi}).
+
+\begin{table}[t]
+\centering
+\caption{The six MOHHO movement operators, selected by the escape energy $|E|$ and uniform draws $q,r$. The archive's leader supplies the prey position.}
+\label{tab:operators}
+\small
+\begin{tabular}{cll}
+\toprule
+\textbf{Op.} & \textbf{Condition} & \textbf{Behavior}\\
+\midrule
+OP1 & $|E|\ge 1,\; q\ge 0.5$ & Exploration from a random hawk in the swarm.\\
+OP2 & $|E|\ge 1,\; q< 0.5$ & Exploration relative to the population centroid.\\
+OP3 & $0.5\le|E|< 1,\; r\ge 0.5$ & Soft besiege: gradual approach to the prey.\\
+OP4 & $|E|< 0.5,\; r\ge 0.5$ & Hard besiege: aggressive contraction.\\
+OP5 & $0.5\le|E|< 1,\; r< 0.5$ & Soft besiege with rapid Lévy dives.\\
+OP6 & $|E|< 0.5,\; r< 0.5$ & Hard besiege with rapid Lévy dives.\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The Lévy operators OP5/OP6 issue a rapid dive; the canonical HHO evaluates two trial points there and keeps the better. To make the comparison \emph{function-evaluation fair}, we accept a single trial point per hawk per iteration, so MOHHO consumes exactly $N\times T$ evaluations---identical to NSGA-II, random restart, and the permutation-native methods, which is the common budget under which every result in Section~\ref{sec:results} is reported.
+
+\subsection{A feasibility-preserving decoder}
+\label{sec:decoder}
+
+The HHO operators act in the continuous space $\mathbb{R}^{105}$, but the problem is combinatorial with six hard constraints. We bridge the two with the SPV rule~\cite{bean} followed by a deterministic greedy assignment (Algorithm~\ref{alg:decode}). The SPV rule turns a hawk $\mathbf{H}$ into a permutation $\boldsymbol{\pi}$ by sorting the group indices in ascending order of their key $h_g$. The greedy decoder then walks the groups in that order and assigns
+\begin{equation}
+x_g = \min\!\bigl(n_g,\; V_{\text{rem}},\; P^{\text{rem}}_{c(g)},\; K^{\text{rem}}_{j(g)}\bigr),
+\label{eq:greedy}
+\end{equation}
+decrementing the residual budgets of R1--R3 after each step. Because every assignment is capped by the remaining budgets and by demand, and counts are integers, \emph{every} decoded vector satisfies R1--R6 by construction. No penalty term is introduced and no repair is performed, so the hawks search directly on a feasible objective landscape, preserving both the structure of HHO's cooperative foraging and its stochasticity. One property of the greedy fill should be stated plainly: it assigns each visited group its \emph{maximal} feasible amount, so the decoder's image is the set of budget-\emph{saturating} feasible allocations---a strict subset of $\mathcal{F}$, not all of it. Every dominance and Pareto statement below is therefore relative to this decoder-reachable set. This is the right object here rather than a limitation: because visa waste $f_3$ is itself a minimized objective, deliberately reserving budget while applicants wait is never attractive, so the optimum lies in the saturating subset regardless.
+
+\begin{algorithm}[t]
+\caption{Feasibility-preserving SPV + greedy decoder}
+\label{alg:decode}
+\begin{algorithmic}[1]
+\Require hawk $\mathbf{H}\in\mathbb{R}^{105}$; demands $n_g$; budgets $V$, $\{P_c\}$, $\{K_j^{\text{eff}}\}$
+\State $\boldsymbol{\pi} \gets \textsc{ArgSortAscending}(\mathbf{H})$ \Comment{SPV: keys $\to$ permutation}
+\State $V_{\text{rem}} \gets V$;\; $P^{\text{rem}}_c \gets P_c\;\forall c$;\; $K^{\text{rem}}_j \gets K_j^{\text{eff}}\;\forall j$
+\For{$g \in \boldsymbol{\pi}$} \Comment{visit groups in SPV order}
+  \State $x_g \gets \min\bigl(n_g,\, V_{\text{rem}},\, P^{\text{rem}}_{c(g)},\, K^{\text{rem}}_{j(g)}\bigr)$
+  \State $V_{\text{rem}} \mathrel{-}= x_g$;\; $P^{\text{rem}}_{c(g)} \mathrel{-}= x_g$;\; $K^{\text{rem}}_{j(g)} \mathrel{-}= x_g$
+\EndFor
+\State \Return $\mathbf{x}$ \Comment{satisfies R1--R6 without repair}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{proposition}[Feasibility by construction]
+\label{prop:feas}
+For any hawk $\mathbf{H}\in\mathbb{R}^{105}$, the allocation $\mathbf{x}$ returned by Algorithm~\ref{alg:decode} satisfies all six constraints R1--R6.
+\end{proposition}
+
+\begin{proof}
+The residuals are initialized to $V,\,P_c,\,K_j^{\text{eff}}\ge 0$ and, at each step, decremented by $x_g=\min(n_g,V_{\text{rem}},P^{\text{rem}}_{c(g)},K^{\text{rem}}_{j(g)})$. By induction each residual stays $\ge 0$, since $x_g$ never exceeds the current residual; hence $0\le x_g\le n_g$ (R4) and, as the minimum of nonnegative integers, $x_g\in\mathbb{Z}^{+}_0$ (R5). Because $x_g\le V_{\text{rem}}$ and $V_{\text{rem}}$ is the unconsumed total, $\sum_g x_g\le V$ (R1); likewise $x_g\le P^{\text{rem}}_{c(g)}$ and $x_g\le K^{\text{rem}}_{j(g)}$ keep the per-country and per-category sums within $P_c$ (R2) and $K_j^{\text{eff}}$ (R3). Finally, each group is a single $(c,j)$ pair sharing one priority date, so assigning the count $x_g$ serves its $x_g$ most-senior petitions, honoring FIFO order within the queue (R6). Thus $\mathbf{x}\in\mathcal{F}$ for every input, with no penalty term and no repair. \qed
+\end{proof}
+
+\subsection{Benchmarks and a representation-matched optimizer}
+\label{sec:nsga}
+
+To separate the contribution of the decoder, the representation, and the search heuristic, we compare a \emph{ladder} of methods that all share the same greedy decoder, objectives, hypervolume reference point, and $50\times500$ budget; they differ only in how they explore. Two operate on the continuous SPV random keys in $\mathbb{R}^{105}$:
+\emph{(a)}~the MOHHO of Section~\ref{sec:mohho}; and
+\emph{(b)}~\textbf{NSGA-II}~\cite{deb} with simulated binary crossover (SBX, $\eta_c=20$, $p_c=0.9$), polynomial mutation ($\eta_m=20$, $p_m=1/d$), binary tournament selection, and elitist $(\mu+\lambda)$ replacement.
+A third, \emph{(c)}~\textbf{random restart}, draws the $25{,}000$ candidates uniformly at random (no search), isolating what the decoder alone achieves.
+
+The ablation (Section~\ref{sec:ablation}) reveals that the continuous random-key operators are a poor match for the induced permutation landscape. We therefore also evaluate three \textbf{permutation-native} methods---spanning three distinct paradigms---that act directly on permutations of the 105 groups (decoded by the same greedy procedure): \emph{(d)}~\textbf{permutation-NSGA-II} (dominance-based) with order crossover (OX) and swap mutation; \emph{(e)}~\textbf{permutation-MOEA/D}~\cite{zhangli} (decomposition-based), with Tchebycheff scalarization over a simplex-lattice of weight vectors and the same OX${}+{}$swap operators; and \emph{(f)}~\textbf{Discrete-MOHHO}, our representation-matched Harris Hawks optimizer. Discrete-MOHHO keeps HHO's signature---the escape energy $E$ of Eq.~(\ref{eq:energy}) scheduling exploration and exploitation, and a crowding-pruned external archive supplying the leader---but expresses every move on permutations: when $|E|\!\ge\!1$ a hawk explores by recombining (OX) with a random hawk or by a heavy random shuffle; when $|E|\!<\!1$ it besieges the leader by inheriting an order segment from it (OX) and perturbing with a number of swaps that shrinks as $|E|\to0$, with occasional Lévy-like segment reversals. All six methods run for 30 independent seeds under the identical budget.
+
+\subsection{Evaluation protocol and indicators}
+\label{sec:protocol}
+
+We assess each approximation front with four indicators: the \emph{hypervolume} (\HV; larger is better) dominated with respect to the reference point $(10;\,16;\,20{,}000)$, an upper bound on each objective; the \emph{inverted generational distance} (\IGD; smaller is better) to a reference front $Z$ formed by the non-dominated union of the MOHHO and NSGA-II combined fronts ($|Z|=113$; because $Z$ is built from the compared methods' own fronts, we treat \IGD\ as an internal convergence/coverage indicator rather than distance to an independent ground truth, and rest the headline conclusions on the reference-point--robust \HV); the \emph{spacing} indicator (smaller is better) measuring uniformity; and the \emph{cardinality} of the non-dominated set. Objectives are min--max normalized before \IGD\ and spacing. Each algorithm is run for 30 independent seeds, and a \emph{combined front} is formed as the non-dominated union of its 30 per-run fronts. Statistical significance between the two 30-value \HV\ distributions is assessed with a Mann--Whitney $U$ test~\cite{derrac}, and effect size with the Vargha--Delaney $A_{12}$~\cite{vargha}; where one-sided $p$-values are reported the alternative direction is fixed \emph{a priori} from the mechanism (decoder- and representation-matched methods are predicted to improve over the real-coded baseline), and the two-sided values lead to the same conclusions at these effect sizes. The deterministic \textbf{FIFO} baseline orders groups by ascending priority date and is decoded with the same greedy procedure, yielding $f_1=8.7891$, $f_2=13.0$ years, and $f_3=1{,}940$ wasted visas.
+
+%===============================================================================
+% >>> SECTION 5 (Taguchi) -- filled from the executed L9 experiment.
+\input{section_taguchi}
+
+%===============================================================================
+\section{Results}
+\label{sec:results}
+
+\subsection{Combined Pareto front and domination of FIFO}
+\label{sec:front}
+
+Combining and re-filtering the 30 runs yields a front of \textbf{92 non-dominated solutions}. Figure~\ref{fig:pareto3d} shows it in the full objective space and Figure~\ref{fig:pareto2d} in the $f_1$--$f_2$ projection; in both, the FIFO baseline floats \emph{above} the front, visual evidence that it is dominated. The extreme solutions (Table~\ref{tab:extremes}) expose the trade-offs.
+
+\begin{figure}[t]
+\centering
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\includegraphics[width=\linewidth]{pareto3d_v2.pdf}
+\caption{The 92-solution combined Pareto front over the three objectives, colored by the waste $f_3$. The FIFO baseline (red star) floats above the front---the dotted drop-line marks its distance to the front's waste level---and is dominated; circles mark the extreme solutions.}
+\label{fig:pareto3d}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\includegraphics[width=\linewidth]{pareto_f1f2.pdf}
+\caption{$f_1$--$f_2$ projection of the same front, colored by $f_3$ (wasted visas). FIFO lies inside the dominated region.}
+\label{fig:pareto2d}
+\end{minipage}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\caption{Extreme solutions of the combined front, compared with the FIFO baseline. The minimum-$f_1$ solution dominates FIFO (better on two objectives, equal on the already-maximal disparity).}
+\label{tab:extremes}
+\small
+\begin{tabular}{lcccl}
+\toprule
+\textbf{Solution} & $\boldsymbol{f_1}$ & $\boldsymbol{f_2}$ \textbf{(yr)} & $\boldsymbol{f_3}$ \textbf{(visas)} & \textbf{Remark}\\
+\midrule
+Min.\ $f_1$ (least waiting) & 8.7884 & 13.0 & 680 & \textbf{Dominates FIFO}\\
+Min.\ $f_2$ (most equitable) & 9.0016 & 2.0 & 0 & Radical equity\\
+Min.\ $f_3$ (full use) & 8.851 & 8.06 & 0 & 100\,\% utilization\\
+FIFO baseline & 8.7891 & 13.0 & 1{,}940 & Reference (dominated)\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The central empirical finding is that \textbf{FIFO is not Pareto-optimal}: the minimum-$f_1$ solution Pareto-dominates it---strictly better on waste ($f_3$ from 1{,}940 to 680 visas), tied on the already-maximal disparity ($f_2=13.0$), and negligibly better on the near-degenerate $f_1$ (8.7891 to 8.7884; the $f_1$ range is so narrow---Section~\ref{sec:convergence}---that this edge carries no practical weight). The substantive case against FIFO is therefore about \emph{waste and equity}, not waiting load: 82 of the 92 front solutions reach $f_3=0$ (zero waste, which FIFO never attains), and the front spans disparities all the way from FIFO's 13.0 years down to 2.0.
+
+\subsection{Convergence and robustness}
+\label{sec:convergence}
+
+The mean hypervolume curve (Figure~\ref{fig:convergence}) reaches 95\,\% of its final value by iteration~12 and 99\,\% by iteration~138; gains beyond iteration~140 are under 1\,\%. Over the 30 runs the \HV\ distribution is narrow (mean $302{,}379$, standard deviation $7{,}455$), a coefficient of variation (CV) of \textbf{2.47\,\%}, evidence of a stable and reproducible algorithm.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.72\textwidth]{convergence.pdf}
+\caption{Mean hypervolume over 30 runs with a $\pm 1$ standard-deviation band. The dotted markers indicate the iterations at which 95\,\% and 99\,\% of the final \HV\ are attained; gains beyond iteration 140 are marginal.}
+\label{fig:convergence}
+\end{figure}
+
+\subsection{Comparison with NSGA-II}
+\label{sec:vs-nsga}
+
+We first compare the two \emph{random-key} optimizers under the identical problem, encoding, decoder, and budget of Section~\ref{sec:taguchi}. MOHHO outperforms the standard (real-coded) NSGA-II on the aggregate front-quality measures (Table~\ref{tab:nsga})---the two tie on the extreme values the decoder makes attainable for both (best $f_1$ and zero waste). MOHHO attains a higher mean hypervolume ($+3.1\,\%$), a smaller $\IGD$, and more uniform spacing; the gap is significant (one-sided Mann--Whitney $p\approx1.3\times10^{-5}$, $A_{12}=0.82$). Figure~\ref{fig:overlay} shows the front coverage. This advantage is a property of the \emph{search dynamics}, not of archiving (granting NSGA-II the identical archive barely moves it; Section~\ref{sec:ablation}): MOHHO's position updates induce genuine permutation jumps on the random keys, whereas NSGA-II's interpolating operators scarcely perturb the decoded order (Section~\ref{sec:ablation} quantifies this). That comparison, however, is only part of the story.
+
+\begin{table}[t]
+\centering
+\caption{MOHHO vs.\ NSGA-II under an identical problem, encoding, decoder, and budget (30 runs each). Best value per row in bold. The FIFO point is dominated by both and is not a front.}
+\label{tab:nsga}
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Metric} & \textbf{FIFO} & \textbf{MOHHO} & \textbf{NSGA-II}\\
+\midrule
+Method type & deterministic & metaheuristic & metaheuristic\\
+Best $f_1$ (waiting load) & 8.7891 & 8.7884 & 8.7884\\
+Best $f_2$ (disparity, yr) & 13.0 & \textbf{2.0} & 2.25\\
+Best $f_3$ (waste, visas) & 1{,}940 & 0 & 0\\
+Mean \HV\ $\pm\,\sigma$ (30 runs) & --- & $\mathbf{302{,}379 \pm 7{,}455}$ & $293{,}367 \pm 6{,}996$\\
+Coefficient of variation & --- & 2.47\,\% & \textbf{2.38\,\%}\\
+Combined-front \HV & --- & \textbf{321{,}446} & 316{,}060\\
+Non-dominated solutions & 1 & 92 & 92\\
+$\IGD$ vs.\ $Z$ (smaller better) & --- & \textbf{0.0052} & 0.0080\\
+Spacing (smaller better) & --- & \textbf{0.0099} & 0.0463\\
+Significance vs.\ MOHHO & dominated & --- & $p\approx1.3\times10^{-5}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.62\textwidth]{nsga2_overlay.pdf}
+\caption{Combined fronts of MOHHO and (real-coded) NSGA-II in the $f_1$--$f_2$ projection. MOHHO covers the front more densely and more uniformly.}
+\label{fig:overlay}
+\end{figure}
+
+\subsection{Decoder, representation, and search: a controlled ladder}
+\label{sec:ablation}
+
+Section~\ref{sec:vs-nsga} compared two random-key methods. To attribute performance to its true source we now climb a ladder of methods, all sharing the decoder and a $25{,}000$ function-evaluation budget---the comparison currency (Table~\ref{tab:ladder}). The permutation-native methods inherit the Taguchi-tuned $N$ and $T$ and are not separately tuned, so any edge they show is not a tuning artifact.
+
+\paragraph{The decoder does most of the work.}
+\emph{Random restart}---blind sampling with no search---already reaches a mean \HV\ of $309{,}821$: $5.6\,\%$ \emph{above} NSGA-II and, strikingly, $2.5\,\%$ \emph{above} classic MOHHO itself (the swarm wins on only $9/30$ paired seeds). Under an identical function-evaluation budget the feasibility-preserving decoder shapes a landscape on which blind sampling outperforms \emph{both} real-coded searches; giving NSGA-II the \emph{identical} archive barely helps it ($293{,}666$ vs.\ $293{,}367$), so NSGA-II's deficit is not an archiving artifact. The swarm's loss is likewise not an artifact of our single-trial-point budgeting (Section~\ref{sec:mohho}): a control with the \emph{canonical} two-point Lévy dive does not beat random restart either---at the matched $25{,}050$-evaluation budget it reaches $308{,}926$ ($-0.3\,\%$ vs.\ random restart, paired Wilcoxon $p=0.77$), and even granted its native schedule ($\approx\!35{,}600$ evaluations, $42\,\%$ over budget) it only \emph{ties} random restart ($+0.4\,\%$, $p=0.21$). The swarm does not beat blind sampling under either dive convention.
+
+\paragraph{The representation--operator match is decisive.}
+Why does a tuned NSGA-II fall below blind sampling? We measured the cause directly. On the SPV random keys, SBX and polynomial mutation are \emph{near-identity on the decoded permutation}: over $3{,}000$ trials the Kendall rank correlation between a parent's SPV order and its child's is $\tau=0.99$. This is not an artifact of measuring on random parents or of one operator setting: measured \emph{on-trajectory}---parents drawn by the algorithm's own tournament from live populations at iterations $1$ through $499$---the correlation stays in $[0.987,0.992]$ throughout the run; and sweeping the crossover distribution index $\eta_c\in\{2,\dots,100\}$ (Figure~\ref{fig:eta}) shows that even the most disruptive crossover ($\eta_c{=}2$, $\tau{=}0.92$) leaves the real-coded GA's mean \HV\ at $305{,}293$---still below blind random restart ($309{,}821$) and far below the permutation tier---while across the sweep order-preservation and \HV\ are perfectly anti-correlated (Kendall $-1.0$, $p=0.003$). No crossover spread lets a random-key GA escape the random-key ceiling; only matching the operators to the representation does. The GA perturbs the keys so little that the induced permutation barely changes, leaving it almost frozen in combinatorial space---precisely why it sinks below blind sampling, which at least draws fresh permutations. HHO's position updates, by contrast, induce large permutation jumps ($\tau\approx0$), so even on random keys the swarm genuinely traverses the decoded space (hence MOHHO $>$ NSGA-II within the random-key tier). The clean fix, though, is to match the operators to the representation. Acting \emph{directly} on permutations lifts \emph{three different paradigms} above every random-key method: permutation-NSGA-II (dominance/GA) reaches $318{,}151$, permutation-MOEA/D (decomposition) $314{,}846$, and our \textbf{Discrete-MOHHO} (swarm) $316{,}637$. The three cluster within about $1\,\%$ of one another, yet all sit $1.6$--$2.7\,\%$ above the best random-key method (random restart)---more than the spread \emph{among} the matched paradigms. Discrete-MOHHO improves on classic MOHHO by $+4.7\,\%$ (paired Wilcoxon $p=9.3\times10^{-10}$, better on all $30/30$ seeds) and is the \emph{most stable} method (CV $0.54\,\%$, versus $0.58\,\%$ for permutation-NSGA-II and $2.47\,\%$ for classic MOHHO), making it the most dependable choice for a single-run decision. The marginal mean lead belongs to permutation-NSGA-II ($+0.48\,\%$ over Discrete-MOHHO, $A_{12}=0.27$).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.66\textwidth]{eta_sweep.pdf}
+\caption{Sweeping the SBX crossover spread $\eta_c$ for the real-coded NSGA-II on the visa problem. As $\eta_c$ falls (more disruptive crossover) the operator order-preservation $\tau$ drops, yet the mean hypervolume never reaches blind random restart (dashed) let alone the permutation tier (dotted); across the sweep $\tau$ and \HV\ are perfectly anti-correlated (Kendall $-1.0$). No crossover spread lets a random-key GA escape the random-key ceiling---only matching operators to the representation does.}
+\label{fig:eta}
+\end{figure}
+
+\paragraph{Operator and metaheuristic family are both second-order.}
+The three matched paradigms above share the OX${}+{}$swap operators, so that comparison varied the \emph{selection/replacement architecture} while holding the operator fixed. To probe the operator axis directly we ran a $3\times3$ factorial---three operator sets (OX${}+{}$swap, PMX${}+{}$insertion, CX${}+{}$inversion) crossed with the three architectures, 30 seeds each (Table~\ref{tab:factorial}). A two-way variance decomposition attributes just $5.5\,\%$ of the hypervolume variance to the operator set and $13.4\,\%$ to the architecture (interaction $2.9\,\%$), against $78.3\,\%$ from seed-to-seed noise; switching either axis moves the mean by at most ${\sim}2\,\%$ (operator marginal range $4{,}139$, architecture range $6{,}720$~\HV), an order of magnitude below the run-to-run variation. So \emph{once the representation is matched, neither the operator set nor the metaheuristic family governs performance}: the representation--operator match---the random-key$\to$permutation jump---is first-order, while both design axes \emph{within} the matched representation are second-order. Discrete-MOHHO is the most operator-robust of all, holding ${\approx}317{,}000$~\HV\ across every operator set. Architecture is the larger of the two second-order effects ($13.4\,\%$ vs.\ $5.5\,\%$)---and Discrete-MOHHO's energy-besiege architecture is part of why we recommend it---but both remain an order of magnitude below the seed noise, so each is second-order relative to the first-order representation jump.
+
+\begin{table}[t]
+\centering
+\caption{Operator${}\times{}$architecture factorial on the visa problem: mean hypervolume (30 seeds) for three permutation operator sets crossed with three selection architectures, all under the matched budget. A two-way decomposition gives $\eta^2=5.5\,\%$ (operator), $13.4\,\%$ (architecture), $2.9\,\%$ (interaction), $78.3\,\%$ (seed noise): both design axes are second-order once the representation is matched.}
+\label{tab:factorial}
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Operator set} & \textbf{perm-NSGA-II} & \textbf{perm-MOEA/D} & \textbf{Discrete-MOHHO}\\
+\midrule
+OX${}+{}$swap        & 317{,}237 & 313{,}608 & 317{,}569\\
+PMX${}+{}$insertion  & 311{,}284 & 309{,}316 & 317{,}715\\
+CX${}+{}$inversion   & 309{,}702 & 309{,}248 & 317{,}048\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{An empirical regularity.}
+The ladder (Figure~\ref{fig:ladder}) makes the pattern unmistakable: performance is governed by the \emph{feasibility-preserving decoder} and the \emph{representation--operator match}, not by the metaheuristic family. That encoding--operator mismatch can hurt search is known in principle since random keys were introduced~\cite{bean}; our contribution is the \emph{controlled, quantified} demonstration on a real constrained problem---including the counterintuitive result that \emph{both} real-coded searches (a tuned NSGA-II and the MOHHO swarm) fall below blind sampling---and the decomposition of performance into decoder, representation, and family. That three \emph{distinct} paradigms (swarm, decomposition, dominance/GA) converge to within about $1\,\%$ once the representation is matched, all far above the random-key methods, is strong evidence that the family is second-order here. We are precise about what this shows: the operator--representation \emph{match} is first-order---the random-key$\to$permutation jump---whereas \emph{within} a matched representation both the operator set and the selection/replacement architecture (Pareto sorting, scalarized decomposition, or energy-driven besiege) are second-order, the factorial of Table~\ref{tab:factorial} attributing only $5.5\,\%$ and $13.4\,\%$ of the variance to them. The matched swarm reclaims competitiveness and the best stability, which is why we promote Discrete-MOHHO. An omnibus test across the six methods on a common 30-seed set---a paired Friedman test with a Nemenyi post-hoc, identical to the analysis of Section~\ref{sec:secondproblem}---rejects equal performance decisively ($\chi^2=112.6$, $p\approx1.2\times10^{-22}$, critical difference $1.38$), and the mean ranks split into two tiers: the three permutation-native methods (ranks $1.6$--$2.5$) above the three random-key methods ($4.2$--$5.8$), with NSGA-II worst and every permutation-native method significantly above random restart. Finer within-tier separations fall within the Nemenyi critical difference, consistent with the ``within about $1\,\%$'' clustering. The ranking is also robust to the hypervolume reference point (five reference points; ordering preserved throughout). We frame this as an empirical regularity for this problem, not a general law: all instances here share one structural skeleton---which the structurally distinct problems of Section~\ref{sec:secondproblem} directly address.
+
+\begin{table}[t]
+\centering
+\caption{The method ladder: 30 runs each, identical greedy decoder and $25{,}000$-evaluation budget. Top block: random-key encoding. Bottom block: permutation-native, spanning three distinct paradigms (swarm, decomposition, dominance/GA), which cluster within about $1\,\%$ and dominate every random-key method. Best per column in bold; ``perm-'' abbreviates ``permutation-''.}
+\label{tab:ladder}
+\small
+\begin{tabular}{llccrr}
+\toprule
+\textbf{Method} & \textbf{Paradigm} & \textbf{Mean \HV\ $\pm\,\sigma$} & \textbf{CV} & \textbf{Comb.\ \HV} & \textbf{\#\,sols}\\
+\midrule
+NSGA-II            & GA       & $293{,}367 \pm 6{,}996$ & 2.38\,\% & 316{,}060 & 92\\
+MOHHO              & swarm    & $302{,}379 \pm 7{,}455$ & 2.47\,\% & 321{,}446 & 92\\
+Random restart     & ---      & $309{,}821 \pm 2{,}513$ & 0.81\,\% & 316{,}383 & 81\\
+\midrule
+Discrete-MOHHO              & swarm    & $316{,}637 \pm 1{,}720$  & \textbf{0.54\,\%} & 321{,}354 & \textbf{149}\\
+perm-MOEA/D                 & decomp.\ & $314{,}846 \pm 5{,}384$  & 1.71\,\% & 320{,}969 & 90\\
+perm-NSGA-II                & GA       & $\mathbf{318{,}151 \pm 1{,}855}$ & 0.58\,\% & \textbf{321{,}935} & 148\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.74\textwidth]{ladder.pdf}
+\caption{The method ladder: per-run hypervolume (30 runs each, identical decoder and budget). Crossing from random-key encodings (left, shaded amber) to permutation-native operators (right, shaded blue) produces a clear jump; the metaheuristic family (GA vs.\ Harris Hawks) matters far less than the representation. Discrete-MOHHO is the tightest distribution (most stable).}
+\label{fig:ladder}
+\end{figure}
+
+\subsection{Generalization across instances}
+\label{sec:generalization}
+
+To check that these findings are not specific to a single backlog estimate, we built five further instances by perturbing every group's demand $n_g$ with an independent uniform $\pm 20\,\%$ jitter (fixed seeds) and recomputing the spillover-adjusted category caps and the per-country caps accordingly; on each we re-ran the full comparison (10 seeds per method). The pattern is invariant (Figure~\ref{fig:gen}): on all five perturbed instances---as on the base instance---the combined front dominates FIFO, MOHHO outperforms NSGA-II (one-sided Mann--Whitney $p \le 0.07$ in every case), and the decoder-dominance signature persists, with random restart matching or exceeding MOHHO ($101$--$103\,\%$ of its hypervolume) and both above NSGA-II (which trails at $96$--$98\,\%$ of MOHHO). The pattern therefore holds across six instances, indicating that the conclusions are robust to $\pm 20\,\%$ demand-estimation error rather than artifacts of one estimate. We are careful not to overstate this: all six instances share the same structural skeleton (21 countries, 5 categories, the same caps and the demand-far-exceeds-supply regime), so this is robustness to demand perturbation; generalization across structurally distinct problems is addressed directly in Section~\ref{sec:secondproblem}.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.74\textwidth]{generalization.pdf}
+\caption{Generalization over six instances (base plus five $\pm 20\,\%$ perturbed-demand instances, P1--P5), each method's mean hypervolume shown as a percentage of MOHHO's on that instance. The ranking MOHHO $>$ random restart $>$ NSGA-II is preserved throughout, and FIFO is dominated on every instance.}
+\label{fig:gen}
+\end{figure}
+
+\subsection{Generalization across structurally distinct problems}
+\label{sec:secondproblem}
+
+The instances above share one structural skeleton. To test whether the regularity reaches genuinely different structures, we replicate the entire six-method ladder on \emph{three} further classic multi-objective combinatorial problems that share nothing with visa allocation but the SPV${}+{}$greedy/permutation methodology: a 0/1 \textbf{multidimensional knapsack} (MOMKP; 120 items, four capacities---a \emph{selection} landscape; its ladder is shown in Figure~\ref{fig:ladder2}), a tri-objective \textbf{travelling salesman} (mo-TSP; 100 cities, three cost matrices---a cyclic \emph{sequencing} landscape), and a tri-objective \textbf{permutation flow-shop} (mo-PFSP; 50 jobs, 10 machines; makespan, flowtime, tardiness---a \emph{scheduling} landscape). Each runs the same six methods, budget, and 30 common seeds, analyzed by a paired Friedman test with a Nemenyi post-hoc (the Demšar standard; Table~\ref{tab:structures}).
+
+One result is \emph{robust across all four structures}: the best optimizer is \emph{always} a permutation-native method (perm-NSGA-II on the visa, knapsack, and flow-shop problems; perm-MOEA/D on the TSP), and neither blind random restart nor any real-coded method is ever best. Matching the operators to the representation reliably produces the winner, and the metaheuristic family stays second-order \emph{among} the matched methods. All four omnibus tests reject equality decisively (Friedman $\chi^2$ from $112$ to $150$, $p<10^{-21}$, critical difference $1.38$). Our \textbf{Discrete-MOHHO} is top-two on three of the four structures and the most stable of the matched methods, which is why we recommend it for single-run decisions even where perm-NSGA-II edges it on the mean.
+
+What does \emph{not} generalize is the dramatic version of the story---a tuned real-coded GA collapsing \emph{below} blind random sampling. This holds on the two \emph{selection} landscapes (visa and knapsack, where the real-coded NSGA-II is the worst method, beneath random restart) but reverses on the two \emph{sequencing} landscapes: on the TSP and the flow-shop the real-coded NSGA-II is competitive (mean ranks $3.0$ and $2.7$) and \emph{random restart is instead the worst} method. The mechanism reconciles this. Operator order-preservation is problem-independent---we re-confirmed $\tau$ on each problem's keys (SBX ${\approx}0.99$, HHO ${\approx}0$)---but its \emph{consequence} is landscape-dependent: near-identity SBX leaves the decoded order almost frozen, which is fatal on selection landscapes (where blind sampling at least draws fresh subsets) yet acts as effective \emph{local search} on sequencing landscapes (where small reorderings are precisely the useful neighborhood and blind sampling of full permutations is poor). We also asked whether a single ``search-headroom'' scalar predicts which structures show the collapse; a five-point capacity sweep gives it no support (Spearman $\rho=-0.90$, but $n=5$: exact two-sided $p=0.083$, inconclusive), so the exact landscape determinant remains open. The transferable claim is therefore narrow and precise: \emph{representation-matched operators yield the best optimizer on every structure, and the metaheuristic family is second-order among them}; the spectacular ``GA-below-random'' collapse is a property of selection/assignment landscapes, not a universal law. We report this scoping rather than the punchier over-generalization.
+
+\begin{table}[t]
+\centering
+\caption{Mean Friedman rank (lower is better; 30 common seeds, paired) of each method on four structurally distinct multi-objective problems. A permutation-native method is best on every structure (\textbf{bold}). The real-coded NSGA-II collapses below random restart only on the \emph{selection} landscapes (visa, knapsack); on the \emph{sequencing} landscapes (TSP, flow-shop) it is competitive and random restart is the worst method instead. ``rk'' $=$ random-key encoding, ``pm'' $=$ permutation-native.}
+\label{tab:structures}
+\small
+\begin{tabular}{llcccc}
+\toprule
+\textbf{Method} & \textbf{Enc.} & \textbf{Visa} & \textbf{Knapsack} & \textbf{TSP} & \textbf{Flow-shop}\\
+\midrule
+perm-NSGA-II        & pm & \textbf{1.60} & \textbf{1.10} & 2.00 & \textbf{1.80}\\
+perm-MOEA/D         & pm & 2.53 & 2.87 & \textbf{1.00} & 2.83\\
+Discrete-MOHHO      & pm & 2.23 & 2.10 & 4.00 & 2.63\\
+\midrule
+MOHHO (real-coded)  & rk & 4.67 & 3.93 & 5.00 & 5.07\\
+Random restart      & rk & 4.20 & 5.23 & 6.00 & 5.93\\
+NSGA-II (real-coded)& rk & 5.77 & 5.77 & 3.00 & 2.73\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.78\textwidth]{ladder2.pdf}
+\caption{The ladder on the multidimensional knapsack (MOMKP), one of the four structures of Table~\ref{tab:structures}. As on the visa problem, all three random-key methods (NSGA-II, the MOHHO swarm, and random restart) sit below the three permutation-native methods---a clean two-tier split. The split reverses only on the \emph{sequencing} landscapes (TSP, flow-shop), where the real-coded methods become competitive (Table~\ref{tab:structures}).}
+\label{fig:ladder2}
+\end{figure}
+
+%===============================================================================
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{The trade-off is structural.}
+The conflict among objectives is not an artifact of the model. Two countries concentrate roughly three-quarters of demand with 10--13-year waits; the 7\,\% ceiling forbids fully serving them, so reducing disparity ($f_2$) forces unserved load to remain in those countries ($f_1\!\uparrow$), and distributing equitably leaves idle capacity in saturated categories ($f_3\!\uparrow$). The three extreme solutions of Table~\ref{tab:extremes} are mutually non-dominated---empirical proof of genuine three-way conflict.
+
+\paragraph{Sensitivity.}
+Two observations bound the result. First, the natural front holds only about 38 solutions per run---well under the size-100 archive cap, so pruning never activates and the archive size is immaterial (hypervolume unchanged from 100 to 500). Second, the range of $f_1$ across the front (0.21) is about $32\times$ narrower than that of $f_2$: because total demand ($1{,}800{,}000$) far exceeds the $140{,}000$ visas, almost any permutation leaves a similar unserved load, so $f_1$ variability is constrained by the \emph{problem structure}, not by the algorithm. We nonetheless keep $f_1$ as a distinct objective rather than collapsing to a two-objective $(f_2,f_3)$ problem: it still discriminates the efficiency-extreme solutions (Table~\ref{tab:extremes}) and makes the efficiency--equity tension explicit---indeed it is the minimum-$f_1$ policy that dominates FIFO, which a two-objective reduction would obscure.
+
+\paragraph{What governs performance.}
+The ladder of Section~\ref{sec:ablation} yields an empirical regularity we expect to recur: when a hard-constrained combinatorial problem is solved through a feasibility-preserving decoder, performance is dominated by the decoder and by matching the search operators to the \emph{induced} representation---not by the metaheuristic family. A tuned real-coded NSGA-II falls \emph{below} blind sampling because its interpolating operators are near-identity on the decoded permutation ($\tau=0.99$; Section~\ref{sec:ablation}) and so barely search the combinatorial space; switching to permutation-native operators lifts three distinct paradigms (a GA, a decomposition method, and a Harris Hawks optimizer) to the top, within about $1\,\%$ of one another. The practical guidance is twofold: invest design effort in the decoder and the representation before the search heuristic; and when a single dependable run matters---as in decision support---prefer the most stable optimizer, here Discrete-MOHHO.
+
+\paragraph{Policy implication.}
+The front is a quantified map of compromises for a decision-maker, from prioritizing efficiency ($f_1=8.79$) to radical equity ($f_2=2.0$) or full utilization ($f_3=0$). Notably, reducing disparity from 13.0 to 2.0 years costs only about 2.4\,\% in $f_1$ relative to the FIFO baseline, indicating that large equity gains are attainable at modest efficiency cost---consistent with proposals to reform the per-country caps~\cite{crs,fwd}. Each front solution maps to a concrete allocation. Figure~\ref{fig:impact} shows the per-country reallocation of one balanced, full-utilization policy ($f_3=0$, $f_2=4.31$ years) against FIFO: it keeps the two highest-demand countries at their 7\,\% ceiling (unchanged) and redirects the visas that FIFO leaves in the residual ``Rest of World'' pool toward currently underserved nationalities such as the Philippines, South Korea, Pakistan, and Taiwan---an interpretable equity intervention rather than an opaque score.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.72\textwidth]{country_impact.pdf}
+\caption{Policy output: visas reallocated per country by a balanced full-utilization MOHHO solution relative to the FIFO baseline (gained in green, lost in red). The two highest-demand countries remain at their per-country ceiling; the redistribution is drawn mainly from the residual pool.}
+\label{fig:impact}
+\end{figure}
+
+\paragraph{Limitations.}
+Four caveats bound the conclusions. The model covers a single fiscal year and ignores intertemporal backlog dynamics; it uses 21 representative countries rather than the full roster; demand $n_g$ is calibrated to published aggregate data~\cite{cato,uscis,dos} (although Section~\ref{sec:generalization} shows the comparison is stable under $\pm 20\,\%$ demand perturbations); and it assumes every assigned visa is used (no post-allocation refusals). These limitations affect external validity, not the internal comparison among the six methods, which all run on identical data with an identical decoder and budget.
+
+%===============================================================================
+\section{Conclusions}
+\label{sec:conclusions}
+
+We formulated the annual allocation of U.S.\ employment-based visas as a three-objective integer program with six hard constraints and solved it through a feasibility-preserving SPV${}+{}$greedy decoder that guarantees feasibility by construction---no penalties, no repair. A Taguchi L9 design replaced empirical parameter choices with a confirmed operating point. Across 30 independent runs the recovered Pareto front dominates the FIFO incumbent---chiefly by eliminating waste while matching its waiting load and maximal disparity---with 82 zero-waste solutions. Our central result comes from a controlled six-method ladder: the decoder alone (random restart) already beats \emph{both} real-coded searches (NSGA-II and the MOHHO swarm), and---the lesson---the representation--operator match, not the metaheuristic family, governs performance. Matching operators to the representation lifts three distinct paradigms (a GA, a decomposition method, and a Harris Hawks optimizer) to within about $1\,\%$ of one another and above every random-key method; the Discrete-MOHHO we introduce improves on classic MOHHO by $4.7\,\%$ ($p=9.3\times10^{-10}$) and is the most stable optimizer of all (CV $0.54\,\%$), within $0.5\,\%$ of the best. All conclusions hold across five perturbed-demand instances, and a four-structure study (knapsack, TSP, and flow-shop scheduling) sharpens what generalizes: a representation-matched operator is the best optimizer on \emph{every} structure and the metaheuristic family is second-order among matched methods (the robust, transferable law), whereas the spectacular collapse of a tuned real-coded GA below blind sampling occurs only on \emph{selection} landscapes (visa, knapsack)---on \emph{sequencing} landscapes (TSP, flow-shop) the same near-identity operators act as useful local search and the GA is competitive. Operator order-preservation ($\tau{=}0.99$) is problem-independent; whether it freezes or refines is landscape-dependent, and the precise determinant (a single search-headroom scalar does not capture it; $\rho=-0.90$ at $n=5$, inconclusive) we report as an open question. Beyond the numbers, the optimizer yields an auditable \emph{menu} of feasible trade-off allocations: a decision-support artifact, not a policy prescription, given the single-period model and the representative (partly synthetic) instance. Future work includes a multi-period formulation, the full country roster, further problem domains beyond the four studied here, and additional optimizers such as SPEA2.
+
+%===============================================================================
+\subsubsection*{Ethical Considerations.}
+Allocating immigrant visas across nationalities is normatively charged. Our equity objective $f_2$ encodes one specific, contestable notion of fairness (minimizing the inter-country gap in mean wait), and the formulation treats nationalities as allocation buckets---a modeling choice with real human stakes, not a neutral given. We therefore frame the recovered front as \emph{decision support} that makes trade-offs explicit and auditable, never as an autonomous decision-maker: any real-world use would require legal review, deliberation over which fairness criterion to adopt, and consultation with affected stakeholders. The instance is partly synthetic (see Section~\ref{sec:formulation}), so the per-country figures illustrate method behavior and must not be read as recommendations about real applicants.
+
+%===============================================================================
+\subsubsection*{Data and Code Availability.}
+The problem data, the optimizer, the Taguchi design, and the scripts that reproduce every figure and table will be released in a public repository upon acceptance (repository withheld for double-blind review).
+
+%===============================================================================
+\begin{thebibliography}{99}
+
+\bibitem{alrafei}
+Al Rafei, T., Yousfi Steiner, N., Chrenko, D.: Genetic algorithm and Taguchi method: an approach for better Li-ion cell model parameter identification. Batteries \textbf{9}(2), 72 (2023). \doi{10.3390/batteries9020072}
+
+\bibitem{bean}
+Bean, J.C.: Genetic algorithms and random keys for sequencing and optimization. ORSA Journal on Computing \textbf{6}(2), 154--160 (1994). \doi{10.1287/ijoc.6.2.154}
+
+\bibitem{cato}
+Bier, D.J.: Backlog for skilled immigrants tops 1.8 million: over 400,000 could die of old age while waiting. Cato Institute, Washington, DC (2024), \url{https://www.cato.org/}
+
+\bibitem{cerci}
+Çerçi, S., Dönmez, E.: Hybrid multi-objective Harris Hawk optimization algorithm based on elite non-dominated sorting and grid index mechanism. Advances in Engineering Software \textbf{173}, 103214 (2022). \doi{10.1016/j.advengsoft.2022.103214}
+
+\bibitem{chaves}
+Chaves, A.A., Resende, M.G.C., Schuetz, M.J.A., Brubaker, J.K., Katzgraber, H.G., de Arruda, E.F., et al.: A random-key optimizer for combinatorial optimization. Journal of Heuristics \textbf{31}(4), 32 (2025). \doi{10.1007/s10732-025-09568-z}
+
+\bibitem{choo}
+Choo, Y.H., Cai, Z., Le, V., Johnstone, M., Creighton, D., Lim, C.P.: Enhancing the Harris' Hawk optimiser for single- and multi-objective optimisation. Soft Computing \textbf{27}(22), 16675--16715 (2023). \doi{10.1007/s00500-023-08952-w}
+
+\bibitem{coello}
+Coello Coello, C.A., Lamont, G.B., Van Veldhuizen, D.A.: Evolutionary Algorithms for Solving Multi-Objective Problems, 2nd edn. Springer, New York (2007). \doi{10.1007/978-0-387-36797-2}
+
+\bibitem{crs}
+Congressional Research Service: U.S. employment-based immigration policy. Report R47164 (2023), \url{https://www.congress.gov/crs-product/R47164}
+
+\bibitem{deb}
+Deb, K., Pratap, A., Agarwal, S., Meyarivan, T.: A fast and elitist multiobjective genetic algorithm: NSGA-II. IEEE Transactions on Evolutionary Computation \textbf{6}(2), 182--197 (2002). \doi{10.1109/4235.996017}
+
+\bibitem{derrac}
+Derrac, J., García, S., Molina, D., Herrera, F.: A practical tutorial on the use of nonparametric statistical tests as a methodology for comparing evolutionary and swarm intelligence algorithms. Swarm and Evolutionary Computation \textbf{1}(1), 3--18 (2011). \doi{10.1016/j.swevo.2011.02.002}
+
+\bibitem{fwd}
+FWD.us: Per-country cap reform: priority bill spotlight (2024), \url{https://www.fwd.us/news/per-country-cap-reform-priority-bill-spotlight/}
+
+\bibitem{garey}
+Garey, M.R., Johnson, D.S.: Computers and Intractability: A Guide to the Theory of NP-Completeness. W.H. Freeman, San Francisco (1979)
+
+\bibitem{heidari}
+Heidari, A.A., Mirjalili, S., Faris, H., Aljarah, I., Mafarja, M., Chen, H.: Harris hawks optimization: algorithm and applications. Future Generation Computer Systems \textbf{97}, 849--872 (2019). \doi{10.1016/j.future.2019.02.028}
+
+\bibitem{jangir}
+Jangir, P., Heidari, A.A., Chen, H.: Elitist non-dominated sorting Harris hawks optimization: framework and developments for multi-objective problems. Expert Systems with Applications \textbf{186}, 115747 (2021). \doi{10.1016/j.eswa.2021.115747}
+
+\bibitem{kusoglu}
+Kuşoğlu, İ., Yüzgeç, U.: Multi-objective Harris Hawks optimizer for multiobjective optimization problems. BSEU Journal of Engineering Research and Technology \textbf{1}(1), 1--12 (2020)
+
+\bibitem{londe}
+Londe, M.A., Pessoa, L.S., Andrade, C.E., Resende, M.G.C.: Biased random-key genetic algorithms: a review. European Journal of Operational Research \textbf{321}(1), 1--22 (2025). \doi{10.1016/j.ejor.2024.03.030}
+
+\bibitem{montgomery}
+Montgomery, D.C.: Design and Analysis of Experiments, 9th edn. Wiley, Hoboken (2017)
+
+\bibitem{rahimi}
+Rahimi, I., Gandomi, A.H., Chen, F., Mezura-Montes, E.: A review on constraint handling techniques for population-based algorithms: from single-objective to multi-objective optimization. Archives of Computational Methods in Engineering \textbf{30}(3), 2181--2209 (2023). \doi{10.1007/s11831-022-09859-9}
+
+\bibitem{uscis}
+U.S. Citizenship and Immigration Services: Fiscal year 2023 employment-based adjustment of status FAQs (2023), \url{https://www.uscis.gov/}
+
+\bibitem{dos}
+U.S. Department of State: Visa bulletin for February 2026 (2026), \url{https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin.html}
+
+\bibitem{vargha}
+Vargha, A., Delaney, H.D.: A critique and improvement of the CL common language effect size statistics of McGraw and Wong. Journal of Educational and Behavioral Statistics \textbf{25}(2), 101--132 (2000). \doi{10.3102/10769986025002101}
+
+\bibitem{zhangli}
+Zhang, Q., Li, H.: MOEA/D: a multiobjective evolutionary algorithm based on decomposition. IEEE Transactions on Evolutionary Computation \textbf{11}(6), 712--731 (2007). \doi{10.1109/TEVC.2007.892759}
+
+\bibitem{zhang}
+Zhang, W., Xiao, G., Gen, M., Geng, H., Wang, X., Deng, M., et al.: Enhancing multi-objective evolutionary algorithms with machine learning for scheduling problems: recent advances and survey. Frontiers in Industrial Engineering \textbf{2}, 1337174 (2024). \doi{10.3389/fieng.2024.1337174}
+
+\bibitem{zitzler}
+Zitzler, E., Thiele, L.: Multiobjective evolutionary algorithms: a comparative case study and the strength Pareto approach. IEEE Transactions on Evolutionary Computation \textbf{3}(4), 257--271 (1999). \doi{10.1109/4235.797969}
+
+\end{thebibliography}
+
+\end{document}

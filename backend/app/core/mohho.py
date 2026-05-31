@@ -18,7 +18,7 @@ from app.core.hho import (
 )
 from app.core.problem import VisaProblem
 
-HV_REF_POINT: tuple[float, float, float] = (10.0, 16.0, 50_000.0)
+HV_REF_POINT: tuple[float, float, float] = (10.0, 16.0, 20_000.0)
 CD_INF_REPLACEMENT: float = 1e6
 Fitness3 = tuple[float, float, float]
 
@@ -122,15 +122,16 @@ def evaluate_hawk(
 
 
 def _greedy_select_levy(xi, fit_i, y, z, problem):
+    # FE-budget parity: each hawk issues a SINGLE trial point per iteration (the
+    # Levy dive y), so MOHHO uses exactly pop x iter function evaluations---matching
+    # NSGA-II, random restart, and the permutation-native methods. (The canonical
+    # rapid dive evaluates both y and z; that gave MOHHO ~40% more evaluations than
+    # its competitors, so we equalize to one evaluation per individual per iteration.)
     candidates = []
     _, fit_y = evaluate_hawk(y, problem)
     candidates.append((y, fit_y))
     if dominates(fit_y, fit_i):
         return (y, fit_y), candidates
-    _, fit_z = evaluate_hawk(z, problem)
-    candidates.append((z, fit_z))
-    if dominates(fit_z, fit_i):
-        return (z, fit_z), candidates
     return None, candidates
 
 

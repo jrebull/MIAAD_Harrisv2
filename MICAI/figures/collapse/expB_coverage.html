@@ -1,0 +1,24 @@
+<!doctype html><html><head><meta charset="utf-8">
+<title>Exp B - Cobertura diferencial por tier (f2)</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#fff;margin:0;padding:24px;color:#1a1a1a}
+h2{color:#003DA5;margin:0 0 4px}.sub{color:#666;margin:0 0 16px;font-size:13px}#c{width:980px;height:420px}</style>
+</head><body>
+<h2>Cobertura del eje f2 por tier (bins alcanzados bajo el MISMO greedy)</h2>
+<p class="sub">perm-tier cubre 20/20 bins; rk-tier cubre 20/20. Bins solo-perm: []. Si perm cubre estrictamente mas region, hay frente real que optimizar.</p>
+<div id="c"></div>
+<script>
+var ch=echarts.init(document.getElementById('c'));
+ch.setOption({
+ color:['#F2A900','#003DA5'],
+ tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+ legend:{data:['rk-tier','perm-tier'],top:8},
+ grid:{left:60,right:30,bottom:80,top:50},
+ xAxis:{type:'category',data:["2.0", "2.5", "3.1", "3.6", "4.2", "4.8", "5.3", "5.8", "6.4", "7.0", "7.5", "8.1", "8.6", "9.2", "9.7", "10.2", "10.8", "11.3", "11.9", "12.4"],name:'f2',axisLabel:{rotate:35,fontSize:11}},
+ yAxis:{type:'value',name:'cubierto',max:1,minInterval:1},
+ series:[
+  {name:'rk-tier',type:'bar',data:[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]},
+  {name:'perm-tier',type:'bar',data:[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]}
+ ]
+});
+</script></body></html>

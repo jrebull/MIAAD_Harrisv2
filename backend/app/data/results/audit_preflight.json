@@ -1,0 +1,129 @@
+{
+  "repo_note": "repo local = Harris2; scripts del ladder en backend/ (plano), resultados en backend/app/data/results/. La estructura idealizada del SuperPrompt (src/, results/, Figures/) se mapea: scripts->backend/collapse/, results->backend/app/data/results/, figuras HTML->MICAI/figures/collapse/, reporte->MICAI/output/.",
+  "paths": {
+    "decoder": "backend/app/core/decoder.py",
+    "problem": "backend/app/core/problem.py",
+    "hho_operators": "backend/app/core/hho.py",
+    "mohho_runner": "backend/app/core/mohho.py",
+    "instance_data": "backend/app/core/data.py (VISA_DATA, versionado, sin seed)",
+    "results_dir": "app/data/results"
+  },
+  "instance": {
+    "sha256": "9bcdaca740b55bd88aaf8acd977fb3893b351b57d2ed1d324be7575c1dde7a4a",
+    "num_groups": 105,
+    "total_demand": 1800000,
+    "total_visas": 140000,
+    "demand_over_supply_ratio": 12.8571,
+    "country_caps_distinct": [
+      25620
+    ],
+    "category_caps": {
+      "EB-1": 40040,
+      "EB-2": 40040,
+      "EB-3": 40040,
+      "EB-4": 9940,
+      "EB-5": 9940
+    }
+  },
+  "instance_regenerated_with_seed": false,
+  "budget_evaluations": 25000,
+  "budget_per_method": {
+    "nsga2_realcoded": 25000,
+    "mohho_realcoded": 25000,
+    "random_restart": 25000,
+    "perm_nsga2": 25000,
+    "perm_moead": 25000,
+    "discrete_mohho": 25000
+  },
+  "budget_identical_across_methods": true,
+  "hv_reference_point": [
+    10.0,
+    16.0,
+    20000.0
+  ],
+  "ref_point_identical_across_methods": true,
+  "ref_point_note": "Todos los runners importan compute_hypervolume de app.core.mohho con HV_REF_POINT compartido (10,16,20000).",
+  "seed_convention": {
+    "paper_visa_mohho": "42-71 (SEED_BASE=42, NUM_RUNS=30)",
+    "paper_visa_nsga_perm": "1-30",
+    "superprompt_requested": "seed=1 estandar",
+    "decision": "Para el ladder visa (Exp C) se usa un set unico 42-71 en los SEIS metodos para comparabilidad pareada limpia. Para benchmarks nuevos (Exp A: ZDT/DTLZ/TSP) se usa seed base 1 documentado."
+  },
+  "ladder_methods": {
+    "nsga2_realcoded": {
+      "script": "compare_nsga2.py",
+      "pop": 50,
+      "gen": 500,
+      "encoding": "SPV random-key R^105 + greedy",
+      "seeds": "1-30"
+    },
+    "mohho_realcoded": {
+      "script": "app/core/mohho.py",
+      "pop": 50,
+      "gen": 500,
+      "encoding": "SPV random-key R^105 + greedy",
+      "seeds": "42-71"
+    },
+    "random_restart": {
+      "script": "controls.py",
+      "pop": 50,
+      "gen": 500,
+      "encoding": "random keys + greedy + archive",
+      "seeds": "42-71"
+    },
+    "perm_nsga2": {
+      "script": "perm_nsga.py",
+      "pop": 50,
+      "gen": 500,
+      "encoding": "permutacion directa + greedy (OX+swap)",
+      "seeds": "1-30"
+    },
+    "perm_moead": {
+      "script": "perm_moead.py",
+      "pop": 50,
+      "gen": 500,
+      "encoding": "permutacion directa + greedy (OX+swap)",
+      "seeds": "1-30"
+    },
+    "discrete_mohho": {
+      "script": "discrete_mohho.py",
+      "pop": 50,
+      "gen": 500,
+      "encoding": "permutacion directa + greedy (energy-besiege)",
+      "seeds": "42-71"
+    }
+  },
+  "policy_front": {
+    "fig2_table4_fig10_method": "MOHHO clasico (real-coded SPV)",
+    "policy_front_size": 92,
+    "policy_front_hv_mean": 302379.28292461723,
+    "recommended_method_in_paper": "Discrete-MOHHO",
+    "recommended_front_size": 149,
+    "recommended_hv_mean": 316636.7174273803,
+    "INCONSISTENCY": "El frente de policy (Fig 2/Tabla 4/Fig 10, dominacion de FIFO, las 92 soluciones) se genera con MOHHO clasico, NO con el metodo recomendado Discrete-MOHHO (149 sols, +4.7% HV). El paper recomienda Discrete-MOHHO como el optimizer mas estable pero presenta el menu de politicas con un frente estrictamente dominado por el. Decision en el reporte final."
+  },
+  "objectives": {
+    "f1": {
+      "form": "sum((n_g - x_g) * w_g) / sum(n_g)",
+      "linear_in_x": true,
+      "reason": "denominador constante = demanda total; numerador lineal en x"
+    },
+    "f3": {
+      "form": "V - sum(x_g)",
+      "linear_in_x": true,
+      "reason": "lineal exacta en x"
+    },
+    "f2": {
+      "form": "max_c W_bar_c - min_c W_bar_c con W_bar_c = sum(x*w)/sum(x)",
+      "linear_in_x": false,
+      "reason": "cociente de medias ponderadas (fraccional) + convencion pais-en-cero (W_bar_c := w_max discontinua) + max/min. NO linealizable -> excluida del MILP, evaluada a posteriori"
+    }
+  },
+  "gitignore_finding": {
+    "issue": "MICAI/Prompts/ NO esta en .gitignore (solo Harris2prompt.md lo esta).",
+    "risk": "Los Prompts/ se pushearian. El SuperPrompt exige no pushearlos.",
+    "action": "Anadir 'MICAI/Prompts/' a .gitignore antes de cualquier commit/push."
+  },
+  "blocking_conditions": [],
+  "verdict": "PROCEED"
+}

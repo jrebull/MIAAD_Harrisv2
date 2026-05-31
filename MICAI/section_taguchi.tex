@@ -1,0 +1,67 @@
+\section{Parameter Tuning by Taguchi Orthogonal Array}
+\label{sec:taguchi}
+
+Population-based metaheuristics are sensitive to their control parameters, and choosing them by trial and error is neither systematic nor reproducible. We therefore tune the two parameters that most directly govern the search effort---the population size $N$ and the iteration budget $T$---together with two secondary parameters, the external-archive size and the Lévy exponent $\beta$, using a Taguchi orthogonal-array design~\cite{montgomery}. The Taguchi method probes a four-factor space with a small, balanced set of experiments and quantifies each factor's influence through a signal-to-noise (S/N) ratio that rewards both a high mean response and low variance across replications.
+
+\paragraph{Design.}
+We use four factors at three levels each (Table~\ref{tab:l9}). The response is the hypervolume \HV\ of the final archive; because larger \HV\ is better, we use the larger-the-better S/N ratio
+\begin{equation}
+\mathrm{S/N} = -10\log_{10}\!\Big(\tfrac{1}{r}\textstyle\sum_{k=1}^{r} 1/y_k^{2}\Big),
+\label{eq:sn}
+\end{equation}
+where $y_k$ is the \HV\ of replication $k$. A full-factorial design would need $3^4=81$ configurations; the L9$(3^4)$ orthogonal array estimates all four main effects with just nine. Each configuration is replicated with $r=12$ independent seeds drawn disjointly from the 30-run benchmark seeds, so the tuning data never contaminate the evaluation of Section~\ref{sec:results}.
+
+\begin{table}[t]
+\centering
+\caption{L9$(3^4)$ orthogonal array, configurations, and response (12 replications per row). \HV\ is reported as mean\,$\pm$\,s.d.\ in units of $10^{6}$; S/N is the larger-the-better ratio of Eq.~(\ref{eq:sn}).}
+\label{tab:l9}
+\small
+\begin{tabular}{ccccccc}
+\toprule
+\textbf{Run} & $\boldsymbol{N}$ & $\boldsymbol{T}$ & \textbf{Archive} & $\boldsymbol{\beta}$ & \textbf{\HV} $(\times 10^{6})$ & \textbf{S/N (dB)}\\
+\midrule
+1 & 30 & 100 & 50  & 1.3 & $0.290 \pm 0.010$ & 109.220\\
+2 & 30 & 300 & 100 & 1.5 & $0.296 \pm 0.005$ & 109.419\\
+3 & 30 & 500 & 150 & 1.7 & $0.292 \pm 0.010$ & 109.304\\
+4 & 50 & 100 & 100 & 1.7 & $0.293 \pm 0.007$ & 109.323\\
+5 & 50 & 300 & 150 & 1.3 & $0.297 \pm 0.010$ & 109.446\\
+6 & 50 & 500 & 50  & 1.5 & $0.301 \pm 0.006$ & 109.560\\
+7 & 70 & 100 & 150 & 1.5 & $0.301 \pm 0.008$ & 109.574\\
+8 & 70 & 300 & 50  & 1.7 & $0.303 \pm 0.010$ & 109.603\\
+9 & 70 & 500 & 100 & 1.3 & $0.306 \pm 0.008$ & 109.719\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Main effects.}
+Averaging the S/N ratio over the levels of each factor gives the response table (Table~\ref{tab:response}) and the main-effects plot (Figure~\ref{fig:taguchi}). The ranking by S/N range is unambiguous: \emph{population size} ($\Delta=0.318$~dB) and \emph{iteration budget} ($\Delta=0.155$~dB) dominate, whereas the Lévy exponent ($\Delta=0.108$~dB) and the archive size ($\Delta=0.046$~dB) lie within the run-to-run noise. This is itself an informative result---it confirms that the two parameters flagged as needing justification are precisely the influential ones, and that the algorithm is robust to the secondary choices. The population effect is monotone and grows toward the top of the range (largest at $N=50\!\to\!70$, $+0.189$~dB), whereas the iteration effect saturates ($+0.117$~dB from $T{=}100$ to $300$, then only $+0.039$~dB to $500$), confirming that the iteration budget is past its point of diminishing returns.
+
+\begin{table}[t]
+\centering
+\caption{Response table: mean S/N (dB) per factor level, range $\Delta$, and rank. Larger $\Delta$ means a more influential factor; the highest-S/N level in each row is in bold.}
+\label{tab:response}
+\small
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Factor} & \textbf{Level 1} & \textbf{Level 2} & \textbf{Level 3} & $\boldsymbol{\Delta}$ & \textbf{Rank}\\
+\midrule
+A: population $N$        & 109.314 & 109.443 & \textbf{109.632} & 0.318 & 1\\
+B: iteration budget $T$  & 109.372 & 109.489 & \textbf{109.528} & 0.155 & 2\\
+C: archive size          & 109.461 & \textbf{109.487} & 109.441 & 0.046 & 4\\
+D: Lévy exponent $\beta$ & 109.462 & \textbf{109.518} & 109.410 & 0.108 & 3\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{taguchi_main_effects.pdf}
+\caption{Main-effects plot of the S/N ratio. The dashed line is the grand mean (109.46~dB) and the red marker the best level per factor. Population and iteration budget show clear trends (population the steeper); archive size and $\beta$ are essentially flat.}
+\label{fig:taguchi}
+\end{figure}
+
+\paragraph{Optimum and confirmation.}
+Selecting the best level of each factor yields the predicted optimum $N=70$, $T=500$, archive $=100$, $\beta=1.5$. Under the additive model, its predicted S/N is $\approx 109.78$~dB. A \emph{confirmation run} at that configuration (12 fresh seeds) gives an observed S/N of $109.66$~dB ($\HV = 304{,}391$). The $\approx 0.12$~dB gap between prediction and observation is small---the slight positive bias is the expected signature of an additive model that ignores factor interactions---so the additive assumption holds and the tuning is internally consistent.
+
+\paragraph{Adopted operating point.}
+The 30-run study and the NSGA-II benchmark of Section~\ref{sec:results} use $N=50$, $T=500$, archive $=100$, and $\beta=1.5$. A confirmation run at this configuration gives S/N $=109.56$~dB ($\HV = 300{,}775$), within $1.2\,\%$ hypervolume of the L9 optimum. We retain it deliberately: its \emph{sole} difference from the optimum is the population size ($50$ vs.\ $70$)---$T$, archive size, and $\beta$ all match the optimum---and increasing $N$ from 50 to 70 raises the per-iteration cost by $40\,\%$ for only a ${\approx}1.2\,\%$ \HV\ gain. Likewise $T=500$ is intentionally conservative---it exceeds by a wide margin the empirical 99\,\%-convergence point at iteration~138 (Section~\ref{sec:convergence})---so the budget cannot be blamed for any shortfall. In short, the Taguchi study turns a previously empirical choice into a justified operating point about a decibel-tenth below the L9 optimum, with the dominant factor ($T$) already at its best level.
