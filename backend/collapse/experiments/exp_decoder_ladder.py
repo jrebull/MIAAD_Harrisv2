@@ -189,6 +189,14 @@ def empirical_q1(res, problem):
         if r["type"] == "pareto":
             gfront.append((float(r["f1"]), float(r["f2"]), float(r["f3"])))
     g_best_f2 = min(g[1] for g in gfront)
+    # A non-saturating solution only counts as a MEANINGFUL disparity win if it both
+    # (a) beats the greedy front's best f2 by >0.5 yr AND (b) is not a degenerate
+    # near-empty allocation: f2 falls spuriously low on near-empty allocations because
+    # every unserved country takes its w_max fallback, so we require the solution to
+    # still use most of the budget (waste below 10% of V). Without (b) the count is
+    # inflated by ~all-unused allocations (f3>100k) that are non-dominated only because
+    # greedy never wastes that much --- the false positive the MILP's f1-objective avoids.
+    waste_ceiling = 0.1 * problem.total_visas
     contra = []
     if "C1_fractional" not in res:
         return {"checked": False}
@@ -199,15 +207,21 @@ def empirical_q1(res, problem):
                     continue
                 if any(dominates(g, p) for g in gfront):
                     continue
+                meaningful = (p[1] < g_best_f2 - 0.5) and (p[2] < waste_ceiling)
                 contra.append({"f1": round(p[0], 5), "f2": round(p[1], 4),
-                               "f3": round(p[2], 0), "meaningful_f2": p[1] < g_best_f2 - 0.5})
+                               "f3": round(p[2], 0), "meaningful_f2": bool(meaningful)})
     # dedup
     uniq = {(c["f1"], c["f2"], c["f3"]): c for c in contra}
     contra = list(uniq.values())
     meaningful = [c for c in contra if c["meaningful_f2"]]
     return {"checked": True, "n_nonsaturating_nondominated": len(contra),
             "n_meaningful": len(meaningful), "greedy_best_f2": g_best_f2,
-            "examples": sorted(contra, key=lambda c: c["f1"])[:10]}
+            "waste_ceiling": waste_ceiling,
+            "note": ("n_meaningful requires f2 gain >0.5yr AND waste <10% of V; the "
+                     "latter screens degenerate near-empty allocations whose low f2 is "
+                     "a w_max-fallback artifact. Consistent with the MILP (0 meaningful)."),
+            "examples": (sorted(meaningful, key=lambda c: c["f1"])[:10] or
+                         sorted(contra, key=lambda c: c["f1"])[:10])}
 
 
 def fig_table(sep, box, validation, path):

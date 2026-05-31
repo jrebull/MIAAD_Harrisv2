@@ -82,6 +82,8 @@ def main():
 
     # maximum achievable utilization (min f3) -> solve with floor 0, then push
     x_full = solve_max_weight(problem, 0)
+    if x_full is None:
+        raise RuntimeError("MILP unsolved at util_floor=0 (CBC failure); cannot proceed.")
     max_util = sum(x_full.values())
     print(f"max weighted allocation uses {max_util}/{V} visas "
           f"(min achievable f3 in this objective = {V - max_util})")

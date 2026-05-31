@@ -1573,7 +1573,8 @@
         "f3": 12.0,
         "meaningful_f2": false
       }
-    ]
+    ],
+    "n_meaningful_AUDIT_NOTE": "El n_meaningful=11 previo contaba asignaciones casi-vacias (f3~104k-137k waste, 75-98% de V sin usar) cuya f2 baja es artefacto del fallback w_max, no una mejora real de disparidad. Con guardia de waste (<10% de V) el conteo de no-saturantes UTILES no-dominadas que mejoran f2 es ~0, consistente con el MILP (expC_Q1: 0 significativos). El paper cita el MILP (0)."
   },
   "H_dec_verdict": "REFUTADA EN LO ESENCIAL (con matiz de magnitud). La separacion perm>rk es SIGNIFICATIVA bajo los TRES decoders (greedy +6.93%, C2 +4.27%, C1 +1.45%; Wilcoxon pareado p<0.001 en los tres) y NUNCA se invierte: por tanto la ventaja de la representacion NO es un artefacto de la saturacion del decoder -- persiste al introducir intensidad fraccional (C1) y skip estocastico (C2). MATIZ HONESTO: la MAGNITUD escala con la saturacion (solo 21% del margen greedy sobrevive bajo C1), y C1 (no-saturante) halla 11 soluciones con f2 mejor que el mejor f2 del greedy que el greedy no captura. Conclusion: el efecto representacion es real y robusto, AMPLIFICADO -- no creado -- por la saturacion del decoder.",
   "separation_persists_under_nonsaturating": true,

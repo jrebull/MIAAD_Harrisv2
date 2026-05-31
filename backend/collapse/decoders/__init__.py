@@ -129,6 +129,8 @@ def check_feasibility(alloc, problem):
             viol.append(f"R: x_{gi} < 0 ({xg})")
         if xg > g["n"]:
             viol.append(f"R(demand): x_{gi}={xg} > n={g['n']}")
+        if float(xg) != int(xg):
+            viol.append(f"R(integrality): x_{gi}={xg} not integer")
         cu[g["country"]] = cu.get(g["country"], 0) + xg
         ku[g["category"]] = ku.get(g["category"], 0) + xg
         total += xg
