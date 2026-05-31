@@ -401,6 +401,33 @@ perm-NSGA-II                & GA       & $\mathbf{318{,}151 \pm 1{,}855}$ & 0.58
 \paragraph{Robustness to a search-space-collapse confound.}
 A skeptic could argue that the decoder's budget saturation collapses the search space so far that the optimizer is necessarily second-order. We tested this on three axes. \emph{Structure}: $50{,}000$ random permutations decode to $39{,}401$ distinct objective points (degeneration ratio $1.27$), and a principal-component analysis (PCA) places about $99\,\%$ of the front's variance in two components---the first component alone captures only $0.81$--$0.91$, so the effective problem is \emph{near-mono-objective}---one wide axis ($f_2$, $\sim$$39\times$ wider than $f_1$ across these random decodes) with a genuine but narrow second axis, a deliberately weak multi-objective lead case. \emph{Decoder}: re-running the full ladder on two \emph{non-saturating} decoders (a fractional-intensity and a stochastic-skip decoder, both feasible by construction) keeps the permutation tier significantly above the random-key tier under \emph{all three} decoders (paired Wilcoxon $p<10^{-3}$) and never inverts it; the margin shrinks from $6.9\,\%$ (greedy) to $4.3\,\%$ and $1.4\,\%$, so saturation \emph{amplifies}---it does not create---the effect, and an exact $(f_1,f_3)$ mixed-integer linear program (MILP) front (with $f_2$ a posteriori) exposes no practically meaningful non-saturating solution the greedy front misses. \emph{Metric}: the GA operators' near-identity holds on the full decoded \emph{allocation}, not just the order (an SBX step barely perturbs the decoded vector---consistent with its order near-identity $\tau=0.99$---whereas an HHO step moves it substantially), and the per-run tier ranking is reference-point-robust (above)---though on the \emph{combined} fronts the strict tier softens under reference-free metrics (IGD$^{+}$, additive $\epsilon$), which converge to a near-common reference set, so the tier is a per-run phenomenon, and the hypervolume that exhibits it is dominated by the $f_2$ axis---the only objective with a wide range, $f_1$ being more than an order of magnitude narrower and $f_3$ saturating. The confound thus \emph{bounds} rather than overturns the claim: the effect is real and robust, modest on this saturation-amplified, $f_2$-dominated instance, with the general law resting on the four structures below.
 
+\subsection{Isolating the two conditions: a controlled $2\times2$}
+\label{sec:twoconditions}
+The seven-method ladder establishes the two-condition rule by observation; we now isolate each condition with a controlled $2\times2$ on a single real-coded random-key skeleton---same greedy decoder, instance, $25{,}000$-evaluation budget, and 30 seeds---varying only the \emph{operator} (order-changing HHO moves with mutation, $\tau\!\approx\!0$, versus near-identity SBX, $\tau\!=\!0.99$) and the \emph{selection} (diversity-preserving non-dominated sorting versus dominance-gated acceptance). Table~\ref{tab:factorial2x2} shows that \textbf{only the cell satisfying both conditions beats blind random restart} ($315{,}730$ versus $310{,}214$~\HV, $+1.78\,\%$, Mann--Whitney $p=5.5\times10^{-5}$, $A_{12}=0.79$); dropping \emph{either} condition falls below blind sampling. Gated acceptance freezes the population (only $0.9\,\%$ of individuals move per iteration), and near-identity SBX leaves the decoded order almost unchanged even when the population does move. Crucially, the two conditions are \emph{synergistic, not additive}: a two-factor analysis of variance finds a significant operator$\times$selection interaction ($\eta^2=0.098$, $F=16.7$, $p=8.0\times10^{-5}$), alongside main effects of $\eta^2=0.076$ (operator) and $\eta^2=0.145$ (selection). Neither condition alone lifts performance above blind sampling---both single-condition cells lose by $1.4$--$2.0\,\%$---so the gain is genuinely a joint effect of changing the decoded order \emph{and} preserving diversity. Figure~\ref{fig:mech2x2} maps each cell onto its operator $\tau$ and realized population movement, isolating the winning cell in the low-$\tau$, high-movement corner.
+
+\begin{table}[t]
+\centering
+\caption{Controlled $2\times2$ isolating the two conditions on one real-coded random-key skeleton (visa decoder, 30 seeds, $25{,}000$ evaluations). Only the cell that both changes the decoded order and preserves diversity beats blind random restart ($310{,}214$~\HV); the operator$\times$selection interaction is significant. Best in bold.}
+\label{tab:factorial2x2}
+\small
+\begin{tabular}{llrrr}
+\toprule
+\textbf{Operator} & \textbf{Selection} & \textbf{Mean \HV} & \textbf{vs.\ random} & \textbf{$A_{12}$}\\
+\midrule
+order-changing ($\tau\!\approx\!0$) & diversity (NDS) & $\mathbf{315{,}730}$ & $\mathbf{+1.78\,\%}$ & $\mathbf{0.79}$\\
+order-changing ($\tau\!\approx\!0$) & gated            & $304{,}126$ & $-1.96\,\%$ & $0.24$\\
+near-identity ($\tau\!=\!0.99$)     & diversity (NDS) & $305{,}892$ & $-1.39\,\%$ & $0.34$\\
+near-identity ($\tau\!=\!0.99$)     & gated            & $304{,}760$ & $-1.76\,\%$ & $0.21$\\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.68\textwidth]{mechanism_2x2.pdf}
+\caption{Mechanism of the two conditions across the $2\times2$ cells: operator order-preservation $\tau$ (x) versus realized population movement per iteration (y), bubble height encoding \HV. Only the order-changing, diversity-preserving cell occupies the favorable low-$\tau$, high-movement corner and beats blind sampling.}
+\label{fig:mech2x2}
+\end{figure}
+
 \subsection{Generalization across instances}
 \label{sec:generalization}
 

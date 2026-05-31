@@ -1,5 +1,5 @@
 {
-  "n_claims_checked": 43,
+  "n_claims_checked": 55,
   "n_mismatch": 0,
   "rows": [
     {
@@ -298,6 +298,90 @@
     },
     {
       "name": "hv_tau_correlation_weak",
+      "status": "OK",
+      "paper": true,
+      "json": true,
+      "delta": 0.0
+    },
+    {
+      "name": "c2x2_order_nds_hv",
+      "status": "OK",
+      "paper": 315730,
+      "json": 315730.4,
+      "delta": 0.40000000002328306
+    },
+    {
+      "name": "c2x2_order_gated_hv",
+      "status": "OK",
+      "paper": 304126,
+      "json": 304126.0,
+      "delta": 0.0
+    },
+    {
+      "name": "c2x2_near_nds_hv",
+      "status": "OK",
+      "paper": 305892,
+      "json": 305892.3,
+      "delta": 0.29999999998835847
+    },
+    {
+      "name": "c2x2_near_gated_hv",
+      "status": "OK",
+      "paper": 304760,
+      "json": 304760.0,
+      "delta": 0.0
+    },
+    {
+      "name": "c2x2_random_hv",
+      "status": "OK",
+      "paper": 310214,
+      "json": 310214.2,
+      "delta": 0.20000000001164153
+    },
+    {
+      "name": "c2x2_order_nds_vs_random_pct",
+      "status": "OK",
+      "paper": 1.78,
+      "json": 1.78,
+      "delta": 0.0
+    },
+    {
+      "name": "c2x2_order_nds_A12",
+      "status": "OK",
+      "paper": 0.791,
+      "json": 0.791,
+      "delta": 0.0
+    },
+    {
+      "name": "c2x2_only_order_nds_wins",
+      "status": "OK",
+      "paper": true,
+      "json": true,
+      "delta": 0.0
+    },
+    {
+      "name": "c2x2_eta2_operator",
+      "status": "OK",
+      "paper": 0.076,
+      "json": 0.0758,
+      "delta": -0.00019999999999999185
+    },
+    {
+      "name": "c2x2_eta2_selection",
+      "status": "OK",
+      "paper": 0.145,
+      "json": 0.1452,
+      "delta": 0.00020000000000000573
+    },
+    {
+      "name": "c2x2_eta2_interaction",
+      "status": "OK",
+      "paper": 0.098,
+      "json": 0.0982,
+      "delta": 0.00019999999999999185
+    },
+    {
+      "name": "c2x2_interaction_significant",
       "status": "OK",
       "paper": true,
       "json": true,
