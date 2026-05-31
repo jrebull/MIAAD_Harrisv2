@@ -34,3 +34,12 @@ CLAUDE.md
 Harris2prompt.md
 Prompts/
 MICAI/Prompts/
+
+# Large report build artifacts (regenerable from LaTeX/Overleaf)
+reporte_final/*.pdf
+reporte_final/*.zip
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.synctex.gz
