@@ -43,3 +43,6 @@ reporte_final/*.zip
 *.log
 *.out
 *.synctex.gz
+
+# stray large archive
+backend.zip

@@ -307,5 +307,5 @@
   "Q1_contraejemplos_significativos": [],
   "claim_holds": false,
   "claim_interpretation": "claim_holds=true: TODAS las soluciones no-dominadas saturan (slack_V=0). claim_holds=false: existen optimos no-saturantes no-dominados respecto al frente greedy. MATIZ DE MAGNITUD: distinguir contraejemplos en el eje f1 degenerado (mejora < 1e-3, sin sentido practico) de los PRACTICAMENTE significativos (mejora de f2 > 0.5 anios a costa de waste). Ver Q1_n_contraejemplos_significativos.",
-  "elapsed_s": 0.31207704544067383
+  "elapsed_s": 1.1269049644470215
 }
