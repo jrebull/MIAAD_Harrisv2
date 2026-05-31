@@ -1,0 +1,22 @@
+<!doctype html><html><head><meta charset='utf-8'><title>HV vs order-preservation tau</title>
+<script src='https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js'></script>
+<style>body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:24px}
+h2{color:#003DA5;margin:0 0 4px}.sub{color:#555;font-size:13px;max-width:920px;margin:0 0 14px}#c{width:980px;height:520px}</style>
+</head><body><h2>Hypervolume vs operator order-preservation (Kendall tau)</h2>
+<p class='sub'>One point per method (green = beats blind random restart, red = loses). NSGA-II (tau=0.99 near-identity) loses; the competent real-coded MO-HHO (tau&lt;0, NDS selection) and the permutation methods beat random. random restart is the dashed reference. The scalar HV-tau Spearman is weak (rho=-0.21, p=0.69): tau is necessary but not sufficient---diversity-preserving selection is the second condition.</p>
+<div id='c'></div><script>
+var names=["nsga2_realcoded", "naive_mohho", "competent_mohho", "perm_nsga2", "perm_moead", "discrete_mohho"];
+var ch=echarts.init(document.getElementById('c'));
+ch.setOption({
+ grid:{left:70,right:30,bottom:55,top:30},
+ tooltip:{formatter:function(p){return names[p.dataIndex]+'<br>tau='+p.value[0].toFixed(3)+'<br>HV='+p.value[1].toLocaleString()}},
+ xAxis:{name:'order-preservation tau (Kendall)',type:'value',min:-0.6,max:1.05,nameLocation:'middle',nameGap:32},
+ yAxis:{name:'mean hypervolume',type:'value',min:288000,max:322000},
+ series:[
+  {type:'scatter',symbolSize:20,data:[{value:[0.990,293367],name:'nsga2_realcoded',itemStyle:{color:'#b00020'}},{value:[-0.154,302756],name:'naive_mohho',itemStyle:{color:'#b00020'}},{value:[-0.331,316347],name:'competent_mohho',itemStyle:{color:'#1a7a3a'}},{value:[0.284,318151],name:'perm_nsga2',itemStyle:{color:'#1a7a3a'}},{value:[0.284,314846],name:'perm_moead',itemStyle:{color:'#1a7a3a'}},{value:[0.284,316792],name:'discrete_mohho',itemStyle:{color:'#1a7a3a'}}],
+    label:{show:true,formatter:function(d){return names[d.dataIndex]},position:'right',fontSize:10,color:'#333'}},
+  {type:'line',markLine:{silent:true,symbol:'none',lineStyle:{type:'dashed',color:'#9AA0A6'},
+    data:[{yAxis:310214,label:{formatter:'random restart',position:'insideEndTop'}}]},data:[]}
+ ]
+});
+</script></body></html>

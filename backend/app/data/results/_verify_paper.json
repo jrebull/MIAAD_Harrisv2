@@ -1,5 +1,5 @@
 {
-  "n_claims_checked": 35,
+  "n_claims_checked": 43,
   "n_mismatch": 0,
   "rows": [
     {
@@ -246,6 +246,62 @@
       "paper": 5.77,
       "json": 5.766666666666667,
       "delta": -0.0033333333333329662
+    },
+    {
+      "name": "competent_hv_mean",
+      "status": "OK",
+      "paper": 316347,
+      "json": 316347.1,
+      "delta": 0.09999999997671694
+    },
+    {
+      "name": "competent_vs_random_pct",
+      "status": "OK",
+      "paper": 2.0,
+      "json": 1.98,
+      "delta": -0.020000000000000018
+    },
+    {
+      "name": "competent_beats_random",
+      "status": "OK",
+      "paper": true,
+      "json": true,
+      "delta": 0.0
+    },
+    {
+      "name": "naive_beats_random",
+      "status": "OK",
+      "paper": false,
+      "json": false,
+      "delta": 0.0
+    },
+    {
+      "name": "competent_zdt2_validation",
+      "status": "OK",
+      "paper": 0.99,
+      "json": 0.9956,
+      "delta": 0.005600000000000049
+    },
+    {
+      "name": "tau_nsga2",
+      "status": "OK",
+      "paper": 0.99,
+      "json": 0.9898,
+      "delta": -0.00019999999999997797
+    },
+    {
+      "name": "hv_tau_spearman_rho",
+      "status": "OK",
+      "paper": -0.21,
+      "json": -0.213,
+      "delta": -0.0030000000000000027
+    },
+    {
+      "name": "hv_tau_correlation_weak",
+      "status": "OK",
+      "paper": true,
+      "json": true,
+      "delta": 0.0
     }
   ],
   "tex_inventory_count": 0,

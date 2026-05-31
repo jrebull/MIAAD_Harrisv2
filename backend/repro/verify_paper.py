@@ -82,6 +82,19 @@ CLAIMS = [
     ("rank_random_visa", 4.20, "omnibus_visa_paired.json", "avg_rank.Random restart", 0.01, "abs"),
     ("rank_mohho_visa", 4.67, "omnibus_visa_paired.json", "avg_rank.MOHHO", 0.01, "abs"),
     ("rank_nsga2_visa", 5.77, "omnibus_visa_paired.json", "avg_rank.NSGA-II", 0.01, "abs"),
+    # ---- v5: competent MO-HHO + order-preservation ----
+    ("competent_hv_mean", 316347, "ladder_v5.json", "methods.competent_mohho.hv_mean", 0.01, "rel"),
+    ("competent_vs_random_pct", 2.0, "ladder_v5.json",
+     "key_finding.competent_beats_random_pct", 0.6, "abs"),
+    ("competent_beats_random", True, "ladder_v5.json",
+     "key_finding.competent_beats_random", 0, "exact"),
+    ("naive_beats_random", False, "ladder_v5.json",
+     "key_finding.naive_beats_random", 0, "exact"),
+    ("competent_zdt2_validation", 0.99, "competent_mohho_validation.json",
+     "configs.[3].per_benchmark.ZDT2.hv_over_true", 0.03, "abs"),
+    ("tau_nsga2", 0.99, "tau_by_method.json", "methods.nsga2_realcoded.tau_mean", 0.02, "abs"),
+    ("hv_tau_spearman_rho", -0.21, "hv_vs_tau.json", "spearman_hv_vs_tau.rho", 0.05, "abs"),
+    ("hv_tau_correlation_weak", True, "hv_vs_tau.json", "correlation_is_weak", 0, "exact"),
 ]
 
 
