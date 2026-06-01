@@ -93,7 +93,7 @@ def fig_country_impact():
     countries = sorted(moh_c, key=lambda c: moh_c[c] - fifo_c.get(c, 0))
     delta = [moh_c[c] - fifo_c.get(c, 0) for c in countries]
     y = np.arange(len(countries))
-    colors = [GREEN if d >= 0 else RED for d in delta]
+    colors = [BLUE if d >= 0 else RED for d in delta]
     fig, ax = plt.subplots(figsize=(5.4, 6.0))
     ax.barh(y, delta, color=colors, alpha=0.85, edgecolor="k", linewidth=0.3)
     ax.axvline(0, color="k", lw=0.8)
