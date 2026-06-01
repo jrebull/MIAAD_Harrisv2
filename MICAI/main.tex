@@ -354,25 +354,6 @@ The three matched paradigms above share the OX${}+{}$swap operators, so that com
 
 \begin{table}[t]
 \centering
-\caption{Operator${}\times{}$architecture factorial on the visa problem: mean hypervolume (30 seeds) for three permutation operator sets crossed with three selection architectures, all under the matched budget. A two-way decomposition gives $\eta^2=5.5\,\%$ (operator), $13.4\,\%$ (architecture), $2.9\,\%$ (interaction), $78.3\,\%$ (seed noise): both design axes are second-order once the representation is matched.}
-\label{tab:factorial}
-\small
-\begin{tabular}{lccc}
-\toprule
-\textbf{Operator set} & \textbf{perm-NSGA-II} & \textbf{perm-MOEA/D} & \textbf{Discrete-MOHHO}\\
-\midrule
-OX${}+{}$swap        & 317{,}237 & 313{,}608 & 317{,}569\\
-PMX${}+{}$insertion  & 311{,}284 & 309{,}316 & 317{,}715\\
-CX${}+{}$inversion   & 309{,}702 & 309{,}248 & 317{,}048\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\paragraph{An empirical regularity.}
-The ladder (Figure~\ref{fig:ladder}) makes the pattern unmistakable: performance is governed by whether the search is \emph{non-degenerate}---operators that change the decoded order together with selection that preserves diversity---not by the encoding (random-key versus permutation) or the metaheuristic family. That encoding--operator mismatch can hurt search is known in principle since random keys were introduced~\cite{bean}; our contribution is the \emph{controlled, quantified} demonstration on a real constrained problem---including the counterintuitive result that \emph{both} real-coded searches (a tuned NSGA-II and the MOHHO swarm) fall below blind sampling---and the decomposition of performance into decoder, representation, and family. That three \emph{distinct} paradigms (swarm, decomposition, dominance/GA) converge to within about $1\,\%$ once the representation is matched, all far above the random-key methods, is strong evidence that the family is second-order here. We are precise about what this shows: the two conditions (an order-changing operator and diversity-preserving selection) are first-order---a competent random-key swarm satisfies both and joins the top tier, so the encoding itself is not the divider---whereas \emph{within} a matched representation both the operator set and the selection/replacement architecture (Pareto sorting, scalarized decomposition, or energy-driven besiege) are second-order, the factorial of Table~\ref{tab:factorial} attributing only $5.5\,\%$ and $13.4\,\%$ of the variance to them. An omnibus test across the six methods on a common 30-seed set---a paired Friedman test with a Nemenyi post-hoc~\cite{demsar}, identical to the analysis of Section~\ref{sec:secondproblem}---rejects equal performance decisively ($\chi^2=112.6$, $p\approx1.2\times10^{-22}$, critical difference $1.38$), and the mean ranks split into two tiers: the three permutation-native methods (ranks $1.6$--$2.5$) above the three random-key methods ($4.2$--$5.8$), with NSGA-II worst and every permutation-native method significantly above random restart. Finer within-tier separations fall within the Nemenyi critical difference, consistent with the ``within about $1\,\%$'' clustering. The ranking is also robust to the hypervolume reference point: across five reference points random restart outranks both real-coded searches throughout, and the strict permutation/random-key tier split holds under four of the five, breaking only at the tightest. We frame this as an empirical regularity for this problem, not a general law: all instances here share one structural skeleton---which the structurally distinct problems of Section~\ref{sec:secondproblem} directly address.
-
-\begin{table}[t]
-\centering
 \caption{The method ladder: 30 runs each, identical greedy decoder and $25{,}000$-evaluation budget. Top block: random-key encoding (including a \emph{competent} MO-HHO that reaches the top tier); bottom block: permutation-native. A competent random-key method matches the permutation tier, so the encoding is not the performance divider---non-degenerate search is. Best per column in bold; ``perm-'' abbreviates ``permutation-''.}
 \label{tab:ladder}
 \small
@@ -391,6 +372,25 @@ perm-NSGA-II                & GA       & $\mathbf{318{,}151 \pm 1{,}855}$ & \tex
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{table}[t]
+\centering
+\caption{Operator${}\times{}$architecture factorial on the visa problem: mean hypervolume (30 seeds) for three permutation operator sets crossed with three selection architectures, all under the matched budget. A two-way decomposition gives $\eta^2=5.5\,\%$ (operator), $13.4\,\%$ (architecture), $2.9\,\%$ (interaction), $78.3\,\%$ (seed noise): both design axes are second-order once the representation is matched.}
+\label{tab:factorial}
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Operator set} & \textbf{perm-NSGA-II} & \textbf{perm-MOEA/D} & \textbf{Discrete-MOHHO}\\
+\midrule
+OX${}+{}$swap        & 317{,}237 & 313{,}608 & 317{,}569\\
+PMX${}+{}$insertion  & 311{,}284 & 309{,}316 & 317{,}715\\
+CX${}+{}$inversion   & 309{,}702 & 309{,}248 & 317{,}048\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{An empirical regularity.}
+The ladder (Figure~\ref{fig:ladder}) makes the pattern unmistakable: performance is governed by whether the search is \emph{non-degenerate}---operators that change the decoded order together with selection that preserves diversity---not by the encoding (random-key versus permutation) or the metaheuristic family. That encoding--operator mismatch can hurt search is known in principle since random keys were introduced~\cite{bean}; our contribution is the \emph{controlled, quantified} demonstration on a real constrained problem---including the counterintuitive result that \emph{both} real-coded searches (a tuned NSGA-II and the MOHHO swarm) fall below blind sampling---and the decomposition of performance into decoder, representation, and family. That three \emph{distinct} paradigms (swarm, decomposition, dominance/GA) converge to within about $1\,\%$ once the representation is matched, all far above the random-key methods, is strong evidence that the family is second-order here. We are precise about what this shows: the two conditions (an order-changing operator and diversity-preserving selection) are first-order---a competent random-key swarm satisfies both and joins the top tier, so the encoding itself is not the divider---whereas \emph{within} a matched representation both the operator set and the selection/replacement architecture (Pareto sorting, scalarized decomposition, or energy-driven besiege) are second-order, the factorial of Table~\ref{tab:factorial} attributing only $5.5\,\%$ and $13.4\,\%$ of the variance to them. An omnibus test across the six methods on a common 30-seed set---a paired Friedman test with a Nemenyi post-hoc~\cite{demsar}, identical to the analysis of Section~\ref{sec:secondproblem}---rejects equal performance decisively ($\chi^2=112.6$, $p\approx1.2\times10^{-22}$, critical difference $1.38$), and the mean ranks split into two tiers: the three permutation-native methods (ranks $1.6$--$2.5$) above the three random-key methods ($4.2$--$5.8$), with NSGA-II worst and every permutation-native method significantly above random restart. Finer within-tier separations fall within the Nemenyi critical difference, consistent with the ``within about $1\,\%$'' clustering. The ranking is also robust to the hypervolume reference point: across five reference points random restart outranks both real-coded searches throughout, and the strict permutation/random-key tier split holds under four of the five, breaking only at the tightest. We frame this as an empirical regularity for this problem, not a general law: all instances here share one structural skeleton---which the structurally distinct problems of Section~\ref{sec:secondproblem} directly address.
 
 \begin{figure}[t]
 \centering

@@ -205,3 +205,11 @@ Pase de gramatica/puntuacion/ingles americano (respetando convenciones LNCS: em-
 - Frase duplicada verbatim en la seccion del ladder (artefacto del reencuadre de Discrete-MOHHO): "Discrete-MOHHO is therefore not the overall champion but a mechanism check...". Aparecia 2 veces; se quito la segunda (parrafo "empirical regularity"), conservando la primera. No se pierde ningun claim.
 
 Efecto: `main_submission` baja 28->27 pp (la frase estaba cerca de un borde). Invariante: **28 / 27 / 18 / 18**. A4, 0 undefined/overfull, Token-not-allowed 0; firewall 0/72; reproduce_fast overall_ok=true, anonymous_zip_hits=0.
+
+## Auditoria de figuras/tablas
+
+Chequeos (dimension LNCS): archivos de figura existen (14 en figures/, via \graphicspath), labels<->refs resuelven sin huerfanos ni duplicados, captions correctos (tablas arriba, figuras abajo), floats [t] (ningun [h]), orden de mencion.
+
+Unico hallazgo, solo en la full: la Tabla del ladder (tab:ladder) se citaba antes que la del factorial (tab:factorial) pero su entorno estaba definido despues -> Tabla 5 citada antes que Tabla 4 (no ascendente). La reducida de envio ya estaba conforme.
+
+Fix: se movio el bloque \begin{table} de tab:ladder a antes del de tab:factorial en main.tex y main_submission.tex, renumerando ladder->Tabla 4 y factorial->Tabla 5 (ascendente segun cita). Sin cambio de paginas (28/27), 0 undefined refs/cites, 0 Overfull; firewall 0/72; reproduce_fast overall_ok=true, anonymous_zip_hits=0. La reducida no se toco.
