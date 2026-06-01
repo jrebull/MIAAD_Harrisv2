@@ -1,5 +1,5 @@
 {
-  "n_claims_checked": 61,
+  "n_claims_checked": 66,
   "n_mismatch": 0,
   "rows": [
     {
@@ -54,9 +54,9 @@
     {
       "name": "hv_mohho_mean",
       "status": "OK",
-      "paper": 302379,
-      "json": 302379.28292461723,
-      "delta": 0.2829246172332205
+      "paper": 302756,
+      "json": 302756.0893907783,
+      "delta": 0.0893907782738097
     },
     {
       "name": "hv_nsga2_mean",
@@ -68,58 +68,93 @@
     {
       "name": "hv_random_restart",
       "status": "OK",
-      "paper": 309821,
-      "json": 309821.2001914635,
-      "delta": 0.2001914635184221
+      "paper": 310214,
+      "json": 310214.2,
+      "delta": 0.20000000001164153
     },
     {
       "name": "hv_discrete_mohho",
       "status": "OK",
-      "paper": 316637,
-      "json": 316636.7174273803,
-      "delta": -0.282572619675193
+      "paper": 316792,
+      "json": 316792.3,
+      "delta": 0.29999999998835847
     },
     {
       "name": "hv_perm_nsga2",
       "status": "OK",
       "paper": 318151,
-      "json": 318151.3280846883,
-      "delta": 0.3280846882844344
+      "json": 318151.3,
+      "delta": 0.29999999998835847
     },
     {
       "name": "hv_perm_moead",
       "status": "OK",
       "paper": 314846,
-      "json": 314846.2364806625,
-      "delta": 0.23648066248279065
+      "json": 314846.2,
+      "delta": 0.20000000001164153
     },
     {
       "name": "combined_hv_discrete",
       "status": "OK",
-      "paper": 321354,
-      "json": 321354.0831622783,
-      "delta": 0.08316227828618139
+      "paper": 321408,
+      "json": 321408.2,
+      "delta": 0.20000000001164153
     },
     {
       "name": "combined_hv_perm_nsga2",
       "status": "OK",
       "paper": 321935,
-      "json": 321935.27431078785,
-      "delta": 0.2743107878486626
+      "json": 321935.3,
+      "delta": 0.29999999998835847
     },
     {
       "name": "combined_size_discrete",
       "status": "OK",
-      "paper": 149,
-      "json": 149,
+      "paper": 137,
+      "json": 137,
       "delta": 0.0
     },
     {
-      "name": "discrete_vs_mohho_p",
+      "name": "mohho_igd_1to30",
       "status": "OK",
-      "paper": 9.3e-10,
-      "json": 9.313225746154785e-10,
-      "delta": 1.3225746154785218e-12
+      "paper": 0.0212,
+      "json": 0.02116304167034433,
+      "delta": -3.6958329655670946e-05
+    },
+    {
+      "name": "nsga_igd_1to30",
+      "status": "OK",
+      "paper": 0.0071,
+      "json": 0.00714834624818486,
+      "delta": 4.8346248184859275e-05
+    },
+    {
+      "name": "mohho_cv_1to30",
+      "status": "OK",
+      "paper": 2.36,
+      "json": 2.358,
+      "delta": -0.0019999999999997797
+    },
+    {
+      "name": "discrete_cv_1to30",
+      "status": "OK",
+      "paper": 0.71,
+      "json": 0.713,
+      "delta": 0.0030000000000000027
+    },
+    {
+      "name": "perm_nsga_cv_1to30",
+      "status": "OK",
+      "paper": 0.58,
+      "json": 0.583,
+      "delta": 0.0030000000000000027
+    },
+    {
+      "name": "canonical_levy_fematched_1to30",
+      "status": "OK",
+      "paper": 309180,
+      "json": 309179.82171537785,
+      "delta": -0.178284622146748
     },
     {
       "name": "omnibus_chi2",
@@ -166,8 +201,8 @@
     {
       "name": "combined_pareto_size",
       "status": "OK",
-      "paper": 92,
-      "json": 92,
+      "paper": 104,
+      "json": 104,
       "delta": 0.0
     },
     {

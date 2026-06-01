@@ -30,7 +30,7 @@ from compare_nsga2 import nondominated
 
 RESULTS = Path("app/data/results")
 POP, GEN, ARCH = 50, 500, 100
-SEEDS = list(range(42, 72))
+SEEDS = list(range(1, 31))
 
 
 def eval_perm(perm, problem):

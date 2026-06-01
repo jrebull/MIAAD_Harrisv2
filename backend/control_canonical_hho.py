@@ -29,11 +29,11 @@ from app.core.config import NUM_GROUPS, POPULATION_SIZE, MAX_ITERATIONS, ARCHIVE
 from app.core.problem import VisaProblem
 
 RESULTS = Path("app/data/results")
-SEEDS = list(range(42, 72))
+SEEDS = list(range(1, 31))
 POP, ARC = POPULATION_SIZE, ARCHIVE_SIZE
 BUDGET = POP * MAX_ITERATIONS + POP        # 25,050 -- the common FE budget
-RANDOM_RESTART_HV = 309_821
-FE_FAIR_MOHHO_HV = 302_379                  # single-trial MOHHO (paper headline)
+# random_restart_hv y fe_fair_mohho_hv se DERIVAN en main() de controls.json /
+# summary.json (canonicos, seeds 1-30) -> cero hardcode, sin drift de bloque.
 
 _orig_eval = mh.evaluate_hawk
 
@@ -78,8 +78,11 @@ def run_canonical(problem, seed, max_iter, fe_cap=None):
 def main():
     p = VisaProblem()
     mh._greedy_select_levy = canonical_levy        # canonical 2-point dive
-    out = {"budget": BUDGET, "random_restart_hv": RANDOM_RESTART_HV,
-           "fe_fair_mohho_hv": FE_FAIR_MOHHO_HV, "seeds": SEEDS}
+    # constantes derivadas de los JSON canonicos (seeds 1-30), sin hardcode
+    random_restart_hv = json.load(open(RESULTS / "controls.json"))["random_restart"]["stats"]["mean"]
+    fe_fair_mohho_hv = json.load(open(RESULTS / "summary.json"))["hv_stats"]["mean"]
+    out = {"budget": BUDGET, "random_restart_hv": round(random_restart_hv, 1),
+           "fe_fair_mohho_hv": round(fe_fair_mohho_hv, 1), "seeds": SEEDS}
 
     # (1) native 500-iter schedule (over-budget) and (2) FE-capped to 25,050
     for tag, max_iter, cap in [("native500", MAX_ITERATIONS, None),
@@ -106,7 +109,7 @@ def main():
               f"(Wilcoxon p[canon>rand]={pgr:.3f}, better {out[tag]['canonical_better_than_random_count']}/30)")
 
     json.dump(out, open(RESULTS / "control_canonical_hho.json", "w"), indent=2)
-    print("\nrandom restart HV = 309,821 ; FE-fair single-trial MOHHO = 302,379")
+    print(f"\nrandom restart HV = {random_restart_hv:,.0f} ; FE-fair single-trial MOHHO = {fe_fair_mohho_hv:,.0f}")
     print("saved control_canonical_hho.json")
 
 

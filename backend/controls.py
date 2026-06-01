@@ -30,7 +30,7 @@ from compare_nsga2 import (run_nsga2, fast_nondominated_sort, sbx, poly_mutate,
 from app.core.mohho import crowding_distance
 
 RESULTS = Path("app/data/results")
-MOHHO_SEEDS = list(range(42, 72))           # same seeds as the main MOHHO study
+MOHHO_SEEDS = list(range(1, 31))            # same seeds as the main MOHHO study
 POP, GEN = POPULATION_SIZE, MAX_ITERATIONS  # 50, 500
 BUDGET = POP * GEN                           # matched function-evaluation budget
 

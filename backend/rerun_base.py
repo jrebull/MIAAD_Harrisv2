@@ -14,7 +14,7 @@ from app.core.mohho import run_mohho, compute_hypervolume, HV_REF_POINT
 from compare_nsga2 import run_nsga2, nondominated
 
 R = Path("app/data/results")
-MO_SEEDS = list(range(42, 72))
+MO_SEEDS = list(range(1, 31))
 NS_SEEDS = list(range(1, 31))
 POP, IT, ARC = POPULATION_SIZE, MAX_ITERATIONS, ARCHIVE_SIZE
 
@@ -85,7 +85,7 @@ def main():
     # sensitivity: archive size (seed 42), convergence iters, f1 range
     arch = {}
     for a in (100, 200, 500):
-        _, fits, _ = run_mohho(p, seed=42, pop_size=POP, max_iter=IT, archive_size=a)
+        _, fits, _ = run_mohho(p, seed=1, pop_size=POP, max_iter=IT, archive_size=a)
         arch[f"archive_{a}"] = {"solutions": len(fits), "hv": round(compute_hypervolume(fits), 2),
                                 "saturated": len(fits) >= a}
     hv_mean_curve = H.mean(axis=0)
