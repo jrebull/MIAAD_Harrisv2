@@ -173,4 +173,20 @@ Efecto esperado para revision: el paper vende primero la contribucion metodologi
 
 Efecto en paginas: el titulo mas largo empujo `main_submission.pdf` de 27 a 28 pp. Ningun numero ni claim cambio (firewall 0/72, inventario .tex 0 tokens).
 
-Invariante de paginas actualizado: **28 / 28 / 18 / 18** (main / main_submission / main_reducida / main_reducida_submission), A4 real (595.276x841.89 pt), 0 undefined, 0 overfull, 0 citas/refs indefinidas. El envio a MICAI sigue siendo la reducida (18 pp), bajo el limite de 20; la full anonima (28 pp) ya excede ese limite y no es enviable tal cual. Los 4 `Feasibility-*.pdf` se refrescaron a 28/28/18/18.
+Invariante de paginas actualizado: **28 / 28 / 18 / 18** (main / main_submission / main_reducida / main_reducida_submission), A4 real (595.276x841.89 pt), 0 undefined, 0 overfull, 0 citas/refs indefinidas. El envio a MICAI sigue siendo la reducida (18 pp), bajo el limite de 20; la full anonima (28 pp) ya excede ese limite y no es enviable tal cual. Los 4 `Feasibility-*.pdf` se refrescaron a 28/28/18/18. (Luego los ORCID camera-ready llevan `main_reducida` a 19 pp; ver seccion final.)
+
+## ORCID camera-ready y repo de reproducibilidad anonimo
+
+Repo de reproducibilidad curado y saneado (codigo + datos, 0 identidad), subido a un repo privado de GitHub y anonimizado en:
+`https://anonymous.4open.science/r/decoder-moo-reproducibility/`
+
+Cambios en los `.tex`:
+- Versiones de ENVIO (`main_submission`, `main_reducida_submission`): en "Data and Code Availability" se cambio "(repository withheld for double-blind review)" por el enlace anonimo de 4open. Siguen sin ORCID ni nombres.
+- Versiones NO anonimas / camera-ready (`main`, `main_reducida`): se agregaron los ORCID al bloque de autores via `\orcidID{}`:
+  - Javier Augusto Rebull Saucedo — 0009-0008-2089-5274
+  - Yazmin Ivonne Flores Martinez — 0009-0002-6848-1608
+  - Raul Gibran Porras Alaniz — 0000-0002-6772-5351
+
+Efecto en paginas: los superindices ORCID hacen wrap en el bloque de autores y llevan `main_reducida` (no-anon) de 18 a 19 pp. El ENVIO (`main_reducida_submission`) sigue en 18 pp. **Invariante: 28 / 28 / 19 / 18.**
+
+Gate de anonimato (verificado): las versiones de envio tienen 0 ORCID/nombres y sostienen la URL anonima; firewall 0/72; `reproduce_fast` overall_ok=true con anonymous_zip_hits=0 tras regenerar los 4 ZIP. Feasibility-*.pdf refrescados a 28/28/19/18.
