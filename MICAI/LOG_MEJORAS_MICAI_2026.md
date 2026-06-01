@@ -108,7 +108,7 @@ Cambios:
 
 PDFs recompilados:
 
-- `MICAI/main_submission.pdf` -> 27 pp.
+- `MICAI/main_submission.pdf` -> 27 pp (en este punto; luego el pase de titulo lo lleva a 28 pp).
 - `MICAI/main_reducida_submission.pdf` -> 18 pp.
 
 Recomendacion de envio: usar `main_reducida_submission.pdf` por el limite MICAI de 20 paginas sin contactar organizadores.
@@ -147,3 +147,30 @@ cd MICAI && pdflatex -interaction=nonstopmode main_reducida_submission.tex
 - PDFs: compilan.
 - Logs LaTeX: sin `Undefined`, sin referencias/citas indefinidas, sin `Overfull`.
 - ZIPs anonimos: sin tokens de identidad detectados por el verificador.
+
+## Pase editorial final: titulo y narrativa MOHHO
+
+Motivo: reducir el riesgo de que un revisor lea el titulo como clickbait y corregir la tension narrativa donde Discrete-MOHHO parecia venderse como heroe principal aunque permutation-NSGA-II es el metodo marginalmente mas fuerte.
+
+Archivos actualizados:
+
+- `MICAI/main_submission.tex`
+- `MICAI/main.tex`
+- `MICAI/main_reducida_submission.tex`
+- `MICAI/main_reducida.tex`
+
+Cambios:
+
+- Titulo cambiado de una formulacion centrada en el gancho "blind sampling beats tuned NSGA-II" a:
+  `A Two-Condition Diagnostic for Decoder-Based Multi-Objective Search: When Blind Sampling Beats Tuned NSGA-II`.
+- Running title cambiado a:
+  `Two-Condition Diagnostic for Decoder-Based Search`.
+- Discrete-MOHHO se reencuadro como mecanismo de validacion: demuestra que una arquitectura swarm entra al top tier cuando la representacion y los operadores estan acoplados.
+- permutation-NSGA-II queda explicitamente reconocido como el metodo marginalmente mas fuerte y estable dentro de los metodos matched.
+- En el factorial operador-arquitectura, Discrete-MOHHO se mantiene como evidencia de robustez por operadores, no como claim de superioridad global.
+
+Efecto esperado para revision: el paper vende primero la contribucion metodologica general (diagnostico de dos condiciones) y deja el gancho NSGA-II como subtitulo/resultado, reduciendo riesgo de rechazo por sobreventa.
+
+Efecto en paginas: el titulo mas largo empujo `main_submission.pdf` de 27 a 28 pp. Ningun numero ni claim cambio (firewall 0/72, inventario .tex 0 tokens).
+
+Invariante de paginas actualizado: **28 / 28 / 18 / 18** (main / main_submission / main_reducida / main_reducida_submission), A4 real (595.276x841.89 pt), 0 undefined, 0 overfull, 0 citas/refs indefinidas. El envio a MICAI sigue siendo la reducida (18 pp), bajo el limite de 20; la full anonima (28 pp) ya excede ese limite y no es enviable tal cual. Los 4 `Feasibility-*.pdf` se refrescaron a 28/28/18/18.
