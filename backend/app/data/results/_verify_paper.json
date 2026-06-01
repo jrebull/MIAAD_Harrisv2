@@ -1,5 +1,5 @@
 {
-  "n_claims_checked": 66,
+  "n_claims_checked": 72,
   "n_mismatch": 0,
   "rows": [
     {
@@ -241,6 +241,48 @@
       "delta": 0.00020000000000042206
     },
     {
+      "name": "equity_wait_std_fifo",
+      "status": "OK",
+      "paper": 3.14,
+      "json": 3.143969308213077,
+      "delta": 0.00396930821307695
+    },
+    {
+      "name": "equity_wait_std_front_best",
+      "status": "OK",
+      "paper": 0.75,
+      "json": 0.7516129321225241,
+      "delta": 0.0016129321225241133
+    },
+    {
+      "name": "equity_gini_fifo",
+      "status": "OK",
+      "paper": 0.79,
+      "json": 0.7943060426035153,
+      "delta": 0.004306042603515303
+    },
+    {
+      "name": "equity_gini_front_best",
+      "status": "OK",
+      "paper": 0.17,
+      "json": 0.1739987144130255,
+      "delta": 0.003998714413025489
+    },
+    {
+      "name": "equity_jain_fifo",
+      "status": "OK",
+      "paper": 0.8,
+      "json": 0.804036826045409,
+      "delta": 0.004036826045409003
+    },
+    {
+      "name": "equity_jain_front_best",
+      "status": "OK",
+      "paper": 0.94,
+      "json": 0.944293192892489,
+      "delta": 0.004293192892489084
+    },
+    {
       "name": "rank_perm_nsga2_visa",
       "status": "OK",
       "paper": 1.6,
@@ -465,6 +507,247 @@
       "delta": 0.0
     }
   ],
-  "tex_inventory_count": 0,
-  "tex_inventory_sample": []
+  "tex_inventory_count": 1558,
+  "tex_inventory_sample": [
+    {
+      "file": "main_submission.tex",
+      "line": 18,
+      "token": "210",
+      "context": "\\AtBeginDocument{\\pdfpagewidth=210mm \\pdfpageheight=297mm}"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 18,
+      "token": "297",
+      "context": "\\AtBeginDocument{\\pdfpagewidth=210mm \\pdfpageheight=297mm}"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 66,
+      "token": "140",
+      "context": "Many hard constrained combinatorial problems are solved by pairing a metaheuristic with a feasibility-preserving decoder"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 66,
+      "token": "000",
+      "context": "Many hard constrained combinatorial problems are solved by pairing a metaheuristic with a feasibility-preserving decoder"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 75,
+      "token": "140",
+      "context": "Each fiscal year the United States Congress authorizes approximately 140{,}000 employment-based (EB) immigrant visas, di"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 75,
+      "token": "000",
+      "context": "Each fiscal year the United States Congress authorizes approximately 140{,}000 employment-based (EB) immigrant visas, di"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 75,
+      "token": "620",
+      "context": "Each fiscal year the United States Congress authorizes approximately 140{,}000 employment-based (EB) immigrant visas, di"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 79,
+      "token": "105",
+      "context": "Computing that front is hard for three reasons. First, the allocation is \\emph{combinatorial}: it assigns integer visa c"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 107,
+      "token": "105",
+      "context": "The problem is discretized into $G = C \\times |\\mathcal{J}| = 21 \\times 5 = 105$ \\emph{groups}, where each group $g$ is "
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 109,
+      "token": "105",
+      "context": "\\mathbf{x} = (x_1,\\dots,x_{105}),\\; x_g \\in \\mathbb{Z}^{+}_0,"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 114,
+      "token": "800",
+      "context": "The demands $n_g$ and priority dates $d_g$ form a representative instance calibrated to the \\emph{documented aggregate s"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 114,
+      "token": "000",
+      "context": "The demands $n_g$ and priority dates $d_g$ form a representative instance calibrated to the \\emph{documented aggregate s"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 131,
+      "token": "140",
+      "context": "&\\text{R1:}\\;\\; \\textstyle\\sum_{g} x_g \\le V = 140{,}000 && \\text{(total visas)}\\nonumber\\\\"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 131,
+      "token": "000",
+      "context": "&\\text{R1:}\\;\\; \\textstyle\\sum_{g} x_g \\le V = 140{,}000 && \\text{(total visas)}\\nonumber\\\\"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 132,
+      "token": "620",
+      "context": "&\\text{R2:}\\;\\; \\textstyle\\sum_{g:\\,c(g)=c} x_g \\le P_c = 25{,}620 \\;\\;\\forall c && \\text{(cross-preference country ceil"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 150,
+      "token": "105",
+      "context": "Each hawk is a position $\\mathbf{H}\\in\\mathbb{R}^{105}$ in the box $[0,1]^{105}$. At iteration $t$ the escape energy is"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 150,
+      "token": "105",
+      "context": "Each hawk is a position $\\mathbf{H}\\in\\mathbb{R}^{105}$ in the box $[0,1]^{105}$. At iteration $t$ the escape energy is"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 181,
+      "token": "105",
+      "context": "The HHO operators act in the continuous space $\\mathbb{R}^{105}$, but the problem is combinatorial with six hard constra"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 192,
+      "token": "105",
+      "context": "\\Require hawk $\\mathbf{H}\\in\\mathbb{R}^{105}$; demands $n_g$; budgets $V$, $\\{P_c\\}$, $\\{K_j^{\\text{eff}}\\}$"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 205,
+      "token": "105",
+      "context": "For any hawk $\\mathbf{H}\\in\\mathbb{R}^{105}$, the allocation $\\mathbf{x}$ returned by Algorithm~\\ref{alg:decode} satisfi"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 215,
+      "token": "105",
+      "context": "To separate the contribution of the decoder, the representation, and the search heuristic, we compare a \\emph{ladder} of"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 218,
+      "token": "000",
+      "context": "A third, \\emph{(c)}~\\textbf{random restart}, draws the $25{,}000$ candidates uniformly at random (no search), isolating "
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 220,
+      "token": "105",
+      "context": "The ablation (Section~\\ref{sec:ablation}) reveals that the continuous random-key operators are a poor match for the indu"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 225,
+      "token": "000",
+      "context": "We assess each approximation front with four indicators: the \\emph{hypervolume} (\\HV; larger is better) dominated with r"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 225,
+      "token": "126",
+      "context": "We assess each approximation front with four indicators: the \\emph{hypervolume} (\\HV; larger is better) dominated with r"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 225,
+      "token": "8.7891",
+      "context": "We assess each approximation front with four indicators: the \\emph{hypervolume} (\\HV; larger is better) dominated with r"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 225,
+      "token": "13.0",
+      "context": "We assess each approximation front with four indicators: the \\emph{hypervolume} (\\HV; larger is better) dominated with r"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 225,
+      "token": "940",
+      "context": "We assess each approximation front with four indicators: the \\emph{hypervolume} (\\HV; larger is better) dominated with r"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 238,
+      "token": "104",
+      "context": "Combining and re-filtering the 30 runs yields a front of \\textbf{104 non-dominated solutions}. Figure~\\ref{fig:pareto3d}"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 242,
+      "token": "0.49",
+      "context": "\\begin{minipage}[t]{0.49\\textwidth}"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 245,
+      "token": "104",
+      "context": "\\caption{The 104-solution combined Pareto front over the three objectives, colored by the waste $f_3$. The FIFO baseline"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 248,
+      "token": "0.49",
+      "context": "\\begin{minipage}[t]{0.49\\textwidth}"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 265,
+      "token": "8.7884",
+      "context": "Min.\\ $f_1$ (least waiting) & 8.7884 & 13.0 & 680 & \\textbf{Dominates FIFO}\\\\"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 265,
+      "token": "13.0",
+      "context": "Min.\\ $f_1$ (least waiting) & 8.7884 & 13.0 & 680 & \\textbf{Dominates FIFO}\\\\"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 265,
+      "token": "680",
+      "context": "Min.\\ $f_1$ (least waiting) & 8.7884 & 13.0 & 680 & \\textbf{Dominates FIFO}\\\\"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 266,
+      "token": "8.9994",
+      "context": "Min.\\ $f_2$ (most equitable) & 8.9994 & 2.0 & 0 & Radical equity\\\\"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 267,
+      "token": "8.996",
+      "context": "Min.\\ $f_3$ (full use) & 8.996 & 2.46 & 0 & 100\\,\\% utilization\\\\"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 267,
+      "token": "2.46",
+      "context": "Min.\\ $f_3$ (full use) & 8.996 & 2.46 & 0 & 100\\,\\% utilization\\\\"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 267,
+      "token": "100",
+      "context": "Min.\\ $f_3$ (full use) & 8.996 & 2.46 & 0 & 100\\,\\% utilization\\\\"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 268,
+      "token": "8.7891",
+      "context": "FIFO baseline & 8.7891 & 13.0 & 1{,}940 & Reference (dominated)\\\\"
+    }
+  ]
 }

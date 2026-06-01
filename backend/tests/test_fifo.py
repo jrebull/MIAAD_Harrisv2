@@ -1,4 +1,4 @@
-"""Tests for the FIFO baseline — must match the verified reference values."""
+"""Tests for the FIFO baseline -- must match the verified reference values."""
 
 import pytest
 
@@ -11,11 +11,11 @@ def test_fifo_permutation_is_a_permutation(problem):
 
 
 def test_fifo_baseline_matches_verified_values(problem):
-    """Locks in the published baseline: f1=7.2138, f2=12.6377, f3=17540."""
+    """Locks in the MICAI baseline: f1=8.7891, f2=13.0, f3=1940."""
     _, (f1, f2, f3) = run_baseline(problem)
-    assert f1 == pytest.approx(7.213761579913789, rel=1e-6)
-    assert f2 == pytest.approx(12.637687366167023, rel=1e-6)
-    assert f3 == pytest.approx(17540.0, rel=1e-9)
+    assert f1 == pytest.approx(8.7891, rel=1e-6)
+    assert f2 == pytest.approx(13.0, rel=1e-9)
+    assert f3 == pytest.approx(1940.0, rel=1e-9)
 
 
 def test_fifo_is_deterministic(problem):

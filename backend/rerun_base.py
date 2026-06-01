@@ -1,7 +1,7 @@
 """Regenerate the base visa-problem results from the (recalibrated) data:
 summary.json, pareto_front.csv, convergence.csv, run_XX.json, stats_test.json,
 sensitivity_analysis.json, nsga2_front.json. Run FIRST after a data change.
-30 MOHHO runs (seeds 42-71) + 30 NSGA-II runs (seeds 1-30)."""
+30 MOHHO runs (seeds 1-30) + 30 NSGA-II runs (seeds 1-30)."""
 import json, csv
 from pathlib import Path
 import numpy as np
@@ -82,7 +82,7 @@ def main():
                "A12": A12, "ranksum_p_two_sided": float(p2)},
               open(R / "stats_test.json", "w"), indent=2)
 
-    # sensitivity: archive size (seed 42), convergence iters, f1 range
+    # sensitivity: archive size (seed 1), convergence iters, f1 range
     arch = {}
     for a in (100, 200, 500):
         _, fits, _ = run_mohho(p, seed=1, pop_size=POP, max_iter=IT, archive_size=a)
@@ -95,7 +95,7 @@ def main():
     cf = np.array(combined)
     f1r, f2r, f3r = (float(cf[:, k].max() - cf[:, k].min()) for k in range(3))
     sens = {
-        "archive_sensitivity": {"seed": 42, **arch,
+        "archive_sensitivity": {"seed": 1, **arch,
             "hv_delta_100_vs_200": f"{100*abs(arch['archive_100']['hv']-arch['archive_200']['hv'])/arch['archive_100']['hv']:.2f}%",
             "hv_delta_100_vs_500": f"{100*abs(arch['archive_100']['hv']-arch['archive_500']['hv'])/arch['archive_100']['hv']:.2f}%"},
         "convergence_analysis": {"final_hv": round(float(final), 2), "iter_95pct": i95, "iter_99pct": i99,

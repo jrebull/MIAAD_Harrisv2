@@ -133,9 +133,25 @@ Harris2/
 
 - **30 corridas** × 500 iteraciones, población 50, archivo 100
 - **406 soluciones Pareto** combinadas
-- FIFO: f₁=7.21, f₂=12.64, f₃=17,540
+- FIFO: f₁=8.7891, f₂=13.0, f₃=1,940
 - Mejor f₁: reducción significativa de espera ponderada
 - Mejor f₃: **cero desperdicio** de visas posible
+
+## Auditoría MICAI
+
+Verificación rápida antes de envío:
+
+```bash
+cd backend
+.venv/bin/python repro/reproduce_fast.py
+```
+
+El paquete MICAI incluye además:
+
+- `backend/repro/equity_audit.py` — métricas alternativas de equidad sobre el frente reconstruido.
+- `backend/perm_spea2.py` — baseline permutation-SPEA2 adicional con OX + swap.
+- `backend/app/data/results/equity_audit.json` y `perm_spea2.json` — resultados generados.
+- `MICAI/LOG_MEJORAS_MICAI_2026.md` — bitácora de cambios pre-envío.
 
 ## Fuentes de Datos
 

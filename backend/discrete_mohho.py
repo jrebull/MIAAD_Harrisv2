@@ -117,7 +117,7 @@ def main():
     comb = nondominated(allp)
 
     st = json.load(open(RESULTS / "stats_test.json"))
-    mohho_hv = st["mohho_hv"]                       # paired (same seeds 42-71)
+    mohho_hv = st["mohho_hv"]                       # paired (same seeds 1-30)
     perm = json.load(open(RESULTS / "perm_nsga.json"))["per_run_hv"]  # independent
 
     w_s, w_p = wilcoxon(np.array(hv), np.array(mohho_hv), alternative="greater")

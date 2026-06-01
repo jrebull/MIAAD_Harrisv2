@@ -82,6 +82,18 @@ CLAIMS = [
     ("taguchi_grand_mean_sn", 109.46, "taguchi.json", "grand_mean_sn", 0.01, "abs"),
     # ---- policy of Fig.10 (f2 recomputed) ----
     ("policy_f2_years", 7.59, "policy_impact.json", "f2", 0.01, "abs"),
+    ("equity_wait_std_fifo", 3.14, "equity_audit.json",
+     "front_ranges.wait_std.fifo", 0.02, "abs"),
+    ("equity_wait_std_front_best", 0.75, "equity_audit.json",
+     "front_ranges.wait_std.min", 0.02, "abs"),
+    ("equity_gini_fifo", 0.79, "equity_audit.json",
+     "front_ranges.wait_gini.fifo", 0.02, "abs"),
+    ("equity_gini_front_best", 0.17, "equity_audit.json",
+     "front_ranges.wait_gini.min", 0.02, "abs"),
+    ("equity_jain_fifo", 0.80, "equity_audit.json",
+     "front_ranges.jain_inverse_wait.fifo", 0.02, "abs"),
+    ("equity_jain_front_best", 0.94, "equity_audit.json",
+     "front_ranges.jain_inverse_wait.max", 0.02, "abs"),
     # ---- Friedman ranks (Tabla 8, visa column) ----
     ("rank_perm_nsga2_visa", 1.60, "omnibus_visa_paired.json", "avg_rank.perm-NSGA-II", 0.01, "abs"),
     ("rank_discrete_visa", 2.23, "omnibus_visa_paired.json", "avg_rank.Discrete-MOHHO", 0.01, "abs"),

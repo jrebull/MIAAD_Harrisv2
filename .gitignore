@@ -49,3 +49,9 @@ backend.zip
 
 # audit handoff bundles (no se pushean)
 _audit_handoff/
+MICAI/auditoria_via_A/
+MICAI/entrega_auditoria_via_A/
+MICAI/ENTREGA_AUDITORIA_via_A.zip
+MICAI/RESPUESTA_AUDITORIA_via_A.zip
+# zip no-canonico generado al regenerar (regenerable, ver LOG_MEJORAS)
+MICAI/VisaPredictAI_MICAI.zip

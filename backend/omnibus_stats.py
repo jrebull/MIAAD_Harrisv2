@@ -1,8 +1,8 @@
 """
 Omnibus multi-method statistics (journal-grade rigor).
-  - Visa (base) problem: the six methods use different seed sets (some 1-30,
-    some 42-71), so the samples are INDEPENDENT -> Kruskal-Wallis H test +
-    average ranks + Holm-corrected pairwise Mann-Whitney.
+  - Visa (base) problem: the six methods now share seeds 1-30 where available;
+    this historical script still reports the independent-sample Kruskal-Wallis
+    diagnostic used before the paired omnibus script became canonical.
   - MOMKP (second problem): all methods share seeds 1-30 -> PAIRED -> Friedman
     test + Nemenyi critical difference (the Demsar standard).
 Output: app/data/results/omnibus_stats.json
