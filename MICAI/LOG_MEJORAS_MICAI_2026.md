@@ -197,3 +197,11 @@ Gate de anonimato (verificado): las versiones de envio tienen 0 ORCID/nombres y 
 - Para devolver `main_reducida` (camera-ready) de 19 a 18 pp: se opto por NO tocar la bibliografia (se conservan todas las URLs y DOIs) y en su lugar se quito la frase de recap de robustez de la **conclusion** de ambas reducidas (three-axis: non-saturating decoders / reference-point sweeps / MILP). Ese analisis sigue completo en el cuerpo (Results/Generalization), asi que no se pierde ningun claim. La full conserva la frase.
 
 **Invariante restaurado: 28 / 28 / 18 / 18.** A4, 0 undefined/overfull, Token-not-allowed 0; firewall 0/72; `reproduce_fast` overall_ok=true, anonymous_zip_hits=0. Feasibility-*.pdf y los 4 ZIP refrescados.
+
+## Auditoria de gramatica
+
+Pase de gramatica/puntuacion/ingles americano (respetando convenciones LNCS: em-dashes en incisos, en-dashes en rangos, coma de Oxford). La prosa estaba muy limpia; se corrigieron solo dos cosas reales en los 4 .tex:
+- Caption del ladder: oracion que arrancaba en minuscula tras punto, "permutation-NSGA-II" -> "Permutation-NSGA-II".
+- Frase duplicada verbatim en la seccion del ladder (artefacto del reencuadre de Discrete-MOHHO): "Discrete-MOHHO is therefore not the overall champion but a mechanism check...". Aparecia 2 veces; se quito la segunda (parrafo "empirical regularity"), conservando la primera. No se pierde ningun claim.
+
+Efecto: `main_submission` baja 28->27 pp (la frase estaba cerca de un borde). Invariante: **28 / 27 / 18 / 18**. A4, 0 undefined/overfull, Token-not-allowed 0; firewall 0/72; reproduce_fast overall_ok=true, anonymous_zip_hits=0.
