@@ -190,3 +190,10 @@ Cambios en los `.tex`:
 Efecto en paginas: los superindices ORCID hacen wrap en el bloque de autores y llevan `main_reducida` (no-anon) de 18 a 19 pp. El ENVIO (`main_reducida_submission`) sigue en 18 pp. **Invariante: 28 / 28 / 19 / 18.**
 
 Gate de anonimato (verificado): las versiones de envio tienen 0 ORCID/nombres y sostienen la URL anonima; firewall 0/72; `reproduce_fast` overall_ok=true con anonymous_zip_hits=0 tras regenerar los 4 ZIP. Feasibility-*.pdf refrescados a 28/28/19/18.
+
+## Titulo final y recorte de bibliografia
+
+- Titulo cambiado a "When Blind Sampling Beats Tuned NSGA-II: A Two-Condition Diagnostic with a Calibrated Visa Allocation Case Study" (recupera el caso, que el titulo anterior puramente metodologico habia perdido). Saltos con `\texorpdfstring{\\}{ }`.
+- Para devolver `main_reducida` (camera-ready) de 19 a 18 pp se quitaron 5 URLs no esenciales de la bibliografia en los 4 `.tex`: homepages de Cato y USCIS, y URLs localizables por ID/titulo (CRS R47164, Demšar JMLR, DOS visa bulletin). Los `\bibitem` y las citas siguen intactos; las entradas con DOI conservan su DOI.
+
+**Invariante restaurado: 28 / 28 / 18 / 18.** A4, 0 undefined/overfull, Token-not-allowed 0; firewall 0/72; `reproduce_fast` overall_ok=true, anonymous_zip_hits=0. Feasibility-*.pdf y los 4 ZIP refrescados.
