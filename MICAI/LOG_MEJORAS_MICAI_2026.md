@@ -381,3 +381,38 @@ Fixes integrados de la ronda 3 (stats_round3.json, +9 claims al firewall):
 **Estado final: 31/31/20/20 pp** A4, 0 undefined/overfull, abstract 249 palabras,
 firewall **118/118**, reproduce_fast ok, anonymous_zip_hits 0, 4 ZIPs + 4
 Feasibility-*.pdf refrescados.
+
+## Auditoría total de la versión definitiva (2026-06-10, cierre final)
+
+5 auditores en paralelo (números/figuras-tablas/referencias/idioma/semántica) sobre la
+versión con título nuevo + prospectivo + ronda 3.
+
+- **Números: LIMPIO** — ~270 cifras (118 firewall + ~155 re-derivadas) reproducibles
+  desde los artefactos, 0 mismatches duros, full↔reducida numéricamente idénticas.
+  3 observaciones de redacción corregidas: "not individually significant"→"significant
+  on only two of the five" (instancias 1 y 3 SÍ son significativas, p=0.0023/0.0018);
+  márgenes de decoders etiquetados (4.3% stochastic-skip, 1.4% fractional — el orden
+  paralelo estaba traspuesto); 0.039→0.038 dB.
+- **Referencias**: bansak tenía 7 autores listados → 6 + et al. (regla LNCS); errata
+  "problems" tras \cite{gezici}; los 35 items en orden alfabético correcto, DOIs de
+  los 10 nuevos verificados contra Crossref/DataCite, 0 huérfanos en ambas versiones.
+- **Figuras/tablas**: 3 menores corregidos (forward-cite de tab:nsga en §4.4, caption
+  ladder2 "real-coded methods"→"GA", negritas de empates en tab:nsga). 9 violines =
+  9 filas verificado visualmente; 0 Type 3; 0 refs rotas tras quitar la fig Taguchi
+  de la reducida.
+- **Idioma**: 1 mayor (sujeto equivocado en conclusiones: el que empata es el método,
+  no el test) + 12 menores aplicados (comma splice y antecedente del abstract,
+  set-covering con guion, paralelismos, "profits"→"benefits", terminología η_c).
+- **Semántica**: 1 crítico corregido — el párrafo prospectivo decía "the protocol's
+  step 3 labels..." cuando el Step 3 reescrito ya NO clasifica por estructura
+  (ahora: "as originally formulated" + puntero a la reformulación); mayores: la
+  contribución (v) aún decía "only on selection landscapes" (→ budget saturation) y
+  no mencionaba el test prospectivo (añadido); "three matched paradigms" stale (son
+  4; el factorial usa 3 arquitecturas, ahora nombradas); claim de necesidad acotado
+  "(within the critical difference)" — el naive MOHHO en knapsack queda nominalmente
+  arriba de random (3.93 vs 5.23) pero dentro del CD; "entire six-method ladder" →
+  "six-method core"; matiz 4/5 reference points restaurado en la reducida.
+
+**Estado final: 31/31/20/20 pp**, A4, 0 undefined/overfull, abstract 245 palabras,
+firewall **118/118**, reproduce_fast ok, anonymous_zip_hits 0, ZIPs + Feasibility
+refrescados.
