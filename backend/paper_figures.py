@@ -25,14 +25,22 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.ticker import FuncFormatter
 
+# Figures are generated at their FINAL physical size in the paper (LNCS
+# textwidth = 347pt): convergence at 0.72\textwidth, nsga2_overlay at
+# 0.62\textwidth, pareto_f1f2 at 0.49\textwidth. Fonts below are printed sizes.
 plt.rcParams.update({
     "font.family": "serif",
-    "font.size": 9,
-    "axes.titlesize": 9,
-    "axes.labelsize": 9,
-    "legend.fontsize": 8,
-    "xtick.labelsize": 8,
-    "ytick.labelsize": 8,
+    "font.size": 8,
+    "axes.titlesize": 8,
+    "axes.labelsize": 8,
+    "axes.linewidth": 0.6,
+    "legend.fontsize": 7,
+    "xtick.labelsize": 7.5,
+    "ytick.labelsize": 7.5,
+    "xtick.major.size": 2.5,
+    "ytick.major.size": 2.5,
+    "xtick.major.pad": 2,
+    "ytick.major.pad": 2,
     "figure.dpi": 150,
     "savefig.bbox": "tight",
 })
@@ -66,24 +74,24 @@ def fig_convergence():
         mean.append(float(row["hv_mean"]))
         std.append(float(row["hv_std"]))
     it, mean, std = np.array(it), np.array(mean), np.array(std)
-    fig, ax = plt.subplots(figsize=(5.0, 3.0))
+    fig, ax = plt.subplots(figsize=(3.55, 2.05))
     ax.fill_between(it, mean - std, mean + std, color=BLUE, alpha=0.18,
                     label=r"$\pm 1$ s.d. (30 runs)")
-    ax.plot(it, mean, color=BLUE, lw=1.6, label="mean hypervolume")
+    ax.plot(it, mean, color=BLUE, lw=1.3, label="mean hypervolume")
     final = mean[-1]
-    for frac, lab in [(0.95, "95%"), (0.99, "99%")]:
+    for frac, lab in [(0.95, "95\u2009%"), (0.99, "99\u2009%")]:
         idx = int(np.argmax(mean >= frac * final))
-        ax.axvline(idx, color=GREY, ls=":", lw=1.0)
-        ax.text(idx + 6, mean.min() + 0.06 * (final - mean.min()),
-                f"{lab} @ it. {idx}", fontsize=7.5, color="#555", rotation=90,
-                va="bottom")
+        ax.axvline(idx, color=GREY, ls=":", lw=0.8)
+        ax.text(idx + 7, 0.3082e6, f"{lab} @ it.\u2009{idx}", fontsize=6.8,
+                color="#555", ha="left", va="bottom")
     ax.set_xlabel("Iteration")
     ax.set_ylabel("Hypervolume")
     ax.yaxis.set_major_formatter(millions)
-    ax.text(0.015, 1.02, r"$\times 10^{6}$", transform=ax.transAxes, fontsize=7.5)
+    ax.text(0.015, 1.02, r"$\times 10^{6}$", transform=ax.transAxes, fontsize=6.8)
     ax.set_xlim(0, it.max())
-    ax.legend(loc="lower right", framealpha=0.92)
-    ax.grid(alpha=0.25)
+    ax.legend(loc="lower right", framealpha=0.92, handlelength=1.4,
+              borderpad=0.4, labelspacing=0.3)
+    ax.grid(alpha=0.25, lw=0.4)
     save(fig, "convergence")
 
 
@@ -113,19 +121,26 @@ def fig_pareto3d():
 
 def fig_pareto_f1f2():
     P, fifo = load_front()
-    fig, ax = plt.subplots(figsize=(5.2, 3.4))
-    sc = ax.scatter(P[:, 0], P[:, 1], c=P[:, 2], cmap=VIRIDIS_T_R, s=18,
-                    alpha=0.85, edgecolors="#333333", linewidths=0.3)
-    ax.scatter([fifo[0]], [fifo[1]], marker="*", s=180, c=RED, edgecolors="k",
-               linewidths=0.5, zorder=5, label="FIFO baseline (dominated)")
-    ax.set_xlabel(r"$f_1$ — unserved waiting load", fontsize=11)
-    ax.set_ylabel(r"$f_2$ — inter-country disparity (years)", fontsize=11)
-    ax.tick_params(labelsize=10)
-    cb = fig.colorbar(sc, ax=ax)
-    cb.set_label(r"$f_3$ — wasted visas", fontsize=11)
-    cb.ax.tick_params(labelsize=10)
-    ax.legend(loc="upper right", framealpha=0.92, fontsize=10)
-    ax.grid(alpha=0.25)
+    fig, ax = plt.subplots(figsize=(2.42, 1.62))
+    sc = ax.scatter(P[:, 0], P[:, 1], c=P[:, 2], cmap=VIRIDIS_T_R, s=7,
+                    alpha=0.85, edgecolors="#333333", linewidths=0.2)
+    ax.scatter([fifo[0]], [fifo[1]], marker="*", s=75, c=RED, edgecolors="k",
+               linewidths=0.4, zorder=5)
+    # direct label instead of a legend (a legend box would cover the star here)
+    ax.annotate("FIFO baseline\n(dominated)", xy=(fifo[0], fifo[1]),
+                xytext=(6, -2), textcoords="offset points", fontsize=6.3,
+                color="#7B241C", ha="left", va="top")
+    ax.set_xlabel(r"$f_1$ — unserved waiting load", fontsize=7.5)
+    ax.set_ylabel(r"$f_2$ — disparity (years)", fontsize=7.5)
+    ax.set_xticks([8.80, 8.85, 8.90, 8.95, 9.00])
+    ax.set_yticks([2, 4, 6, 8, 10, 12])
+    ax.set_ylim(1.4, 13.9)
+    ax.tick_params(labelsize=6.8)
+    cb = fig.colorbar(sc, ax=ax, pad=0.03)
+    cb.set_label(r"$f_3$ — wasted visas", fontsize=7.5)
+    cb.ax.tick_params(labelsize=6.8, length=2, pad=2)
+    cb.outline.set_linewidth(0.6)
+    ax.grid(alpha=0.25, lw=0.4)
     save(fig, "pareto_f1f2")
 
 
@@ -162,25 +177,27 @@ def fig_nsga_overlay():
         return
     ng = np.array(json.load(open(f))["front"])
     P, fifo = load_front()
-    fig, ax = plt.subplots(figsize=(5.2, 3.4))
-    ax.scatter(ng[:, 0], ng[:, 1], s=22, marker="^", facecolors="none",
-               edgecolors=ORANGE, linewidths=0.8, alpha=0.75,
+    fig, ax = plt.subplots(figsize=(3.02, 1.97))
+    ax.scatter(ng[:, 0], ng[:, 1], s=11, marker="^", facecolors="none",
+               edgecolors=ORANGE, linewidths=0.6, alpha=0.8,
                label=f"NSGA-II ({len(ng)} sol.)")
-    ax.scatter(P[:, 0], P[:, 1], s=16, marker="o", c=BLUE, alpha=0.7,
+    ax.scatter(P[:, 0], P[:, 1], s=8, marker="o", c=BLUE, alpha=0.7,
                label=f"MOHHO ({len(P)} sol.)", edgecolors="none")
-    ax.scatter([fifo[0]], [fifo[1]], marker="*", s=180, c=RED, edgecolors="k",
-               linewidths=0.5, zorder=5, label="FIFO baseline")
+    ax.scatter([fifo[0]], [fifo[1]], marker="*", s=85, c=RED, edgecolors="k",
+               linewidths=0.4, zorder=5, label="FIFO baseline")
     ax.set_xlabel(r"$f_1$ — unserved waiting load")
-    ax.set_ylabel(r"$f_2$ — inter-country disparity (years)")
-    ax.legend(loc="upper right", framealpha=0.92)
-    ax.grid(alpha=0.25)
+    ax.set_ylabel(r"$f_2$ — disparity (years)")
+    ax.set_yticks([2, 4, 6, 8, 10, 12])
+    ax.legend(loc="upper right", framealpha=0.92, handletextpad=0.3,
+              borderpad=0.4, labelspacing=0.3)
+    ax.grid(alpha=0.25, lw=0.4)
     save(fig, "nsga2_overlay")
 
 
 def save(fig, name):
     fig.tight_layout()
     fig.savefig(FIG / f"{name}.pdf")
-    fig.savefig(FIG / f"{name}.png", dpi=200)
+    fig.savefig(FIG / f"{name}.png", dpi=300)
     plt.close(fig)
     print("saved", name)
 

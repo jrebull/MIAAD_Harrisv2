@@ -1109,7 +1109,7 @@
       "delta": 0.0
     }
   ],
-  "tex_inventory_count": 2113,
+  "tex_inventory_count": 2093,
   "tex_inventory_sample": [
     {
       "file": "main_submission.tex",
@@ -1167,12 +1167,6 @@
     },
     {
       "file": "main_submission.tex",
-      "line": 109,
-      "token": "105",
-      "context": "\\mathbf{x} = (x_1,\\dots,x_{105}),\\; x_g \\in \\mathbb{Z}^{+}_0,"
-    },
-    {
-      "file": "main_submission.tex",
       "line": 114,
       "token": "800",
       "context": "The demands $n_g$ and priority dates $d_g$ form a representative instance calibrated to the \\emph{documented aggregate s"
@@ -1205,31 +1199,7 @@
       "file": "main_submission.tex",
       "line": 150,
       "token": "105",
-      "context": "Each hawk is a position $\\mathbf{H}\\in\\mathbb{R}^{105}$ in the box $[0,1]^{105}$. At iteration $t$ the escape energy is"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 150,
-      "token": "105",
-      "context": "Each hawk is a position $\\mathbf{H}\\in\\mathbb{R}^{105}$ in the box $[0,1]^{105}$. At iteration $t$ the escape energy is"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 181,
-      "token": "105",
-      "context": "The HHO operators act in the continuous space $\\mathbb{R}^{105}$, but the problem is combinatorial with six hard constra"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 192,
-      "token": "105",
-      "context": "\\Require hawk $\\mathbf{H}\\in\\mathbb{R}^{105}$; demands $n_g$; budgets $V$, $\\{P_c\\}$, $\\{K_j^{\\text{eff}}\\}$"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 205,
-      "token": "105",
-      "context": "For any hawk $\\mathbf{H}\\in\\mathbb{R}^{105}$, the allocation $\\mathbf{x}$ returned by Algorithm~\\ref{alg:decode} satisfi"
+      "context": "Each hawk is a position $\\mathbf{H}\\in\\mathbb{R}^{G}$ in the box $[0,1]^{G}$ (here $G=105$). At iteration $t$ the escape"
     },
     {
       "file": "main_submission.tex",
@@ -1289,7 +1259,7 @@
       "file": "main_submission.tex",
       "line": 238,
       "token": "104",
-      "context": "Combining and re-filtering the 30 runs yields a front of \\textbf{104 non-dominated solutions}. Figure~\\ref{fig:pareto3d}"
+      "context": "Combining and re-filtering the 30 runs yields a front of 104 non-dominated solutions. Figure~\\ref{fig:pareto3d} shows it"
     },
     {
       "file": "main_submission.tex",
@@ -1350,6 +1320,36 @@
       "line": 267,
       "token": "100",
       "context": "Min.\\ $f_3$ (full use) & 8.996 & 2.46 & 0 & 100\\,\\% utilization\\\\"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 268,
+      "token": "8.7891",
+      "context": "FIFO baseline & 8.7891 & 13.0 & 1{,}940 & Reference (dominated)\\\\"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 268,
+      "token": "13.0",
+      "context": "FIFO baseline & 8.7891 & 13.0 & 1{,}940 & Reference (dominated)\\\\"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 268,
+      "token": "940",
+      "context": "FIFO baseline & 8.7891 & 13.0 & 1{,}940 & Reference (dominated)\\\\"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 273,
+      "token": "940",
+      "context": "The central empirical finding is that FIFO is not Pareto-optimal: the minimum-$f_1$ solution Pareto-dominates it---stric"
+    },
+    {
+      "file": "main_submission.tex",
+      "line": 273,
+      "token": "680",
+      "context": "The central empirical finding is that FIFO is not Pareto-optimal: the minimum-$f_1$ solution Pareto-dominates it---stric"
     }
   ]
 }

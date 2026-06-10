@@ -570,3 +570,45 @@ decoder) para sostener el límite. **Invariante: 34/34/20/20 pp**, abstract 248,
 wrap de ORCID — Springer re-tipografía tras aceptación), A4, 0 undefined/overfull,
 abstract 249, **firewall 158/158**, reproduce_fast ok, anonimato 0, ZIPs + Feasibility
 refrescados.
+
+## 23. Figuras a nivel publicación + comentarios del coautor (10-jun-2026, tarde)
+
+**Figuras (agente dedicado, 12 figuras regeneradas).** Causa raíz: todas se generaban
+a 1.8–3× su tamaño físico final, de modo que la tipografía impresa caía a 3–6 pt tras
+el factor de escala de `\includegraphics`. Corrección central: regenerar cada figura
+A SU TAMAÑO FÍSICO FINAL (escala ≈ 0.9–1.05), tipografía impresa 6–8 pt serif,
+`pdf.fonttype=42` (0 fuentes Type 3 en las 12), grid ≤0.25 y paleta unificada por
+método (MOHHO azul, NSGA-II naranja, random restart gris, competent MO-HHO morado,
+tier permutacional verdes/teales, FIFO estrella roja). Destacados:
+- `ladder.pdf`: labels escalonados en 2 niveles (antes ilegibles a 2.8 pt), línea
+  discontinua en la media de random restart (310,214) y corchete "top tier" sobre los
+  5 métodos que la superan.
+- `pareto3d_v2.pdf`: colorbar redundante eliminado (el color duplica el eje z=f₃).
+- `mechanism_2x2.pdf`: cuadrante ganador tintado + "both conditions met"; seguro en B/N.
+- `taguchi_main_effects.pdf`: el caso más grave (11 in nativos → 4.4 pt impresos).
+Datos intactos: cada script imprime sus medias y coinciden con el paper (ladder 9
+medias, rr=310,214, generalization 96.7–98.5, country_impact f₂=7.59/f₃=0,
+milestones 5/135). Sugerencias de caption del agente: opcionales, NO aplicadas
+(riesgo de overflow en la reducida al límite de 20 pp; las figuras se auto-etiquetan).
+
+**Comentarios del coautor (Mtro. Raúl Gibran Porras, PDF 12 anotaciones + email).**
+Aplicados (8): reordenar cites ascendentes en 4 puntos (`jangir,cerci,kusoglu` /
+`aranha,sorensen` / `alrafei,montgomery` / `choo,...`); generalizar el modelo a
+`x=(x₁,…,x_G)` y `H∈R^G` en `[0,1]^G` "(here G=105)"; condensar el párrafo de Pareto
+a 1 frase con cita a Coello; quitar negritas de claims; aclarar la metáfora del
+conejo ("the leader (the ``rabbit'' of the HHO metaphor)" + "The archive's leader
+supplies the target (``prey'') position"); quitar `\emph` retórico (ties/held/failed/
+do/beats/above/own, conservando 1 "both held / both failed" contrastivo); "Third—…"
+ya resuelto con em-dashes en la pasada narrativa; autor "Ra\'ul Gibran Porras Alaniz"
+(Gibran sin acento, per su anotación).
+Declinados con razón LNCS (6): comas en keywords (LNCS los separa con "·" — fuente
+usa `\and`); numeración IEEE [1]-primero (LNCS exige lista alfabética numérica);
+vectores con paréntesis angulares (notación bold estándar); cambiar la notación max
+de f₂ (está definida en el texto); "sobrecarga" de x_g (lectura errónea: no hay
+overload); corte silábico "combi- natorial" (partición normal de LaTeX; Springer
+re-tipografía el camera-ready).
+
+**Invariante: 34/34/21/20 pp**, A4, 0 undefined/overfull, abstract 250 (≤250),
+firewall **158/158**, reproduce_fast overall_ok, anonimato 0 hits, 4 ZIPs
+reconstruidos (las reducidas llevan 1 sola figura: ladder.pdf) + 4 Feasibility
+refrescados.

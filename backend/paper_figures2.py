@@ -17,7 +17,10 @@ from app.core.problem import VisaProblem
 from app.core.fifo import run_baseline
 from app.core.mohho import run_mohho, evaluate_hawk
 
-plt.rcParams.update({"font.family": "serif", "font.size": 9, "savefig.bbox": "tight"})
+# Figures generated at FINAL physical size (LNCS textwidth = 347pt):
+# pareto3d_v2 at 0.49\textwidth, country_impact at 0.72\textwidth.
+plt.rcParams.update({"font.family": "serif", "font.size": 7.5,
+                     "axes.linewidth": 0.6, "savefig.bbox": "tight"})
 FIG = Path("../MICAI/figures")
 R = Path("app/data/results")
 BLUE, RED, GREEN, GREY = "#2E86DE", "#E74C3C", "#27AE60", "#9AA3AF"
@@ -39,35 +42,45 @@ def load_front():
 
 def fig_pareto3d_v2():
     P, fifo = load_front()
-    fig = plt.figure(figsize=(6.0, 4.8))
+    fig = plt.figure(figsize=(2.55, 2.10))
     ax = fig.add_subplot(111, projection="3d")
     # faint projection on the floor (z=0 plane) to add depth
     zfloor = P[:, 2].min()
-    ax.scatter(P[:, 0], P[:, 1], np.full(len(P), zfloor), s=6, c=GREY,
+    ax.scatter(P[:, 0], P[:, 1], np.full(len(P), zfloor), s=3, c=GREY,
                alpha=0.12, edgecolors="none")
     sc = ax.scatter(P[:, 0], P[:, 1], P[:, 2], c=P[:, 2], cmap=VIRIDIS_T_R,
-                    s=22, alpha=0.92, edgecolors="#333333", linewidths=0.3,
+                    s=9, alpha=0.92, edgecolors="#333333", linewidths=0.2,
                     depthshade=True)
     # FIFO star + drop-line down to the front's f3 level -> visualizes domination
-    ax.scatter([fifo[0]], [fifo[1]], [fifo[2]], marker="*", s=320, c=RED,
-               edgecolors="k", linewidths=0.6, label="FIFO baseline (dominated)")
+    ax.scatter([fifo[0]], [fifo[1]], [fifo[2]], marker="*", s=110, c=RED,
+               edgecolors="k", linewidths=0.5)
     ax.plot([fifo[0], fifo[0]], [fifo[1], fifo[1]], [fifo[2], zfloor],
-            color=RED, ls=":", lw=1.3)
+            color=RED, ls=":", lw=1.0)
+    # direct label (a legend box would waste space at this size)
+    ax.text(fifo[0], fifo[1], fifo[2] * 1.07, "FIFO baseline\n(dominated)",
+            fontsize=6.3, color="#7B241C", ha="right", va="bottom", zorder=10)
     for m in range(3):
         e = P[np.argmin(P[:, m])]
-        ax.scatter([e[0]], [e[1]], [e[2]], s=70, facecolors="none",
-                   edgecolors="k", linewidths=1.1)
-    ax.set_xlabel(r"$f_1$  waiting load", labelpad=4, fontsize=11)
-    ax.set_ylabel(r"$f_2$  disparity (yr)", labelpad=4, fontsize=11)
-    ax.set_zlabel(r"$f_3$  waste (visas)", labelpad=4, fontsize=11)
-    ax.tick_params(labelsize=10)
+        ax.scatter([e[0]], [e[1]], [e[2]], s=30, facecolors="none",
+                   edgecolors="k", linewidths=0.8)
+    ax.set_xlabel(r"$f_1$  waiting load", labelpad=-4, fontsize=7.2)
+    ax.set_ylabel(r"$f_2$  disparity (yr)", labelpad=-4, fontsize=7.2)
+    ax.set_zlabel(r"$f_3$  waste (visas)", labelpad=-6, fontsize=7.2)
+    ax.set_xticks([8.8, 8.9, 9.0])
+    ax.set_yticks([2, 6, 10])
+    ax.set_zticks([0, 1000, 2000])
+    ax.tick_params(labelsize=6.3, pad=-3)
     ax.view_init(elev=18, azim=-66)
     ax.xaxis.pane.set_alpha(0.04); ax.yaxis.pane.set_alpha(0.04); ax.zaxis.pane.set_alpha(0.04)
-    cb = fig.colorbar(sc, ax=ax, shrink=0.58, pad=0.09)
-    cb.set_label(r"$f_3$ (wasted visas)", fontsize=10); cb.ax.tick_params(labelsize=9)
-    ax.legend(loc="upper left", fontsize=10)
-    fig.tight_layout()
-    fig.savefig(FIG / "pareto3d_v2.pdf"); fig.savefig(FIG / "pareto3d_v2.png", dpi=200)
+    for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
+        axis.line.set_linewidth(0.6)
+    # no colorbar: color duplicates the z axis (f3); the companion f1-f2
+    # projection (pareto_f1f2.pdf) carries the f3 color scale.
+    # mplot3d's tight bbox drops projected axis labels -> use fixed margins.
+    ax.set_position([-0.02, 0.025, 0.92, 1.01])
+    with plt.rc_context({"savefig.bbox": None}):
+        fig.savefig(FIG / "pareto3d_v2.pdf")
+        fig.savefig(FIG / "pareto3d_v2.png", dpi=300)
     plt.close(fig); print("saved pareto3d_v2")
 
 
@@ -102,21 +115,26 @@ def fig_country_impact():
     delta = [moh_c[c] - fifo_c.get(c, 0) for c in countries]
     y = np.arange(len(countries))
     colors = [BLUE if d >= 0 else RED for d in delta]
-    fig, ax = plt.subplots(figsize=(5.4, 6.0))
-    ax.barh(y, delta, color=colors, alpha=0.85, edgecolor="k", linewidth=0.3)
+    fig, ax = plt.subplots(figsize=(3.42, 3.55))
+    ax.barh(y, delta, color=colors, alpha=0.85, edgecolor="k", linewidth=0.3,
+            height=0.72)
     ax.axvline(0, color="k", lw=0.8)
-    ax.set_yticks(y); ax.set_yticklabels([EN[c] for c in countries], fontsize=8)
+    ax.set_yticks(y); ax.set_yticklabels([EN[c] for c in countries], fontsize=7.0)
+    ax.set_ylim(-0.6, len(countries) - 0.4)
     ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{int(x):+,}"))
-    ax.set_xlim(min(delta) * 1.35, max(delta) * 1.18)
-    ax.set_xlabel("Visas reallocated vs. FIFO  (gained $+$ / lost $-$)")
-    ax.grid(axis="x", alpha=0.25)
+    ax.set_xticks([-6000, -3000, 0, 3000, 6000])
+    ax.set_xlim(min(delta) * 1.38, max(delta) * 1.22)
+    ax.set_xlabel("Visas reallocated vs. FIFO  (gained $+$ / lost $-$)",
+                  fontsize=7.3)
+    ax.tick_params(axis="x", labelsize=6.8, length=2, pad=2)
+    ax.tick_params(axis="y", length=2, pad=2)
+    ax.grid(axis="x", alpha=0.25, lw=0.4)
     ax.spines[["top", "right"]].set_visible(False)
     for yi, d in zip(y, delta):
-        ax.text(d + (max(delta) * 0.012 if d >= 0 else min(delta) * 0.012), yi,
+        ax.text(d + (max(delta) * 0.015 if d >= 0 else min(delta) * 0.015), yi,
                 f"{d:+,}", va="center", ha="left" if d >= 0 else "right",
-                fontsize=6.6, color="#333")
-    fig.tight_layout()
-    fig.savefig(FIG / "country_impact.pdf"); fig.savefig(FIG / "country_impact.png", dpi=200)
+                fontsize=5.9, color="#333")
+    fig.savefig(FIG / "country_impact.pdf"); fig.savefig(FIG / "country_impact.png", dpi=300)
     plt.close(fig)
     print(f"saved country_impact | selected policy f=({fsel[0]:.3f},{fsel[1]:.3f},{fsel[2]:.0f}) "
           f"visas={sum(moh_c.values()):,} vs FIFO {sum(fifo_c.values()):,}")

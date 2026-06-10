@@ -219,23 +219,29 @@ def make_figure(response_sn, grand_mean_sn, optimum_levels):
         "C_archive": "C: archive size",
         "D_beta": r"D: Lévy exponent $\beta$",
     }
-    fig, axes = plt.subplots(1, 4, figsize=(11, 2.8), sharey=True)
+    # final physical size: included at \textwidth (LNCS textwidth = 347pt),
+    # so the fonts below are the printed sizes
+    plt.rcParams.update({"font.family": "serif", "axes.linewidth": 0.6})
+    fig, axes = plt.subplots(1, 4, figsize=(4.95, 1.32), sharey=True)
     for ax, fac in zip(axes, FACTORS):
         xs = LEVELS[fac]
         ys = response_sn[fac]
-        ax.plot(range(3), ys, "o-", color="#2E86DE", lw=1.8, ms=6)
-        ax.axhline(grand_mean_sn, color="#888", ls="--", lw=0.9)
+        ax.plot(range(3), ys, "o-", color="#2E86DE", lw=1.1, ms=3.2)
+        ax.axhline(grand_mean_sn, color="#888", ls="--", lw=0.7)
         best = optimum_levels[fac] - 1
-        ax.plot(best, ys[best], "*", color="#E74C3C", ms=15,
-                markeredgecolor="k", markeredgewidth=0.5, zorder=5)
+        ax.plot(best, ys[best], "*", color="#E74C3C", ms=8.5,
+                markeredgecolor="k", markeredgewidth=0.4, zorder=5)
         ax.set_xticks(range(3))
-        ax.set_xticklabels([str(v) for v in xs])
-        ax.set_title(labels[fac], fontsize=10)
-        ax.grid(alpha=0.25)
-    axes[0].set_ylabel("S/N ratio (dB)")
-    fig.tight_layout()
-    fig.savefig(FIGDIR / "taguchi_main_effects.pdf")
-    fig.savefig(FIGDIR / "taguchi_main_effects.png", dpi=200)
+        ax.set_xticklabels([str(v) for v in xs], fontsize=6.8)
+        ax.set_xlim(-0.35, 2.35)
+        ax.set_title(labels[fac], fontsize=7.0, pad=3)
+        ax.tick_params(labelsize=6.8, length=2, pad=2)
+        ax.grid(alpha=0.25, lw=0.4)
+        ax.spines[["top", "right"]].set_visible(False)
+    axes[0].set_ylabel("S/N ratio (dB)", fontsize=7.3)
+    fig.subplots_adjust(wspace=0.17)
+    fig.savefig(FIGDIR / "taguchi_main_effects.pdf", bbox_inches="tight")
+    fig.savefig(FIGDIR / "taguchi_main_effects.png", dpi=300, bbox_inches="tight")
     print("figure saved:", FIGDIR / "taguchi_main_effects.pdf")
 
 
