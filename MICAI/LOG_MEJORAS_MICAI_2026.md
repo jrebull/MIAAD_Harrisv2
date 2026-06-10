@@ -348,3 +348,36 @@ anticorrelación del headroom).
   refrescados.
 - 4open verificado por el autor en navegador. ⚠️ Subir al snapshot el código nuevo:
   prospective_scp.py (+ registración y resultados JSON) además de brkga/headroom/tau.
+
+## Ronda 3 del panel ciego + endurecimiento estadístico (2026-06-10, cierre)
+
+Panel sobre la versión definitiva (título nuevo + test prospectivo): R1 6.0, R2 6.5,
+R3 6.5 (~6.3). Las peticiones grandes restantes son de escala proyecto (tuning
+per-método con irace, índice de saturación computable, ablación de E en
+Discrete-MOHHO) — documentadas aquí como material de rebuttal, no ejecutadas.
+
+Fixes integrados de la ronda 3 (stats_round3.json, +9 claims al firewall):
+- **Omnibus sobre los 9 métodos** (antes 6, exclusión que R2 llamó selectiva):
+  Friedman χ²=133.8, p=4.6e-25, CD=2.19; ranks: perm-NSGA-II 2.97 > competent 3.10 >
+  SPEA2 3.53 > Discrete 3.93 > MOEA/D 4.33 > rk-biased 4.57 (dentro del CD de
+  random 6.47) > naive MOHHO 7.33 > NSGA-II rc 8.77 — el orden que la cuenta de
+  2 condiciones predice.
+- **Wilcoxon pareado** para la comparación cabecera (seeds comunes): MOHHO vs
+  NSGA-II p=4.4e-6 dos colas (reemplaza al Mann–Whitney no pareado unilateral).
+- **Holm sobre la familia de 12 tests cabecera: TODOS sobreviven** (mayor p
+  superviviente 5.7e-4).
+- **Sign test exacto** para las 5 instancias perturbadas direccionalmente
+  consistentes: p=2⁻⁵=0.031 (la "robustez" deja de ser anecdótica).
+- Honestidad: "monotonically" condicionado a la instancia líder (mo-SCP lo
+  invierte); asimetría del test prospectivo declarada (la mitad confirmada tenía
+  menor riesgo de falsación); ρ=−0.78 marcado descriptivo (niveles anidados).
+- Citas nuevas (bib 31→35): Aranha et al. 2022 (metaphor call-for-action),
+  Tasgetiren et al. 2007 (nombre SPV), Gezici & Livatyali 2022 (HHO discreto,
+  faltaba la cita), Malan & Engelbrecht 2013 (posicionamiento vs fitness-landscape
+  analysis). Todas verificadas vía Crossref.
+- Reducida: figura Taguchi removida (tabla y prosa intactas; R1 la llamó vestigial
+  en ambas rondas) para compensar páginas.
+
+**Estado final: 31/31/20/20 pp** A4, 0 undefined/overfull, abstract 249 palabras,
+firewall **118/118**, reproduce_fast ok, anonymous_zip_hits 0, 4 ZIPs + 4
+Feasibility-*.pdf refrescados.

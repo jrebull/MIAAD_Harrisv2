@@ -1,5 +1,5 @@
 {
-  "n_claims_checked": 109,
+  "n_claims_checked": 118,
   "n_mismatch": 0,
   "rows": [
     {
@@ -764,9 +764,72 @@
       "paper": 1.3e-08,
       "json": 1.30385160446167e-08,
       "delta": 3.8516044616698616e-11
+    },
+    {
+      "name": "r3_friedman9_chi2",
+      "status": "OK",
+      "paper": 133.8,
+      "json": 133.79555555555567,
+      "delta": -0.004444444444345663
+    },
+    {
+      "name": "r3_friedman9_cd",
+      "status": "OK",
+      "paper": 2.19,
+      "json": 2.1934452352406706,
+      "delta": 0.003445235240670641
+    },
+    {
+      "name": "r3_rank_perm_nsga2",
+      "status": "OK",
+      "paper": 2.97,
+      "json": 2.966666666666667,
+      "delta": -0.0033333333333334103
+    },
+    {
+      "name": "r3_rank_nsga2_rc",
+      "status": "OK",
+      "paper": 8.77,
+      "json": 8.766666666666667,
+      "delta": -0.003333333333332078
+    },
+    {
+      "name": "r3_rank_rk_biased",
+      "status": "OK",
+      "paper": 4.57,
+      "json": 4.566666666666666,
+      "delta": -0.0033333333333338544
+    },
+    {
+      "name": "r3_rank_random",
+      "status": "OK",
+      "paper": 6.47,
+      "json": 6.466666666666667,
+      "delta": -0.0033333333333329662
+    },
+    {
+      "name": "r3_mohho_vs_nsga2_paired",
+      "status": "OK",
+      "paper": 4.4e-06,
+      "json": 4.421919584274292e-06,
+      "delta": 2.1919584274291768e-08
+    },
+    {
+      "name": "r3_holm_all_survive",
+      "status": "OK",
+      "paper": true,
+      "json": true,
+      "delta": 0.0
+    },
+    {
+      "name": "r3_sign_test",
+      "status": "OK",
+      "paper": 0.03125,
+      "json": 0.03125,
+      "delta": 0.0
     }
   ],
-  "tex_inventory_count": 1902,
+  "tex_inventory_count": 2027,
   "tex_inventory_sample": [
     {
       "file": "main_submission.tex",

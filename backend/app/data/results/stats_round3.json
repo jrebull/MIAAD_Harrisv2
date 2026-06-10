@@ -1,0 +1,91 @@
+{
+  "friedman_9methods": {
+    "chi2": 133.79555555555567,
+    "p": 4.617054344146542e-25,
+    "k": 9,
+    "n": 30,
+    "mean_ranks": {
+      "nsga2_realcoded": 8.766666666666667,
+      "naive_mohho": 7.333333333333333,
+      "rk_nsga2_biased": 4.566666666666666,
+      "random_restart": 6.466666666666667,
+      "competent_mohho": 3.1,
+      "perm_moead": 4.333333333333333,
+      "discrete_mohho": 3.933333333333333,
+      "perm_spea2": 3.533333333333333,
+      "perm_nsga2": 2.966666666666667
+    },
+    "nemenyi_cd_005": 2.1934452352406706
+  },
+  "mohho_vs_nsga2": {
+    "paired_wilcoxon_two_sided": 4.421919584274292e-06,
+    "paired_wilcoxon_one_sided_greater": 2.210959792137146e-06
+  },
+  "holm_family": {
+    "m": 12,
+    "results": {
+      "discrete_vs_mohho": {
+        "p": 9.3e-10,
+        "holm_threshold": 0.004166666666666667,
+        "survives": true
+      },
+      "scp_perm_vs_random": {
+        "p": 9.3e-10,
+        "holm_threshold": 0.004545454545454546,
+        "survives": true
+      },
+      "scp_competent_vs_random": {
+        "p": 9.3e-10,
+        "holm_threshold": 0.005,
+        "survives": true
+      },
+      "perm_nsga2_vs_random": {
+        "p": 9.313225746154785e-10,
+        "holm_threshold": 0.005555555555555556,
+        "survives": true
+      },
+      "random_vs_nsga2": {
+        "p": 1.862645149230957e-09,
+        "holm_threshold": 0.00625,
+        "survives": true
+      },
+      "perm_spea2_vs_random": {
+        "p": 1.1743977665901184e-06,
+        "holm_threshold": 0.0071428571428571435,
+        "survives": true
+      },
+      "mohho_vs_nsga2_paired_two_sided": {
+        "p": 4.421919584274292e-06,
+        "holm_threshold": 0.008333333333333333,
+        "survives": true
+      },
+      "cell2x2_vs_random": {
+        "p": 5.5e-05,
+        "holm_threshold": 0.01,
+        "survives": true
+      },
+      "interaction_2x2": {
+        "p": 8e-05,
+        "holm_threshold": 0.0125,
+        "survives": true
+      },
+      "random_vs_mohho": {
+        "p": 8.494872599840164e-05,
+        "holm_threshold": 0.016666666666666666,
+        "survives": true
+      },
+      "perm_moead_vs_random": {
+        "p": 0.00015637744218111038,
+        "holm_threshold": 0.025,
+        "survives": true
+      },
+      "competent_vs_random": {
+        "p": 0.00057,
+        "holm_threshold": 0.05,
+        "survives": true
+      }
+    },
+    "all_headline_survive": true
+  },
+  "sign_test_5of5_one_sided": 0.03125
+}

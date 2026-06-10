@@ -204,6 +204,22 @@ CLAIMS = [
     ("scp_P3_p", 9.3e-10, "prospective_scp.json", "verdict.P3.p_one_sided", 1e-10, "abs"),
     ("scp_P1_p_above", 1.3e-8, "prospective_scp.json",
      "verdict.P1.p_above_random_one_sided", 5e-9, "abs"),
+    # ---- 2026-06-10 ronda 3: endurecimiento estadistico (stats_round3.json) ----
+    ("r3_friedman9_chi2", 133.8, "stats_round3.json", "friedman_9methods.chi2", 0.2, "abs"),
+    ("r3_friedman9_cd", 2.19, "stats_round3.json", "friedman_9methods.nemenyi_cd_005", 0.01, "abs"),
+    ("r3_rank_perm_nsga2", 2.97, "stats_round3.json",
+     "friedman_9methods.mean_ranks.perm_nsga2", 0.01, "abs"),
+    ("r3_rank_nsga2_rc", 8.77, "stats_round3.json",
+     "friedman_9methods.mean_ranks.nsga2_realcoded", 0.01, "abs"),
+    ("r3_rank_rk_biased", 4.57, "stats_round3.json",
+     "friedman_9methods.mean_ranks.rk_nsga2_biased", 0.01, "abs"),
+    ("r3_rank_random", 6.47, "stats_round3.json",
+     "friedman_9methods.mean_ranks.random_restart", 0.01, "abs"),
+    ("r3_mohho_vs_nsga2_paired", 4.4e-6, "stats_round3.json",
+     "mohho_vs_nsga2.paired_wilcoxon_two_sided", 2e-7, "abs"),
+    ("r3_holm_all_survive", True, "stats_round3.json",
+     "holm_family.all_headline_survive", 0, "exact"),
+    ("r3_sign_test", 0.03125, "stats_round3.json", "sign_test_5of5_one_sided", 1e-5, "abs"),
 ]
 
 
