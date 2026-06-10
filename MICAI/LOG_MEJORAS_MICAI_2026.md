@@ -449,3 +449,24 @@ bandera, no perilla". Abstract 247 palabras.
 
 **Invariante: 32/32/20/20 pp**, A4, 0 undefined/overfull, firewall 131/131,
 reproduce_fast ok, ZIPs + Feasibility refrescados.
+
+## Ronda 4 del panel ciego (2026-06-10, sobre la versión con los 3 tests registrados)
+
+R1 6.0 / R2 6.5 / R3 6.5 — **meseta en ~6.3 por cuarta ronda consecutiva** (el panel
+adversarial encuentra la siguiente objeción más profunda en cada ronda). Elogios
+consistentes: "protocolo de los más disciplinados que he visto", "fairness de verdad,
+no retórica", "eso es ciencia", "práctica ejemplar" (tests registrados con fallos
+reportados).
+
+Objeciones nuevas (material de rebuttal / mejoras futuras):
+- R2: sign test n=5 es "significativo por construcción" (presentar §6.5 como
+  descriptivo); "flat in τ" = aceptar H0 sin TOST/IC de pendiente; los claims
+  cabecera deberían sobrevivir per-run bajo IGD⁺/ε para los 9 métodos; familia de
+  Holm autoseleccionada; el "registro" es commit propio, no prerregistro externo.
+- R3: falta literatura GRASP/semi-greedy (el random restart a través de decoder
+  greedy saturante ES una construcción semi-aleatoria multistart) y la mitad de
+  *heuristic bias* de Raidl & Gottlieb; "six hard constraints" infladas (R4-R6
+  triviales por construcción); naive-MOHHO dominance-gated no corresponde a
+  ninguna variante publicada; falta baseline con búsqueda local.
+- R1: re-titular alrededor del estudio de falsación; degradar visa a testbed
+  en todo el texto.
