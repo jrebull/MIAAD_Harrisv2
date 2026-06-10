@@ -282,3 +282,25 @@ taguchi con estrella; mechanism_2x2 sin título incrustado, labels del paper y H
 - Confirmar en navegador que `https://anonymous.4open.science/r/decoder-moo-reproducibility/`
   resuelve (Cloudflare bloquea la verificación CLI) y que el snapshot 4open refleja el
   código nuevo (brkga, headroom n15, tau_structures).
+
+### Re-panel "después" y micro-pase final (mismo día)
+
+Re-panel ciego sobre la reducida mejorada: R1 6.0 (borderline), R2 6.5 (weak accept),
+R3 6.5 (weak accept) — consolidado ~6.3 vs ~6.2 "antes". Lectura honesta: la nota
+numérica casi no se mueve (los revisores simulados siempre encuentran la siguiente
+objeción), pero TODOS los críticos de la ronda 1 desaparecieron; las objeciones nuevas
+son de segundo orden salvo una unánime y repetida en ambas rondas: **el título
+"Tuned NSGA-II" se lee como strawman** (el "tuned" viene del Taguchi de N/T compartidos,
+no de un tuning propio de NSGA-II, y el propio campeón del paper ES un NSGA-II).
+Cambiar el título es decisión del autor — pendiente.
+
+Micro-pase aplicado tras el re-panel: "replicate"→"directionally consistent" en
+conclusiones (p≤0.071 no soporta "replicate"); caveat de heterogeneidad del gradiente
+de τ (4 operadores distintos, no una perilla continua); "Discrete-MOHHO we introduce"
+reposicionado como mechanism check (existen HHO discretos mono-objetivo); literatura
+del dominio añadida (Bansak et al., Science 2018, bib 30→31); future work con
+validación prospectiva registrada. Reducidas re-condensadas (prueba compacta,
+adaptación MO de HHO compacta) para sostener el invariante.
+
+**Invariante final: 30 / 30 / 19 / 19**, A4, 0 undefined, 0 overfull, abstract 241
+palabras, firewall 97/97, reproduce_fast overall_ok, anonymous_zip_hits 0.
