@@ -213,3 +213,72 @@ Chequeos (dimension LNCS): archivos de figura existen (14 en figures/, via \grap
 Unico hallazgo, solo en la full: la Tabla del ladder (tab:ladder) se citaba antes que la del factorial (tab:factorial) pero su entorno estaba definido despues -> Tabla 5 citada antes que Tabla 4 (no ascendente). La reducida de envio ya estaba conforme.
 
 Fix: se movio el bloque \begin{table} de tab:ladder a antes del de tab:factorial en main.tex y main_submission.tex, renumerando ladder->Tabla 4 y factorial->Tabla 5 (ascendente segun cita). Sin cambio de paginas (28/27), 0 undefined refs/cites, 0 Overfull; firewall 0/72; reproduce_fast overall_ok=true, anonymous_zip_hits=0. La reducida no se toco.
+
+## Pase mayor 2026-06-10: auditoría ciega multi-eje + mejora considerable
+
+Auditoría: panel de 3 revisores MICAI simulados (ciegos, sobre la reducida de envío)
++ 4 auditores técnicos (semántica, referencias, gramática, tablas/figuras) + re-derivación
+ciega de ~200 cifras + anonimato/versiones. Nota "antes": 6.0/6.0/6.5 (~6.2 consolidada).
+Triage completo en `output/AUDITORIA_2026-06-10_triage.md`.
+
+### Experimentos nuevos
+
+- **Test predictivo BRKGA** (`backend/brkga_nsga.py`, `brkga_full.py`): rk-NSGA-II con
+  crossover uniforme sesgado (τ=0.63) + reset mutation, 30 seeds; y BRKGA canónico
+  (elites 20%, mutants 15%). Ambos EMPATAN con random restart (309,970 / 309,928 vs
+  310,214; p=0.79). La regla de 2 condiciones se refina: **necesarias pero no
+  suficientes**, con gradiente monótono en τ (0.99→293k, 0.92→305k, 0.63→310k,
+  ≈0→315.7k) que cruza el nivel de blind sampling en τ≈0.6. Artefactos:
+  `brkga_ladder.json`, `brkga_full.json`.
+- **Headroom sweep n=5→15** (`backend/headroom_sweep_n15.py`): el "inconclusive"
+  (ρ=-0.90, p=0.083) se convierte en refutación con potencia: ρ=-0.775,
+  p-permutación=0.0012 — el escalar se mueve OPUESTO a la hipótesis. Artefacto:
+  `headroom_sweep_n15.json`.
+- **τ por estructura** (`backend/tau_structures.py`): la frase "re-confirmed τ on each
+  problem's keys" ahora es trazable (SBX≈0.992, HHO≈-0.12 en d=105/120/100/50).
+- **Per-seed del competent en knapsack** (`repro/structures_competent.py` re-corrido con
+  persistencia): habilita el 7.º violín de ladder2. Mismos ranks (1.13 knapsack).
+
+### Cambios al manuscrito (4 .tex sincronizados)
+
+- Críticos corregidos: regla "iff" universal re-acotada a selection landscapes y
+  graduada (abstract/conclusiones); autocontradicción "never the single best";
+  IGD invertido en la reducida (NSGA-II gana IGD 0.0071 vs 0.0212) + cifras stale
+  (3.1%→3.2%, 1.3e-5→1.8e-6, 0.82→0.85, 9/30→10/30, iter 138→135); caption de
+  fig:gen con ranking invertido; atribución "Çerçi and Dönmez"→Wang et al.
+- Ladder ampliado a 9 métodos: + perm-SPEA2 (317,135±3,814, empate con perm-NSGA-II)
+  y + rk-NSGA-II biased uniform (test predictivo).
+- Reposicionamiento: la regla es ahora un **protocolo diagnóstico a priori** (3 pasos,
+  medición barata de τ + chequeo de selección + clasificación de paisaje) en Discussion.
+- Literatura añadida: Rothlauf (locality), Raidl & Gottlieb (decoder EAs, knapsack),
+  Sörensen (metaphor exposed), Gonçalves & Resende (BRKGA), SPEA2. Bibliografía 25→30.
+- Honestidad estadística: p≤0.071 ya no se vende como "outperforms"; η² con criterio
+  consistente; "law"→"regularity"; "0.11 of the true front"→0.20 (error de unidades);
+  MOEA/D totalmente especificado; IGD declarado como indicador interno del par.
+- kusoglu re-alfabetizado (Yüzgeç primer autor, verificado) + URL; visa bulletin
+  deep-link a febrero 2026; S/N 109.78→109.77; "dominant factor (T)"→N.
+
+### Figuras (11 regeneradas, fonttype 42 — 0 Type 3)
+
+ladder 9 violines; ladder2 7 violines (competent mejor en knapsack); convergence sin
+labels duplicados ni `\,` literal; overlay con marcadores distinguibles en B&W; pareto
+3D/2D con viridis truncado + bordes; generalization sin barras recortadas y anotada;
+taguchi con estrella; mechanism_2x2 sin título incrustado, labels del paper y HV anotado.
+
+### Entregables y verificación
+
+- ZIPs anónimos renombrados sin marca: `submission_anonymous_full.zip`,
+  `submission_anonymous_reducida.zip` (los `VisaPredictAI_*_anonymous.zip` eliminados —
+  el nombre de archivo filtraba identidad). No-anónimos: Overleaf y reducida rebuilt.
+- Firewall 72→**97 claims, n_mismatch=0**. `reproduce_fast` overall_ok=true
+  (pytest 0, firewall 0, anonymous_zip_hits 0).
+- **Invariante de páginas nuevo: 30 / 29 / 20 / 19** (main / submission / reducida /
+  reducida_submission), A4, 0 undefined, 0 overfull. El envío sigue siendo la
+  reducida_submission (19 pp ≤ 20). Abstract 241 palabras (≤250).
+- 4 `Feasibility-Preserving_MOHHO_MICAI*.pdf` refrescados.
+
+### Pendiente de verificación manual
+
+- Confirmar en navegador que `https://anonymous.4open.science/r/decoder-moo-reproducibility/`
+  resuelve (Cloudflare bloquea la verificación CLI) y que el snapshot 4open refleja el
+  código nuevo (brkga, headroom n15, tau_structures).
