@@ -744,3 +744,30 @@ test" desajustaría con el título). Su petición de ε-constraint YA está sati
 la cláusula de fraccionalidad.
 Gates: 34/34/20/20, 0 overfull/undefined, firewall 158/158, reproduce_fast ok,
 anonimato 0; ZIPs + Feasibility refrescados.
+
+## 27. Dictamen v3 (borderline/weak ACCEPT) — ajustes de tono finales (10-jun, noche)
+
+El dictamen convergió: strong reject (v1, leyó la versión equivocada) → borderline (v2)
+→ **borderline/weak accept** (v3) con "cambios menores". Triage y aplicación:
+**Aplicado:**
+- Abstract: "a cheap a priori diagnostic" → "a cheap a priori **screening** diagnostic"
+  (+1 palabra, 247; transmite condición-necesaria sin desajustar con el título).
+- Su catch real #5: "four-structure generalization (knapsack, traveling salesman,
+  flow-shop)" listaba TRES — ahora "(the visa plus knapsack, ...)" en intro y
+  conclusiones de ambas versiones.
+- "For policy, the front is a quantified menu **under the assumed model**:" (reducida)
+  y "quantified map of compromises for a decision-maker under the assumed model" (full).
+- Frase-guía anti-fatiga al inicio del ladder ("One question runs through it: when
+  does search beat blind sampling?") — SOLO en la full; en la reducida costaba la
+  página 21 y la señalización ya la dan los párrafos titulados.
+**Título: CONSERVADO** (segunda vez que lo pide; el rationale de §26 sigue vigente).
+**Declinado:** "screening test" reemplazando "diagnostic" (desajuste con título);
+reframe completo de política (Limitations ya hace el trabajo).
+**Compensación de páginas** (las adiciones empujaban la reducida a 21): recortes sin
+cifras — "all far above the naive...", punchline redundante del competent, pregunta
+retórica del skeptic, "Under an identical budget" (ya dicho), frase del verificador
+en availability, "with Discrete-MOHHO the matched-swarm counterpart", Montgomery sin
+"9th edn." (viuda "(2017)" recuperada; sincronizado en las 4 bibliografías), y bloque
+GitHub comprimido (solo camera-ready). **Ambas reducidas: 20 pp.**
+Gates: 34/34/20/20, 0 overfull, abstract 247, firewall 158/158, reproduce_fast ok,
+anonimato 0; ZIPs + Feasibility refrescados.
