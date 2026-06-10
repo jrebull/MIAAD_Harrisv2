@@ -1,0 +1,55 @@
+{
+  "problem": {
+    "name": "mo-SCP",
+    "n_sets": 120,
+    "m_elements": 150,
+    "cost_vectors": 3,
+    "instance_seed": 7,
+    "decoder": "SPV order; add set iff it covers a new element; full cover by construction",
+    "landscape_class_step3": "selection"
+  },
+  "budget": {
+    "pop": 50,
+    "gen": 500,
+    "evals": 25000,
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30
+    ]
+  },
+  "predictions": {
+    "P1": "real-coded NSGA-II (SBX, tau~0.99) significantly BELOW random restart (paired Wilcoxon one-sided p<0.05)",
+    "P2": "rk-NSGA-II (biased uniform, tau~0.63) within 2% of random restart's mean HV AND significantly below perm-NSGA-II (p<0.05)",
+    "P3": "perm-NSGA-II significantly ABOVE random restart (one-sided p<0.05)",
+    "P4": "competent random-key MO-HHO significantly ABOVE random restart (one-sided p<0.05)"
+  },
+  "note": "Registered before running any optimizer on this problem; the git commit of this file precedes the results commit."
+}
