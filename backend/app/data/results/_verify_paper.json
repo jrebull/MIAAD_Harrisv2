@@ -1109,7 +1109,7 @@
       "delta": 0.0
     }
   ],
-  "tex_inventory_count": 2093,
+  "tex_inventory_count": 2091,
   "tex_inventory_sample": [
     {
       "file": "main_submission.tex",
@@ -1169,13 +1169,13 @@
       "file": "main_submission.tex",
       "line": 114,
       "token": "800",
-      "context": "The demands $n_g$ and priority dates $d_g$ form a representative instance calibrated to the \\emph{documented aggregate s"
+      "context": "The demands $n_g$ and priority dates $d_g$ form a representative instance calibrated to the documented aggregate structu"
     },
     {
       "file": "main_submission.tex",
       "line": 114,
       "token": "000",
-      "context": "The demands $n_g$ and priority dates $d_g$ form a representative instance calibrated to the \\emph{documented aggregate s"
+      "context": "The demands $n_g$ and priority dates $d_g$ form a representative instance calibrated to the documented aggregate structu"
     },
     {
       "file": "main_submission.tex",

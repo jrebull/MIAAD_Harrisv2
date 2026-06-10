@@ -612,3 +612,46 @@ re-tipografía el camera-ready).
 firewall **158/158**, reproduce_fast overall_ok, anonimato 0 hits, 4 ZIPs
 reconstruidos (las reducidas llevan 1 sola figura: ladder.pdf) + 4 Feasibility
 refrescados.
+
+## 24. Re-vuelta a los comentarios del coautor + auditoría brutal final (10-jun-2026, noche)
+
+**Re-triage honesto de Gibran.** Su comentario de itálicas era MÁS válido de lo aplicado:
+quedaban ~90 `\emph` retóricos en palabras comunes (every/and/not/above/can/does/tie/
+refines/failed...). Pasada completa: política estricta = itálicas SOLO para términos en
+primera definición, etiquetas estructurales run-in, nombres de método en su introducción
+y 2 frases-hallazgo centrales. Eliminados 90 en la full y 51 en la reducida (más `sole`,
+`population size`, `iteration budget` en los Taguchi). Y su queja de orden de citas
+también pegó donde no había mirado: `section_taguchi_reducida.tex` tenía
+`\cite{montgomery,alrafei}` renderizando **[22,1] descendente** → corregido. Su nota de
+x_g respondida en el texto: "fixes the model's decision variable" antes de eq:greedy
+(veredicto del auditor: no hay sobrecarga; el decoder COMPUTA la misma variable).
+Lo declinado se sostiene tras verificación: f₂ = max con dominio explícito y |·| agrupa
+(notación estándar); vectores angulares no-convención MOO; bib alfabética LNCS verificada
+36/36 contra Crossref; sin grupos de 3+ consecutivos (el guion [1]-[3] nunca aplica).
+
+**Las DOS reducidas ahora en 20 pp** (pedido del usuario: blind y no-blind ≤20, cuerpo
+idéntico). 9 recortes de prosa sin cifras (verificados gramaticales por el auditor) +
+compactación de bloques solo-camera-ready (institute 4→2 líneas, acknowledgments 1 línea).
+
+**Auditoría brutal final (4 agentes):**
+- *Semántica*: 1 CRÍTICO cazado — la reducida decía "no random-key configuration beats
+  it" contradiciendo al competent MO-HHO (+2.0%, random-key); fix: "no random-key GA
+  configuration". En la full: "random-key GA family". "Strictly opposite directions"
+  acotado "across the SBX sweep" (evita lectura dosis-respuesta). Verificó los 9 recortes
+  y las ~140 desitalizaciones: nada roto; ~25 cifras dobles consistentes.
+- *Referencias*: orden alfabético 36/36 ✓ (cato→Bier, cerci→Wang, kusoglu→Yüzgeç,
+  desempate Zitzler ✓); regla 6+et al. verificada contra Crossref (aranha 8, bansak 7,
+  chaves 7, cerci 7, zhang 7); 0 huérfanos; atribuciones 11/11. Fixes: cerci iniciales
+  con guion (J.-S., H.-M., X.-Y.), aranha "Camacho Villalón" (sin guion, per Crossref).
+- *LNCS/tipografía*: abstract estaba en ~253 → recortado a 246 (y "fixes all parameters"
+  → "fixes the shared parameters", honestidad); 95\,\%; \textbf{Discrete-MOHHO} retórico
+  fuera; set-covering desnegrieado en reducida; GA/EAs/GRASP/BRKGA expandidos en primera
+  mención; caption tab:structures acotado "among the six core methods". Limpio en:
+  guiones, captions, floats [t], orden ascendente de figs/tablas, miles {,}, americano.
+- *Anonimato+números*: 0 fugas en .tex/.pdf/ZIPs/figuras (metadata limpia); ~45 cifras
+  re-derivadas a ciegas (controles, ladder 9×4 celda a celda, 2×2 completo) = 0
+  mismatches; σ del ladder = poblacional ddof=0 uniforme (convención, no error).
+
+**Gates finales: 34/34/20/20 pp** (¡ambas reducidas en 20!), A4, 0 undefined/overfull,
+abstract 246, firewall **158/158**, reproduce_fast overall_ok, anonimato 0 hits,
+4 ZIPs + 4 Feasibility refrescados.
