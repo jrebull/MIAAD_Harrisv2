@@ -720,3 +720,27 @@ Run-in labels como señalización. Costo de lectura real reconocido.
 
 **Cierre de la iteración**: cláusula MILP-f2 añadida (4 archivos, gates 34/34/20/20,
 0 overfull), firewall y reproduce_fast re-corridos, ZIPs+Feasibility refrescados.
+
+## 26. Dictamen v2 (borderline) — fixes de framing aplicados, título conservado (10-jun)
+
+El dictamen actualizado (strong reject → borderline con la versión correcta) se triajó:
+**Aplicado (sus mejores catches, costo cero páginas):** (1) Conclusions: "We formulated
+the annual allocation..." → "We formulated a calibrated instance of the annual
+allocation..."; (2) "and solved it through" → "and searched the decoder-reachable
+trade-off space through" (el verbo "solved" desentonaba con el scoping del cuerpo);
+(3) contribución: "recovers a policy-relevant Pareto front" → "recovers a Pareto front
+of policy trade-offs". En las 4 versiones.
+**Título CONSERVADO** (decisión delegada al asistente): "A Two-Condition Diagnostic...
+When Blind Sampling Beats a Mismatched NSGA-II" — un diagnóstico en sentido screening
+es exactamente lo entregado (predice FALLO de forma fiable; el abstract declara
+necesario-no-suficiente y las falsificaciones); el subtítulo se auto-acota
+("Mismatched"); salió de panel unánime y re-abrirlo es churn sin ganancia clara.
+**Declinado con razón:** mover controles a apéndice (LNCS sin apéndice fuera del límite;
+los controles son el foso contra el strawman — su propio punto 4 de ayer); reframe
+total "synthetic benchmark" (los totales por país SÍ están anclados; sobre-retirada);
+sus reescrituras del abstract (+8 palabras, romperían el límite de 250; "screening
+test" desajustaría con el título). Su petición de ε-constraint YA está satisfecha
+(el MILP (f1,f3) exacto con f2 a posteriori ES eso) — visibilidad mejorada ayer con
+la cláusula de fraccionalidad.
+Gates: 34/34/20/20, 0 overfull/undefined, firewall 158/158, reproduce_fast ok,
+anonimato 0; ZIPs + Feasibility refrescados.
