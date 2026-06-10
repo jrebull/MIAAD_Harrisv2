@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
+matplotlib.rcParams["pdf.fonttype"] = 42
 import matplotlib.pyplot as plt
 
 R = Path("app/data/results")

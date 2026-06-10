@@ -1,6 +1,7 @@
 """Generalization figure from second_instance.json + base (stats_test/controls)."""
 import json
 import matplotlib; matplotlib.use('Agg')
+matplotlib.rcParams['pdf.fonttype']=42
 import matplotlib.pyplot as plt
 import numpy as np
 R='app/data/results/'
@@ -22,10 +23,12 @@ b2=ax.bar(x,relR,w,color='#9AA3AF',alpha=0.88,label='Random restart',edgecolor='
 b3=ax.bar(x+w,relN,w,color='#E67E22',alpha=0.88,label='NSGA-II',edgecolor='k',linewidth=0.3)
 ax.axhline(100,color='#2E86DE',lw=0.8,ls=':')
 ymin=min(min(relR),min(relN))-2
-ax.set_ylim(ymin,101.5)
+ax.set_ylim(ymin,104.5)
+for xi,v in zip(x,relR):
+    ax.text(xi,v+0.25,f'{v:.1f}',ha='center',va='bottom',fontsize=6.5,color='#555')
 ax.set_ylabel('Hypervolume, % of MOHHO')
 ax.set_xticks(x); ax.set_xticklabels(labels)
-ax.set_xlabel('Instance (Base + five perturbed-demand instances P1--P5)')
+ax.set_xlabel('Instance (Base + five perturbed-demand instances P1–P5)')
 ax.legend(handles=[b1,b2,b3],loc='lower center',bbox_to_anchor=(0.5,1.01),ncol=3,fontsize=8.5,frameon=False,columnspacing=2.2,handlelength=1.4)
 ax.grid(axis='y',alpha=0.25)
 fig.savefig('../MICAI/figures/generalization.pdf'); fig.savefig('../MICAI/figures/generalization.png',dpi=200)

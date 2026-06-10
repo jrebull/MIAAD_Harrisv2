@@ -23,6 +23,7 @@ Outputs:
   ../MICAI/figures/taguchi_main_effects.pdf   (S/N main-effects plot, vectorial)
 """
 import json
+import sys
 import time
 import math
 from pathlib import Path
@@ -30,6 +31,7 @@ from pathlib import Path
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
+matplotlib.rcParams["pdf.fonttype"] = 42
 import matplotlib.pyplot as plt
 
 import app.core.hho as hho
@@ -204,6 +206,12 @@ def main():
     print("saved:", RESULTS / "taguchi.json", f"| total {out['elapsed_s']:.0f}s")
 
     # ---- 6. Main-effects figure (S/N per level, one panel per factor) ----
+    make_figure(response_sn, grand_mean_sn, optimum_levels)
+
+
+def make_figure(response_sn, grand_mean_sn, optimum_levels):
+    """Main-effects plot. Best level marked with a red STAR (shape + color
+    redundancy so the optimum survives B&W printing)."""
     FIGDIR.mkdir(parents=True, exist_ok=True)
     labels = {
         "A_pop": "A: population $N$",
@@ -218,7 +226,8 @@ def main():
         ax.plot(range(3), ys, "o-", color="#2E86DE", lw=1.8, ms=6)
         ax.axhline(grand_mean_sn, color="#888", ls="--", lw=0.9)
         best = optimum_levels[fac] - 1
-        ax.plot(best, ys[best], "o", color="#E74C3C", ms=9, zorder=5)
+        ax.plot(best, ys[best], "*", color="#E74C3C", ms=15,
+                markeredgecolor="k", markeredgewidth=0.5, zorder=5)
         ax.set_xticks(range(3))
         ax.set_xticklabels([str(v) for v in xs])
         ax.set_title(labels[fac], fontsize=10)
@@ -231,4 +240,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if "--fig-only" in sys.argv:
+        # regenerate the figure from the released taguchi.json (no re-run)
+        t = json.load(open(RESULTS / "taguchi.json"))
+        make_figure(t["response_sn"], t["grand_mean_sn"], t["optimum_levels"])
+    else:
+        main()

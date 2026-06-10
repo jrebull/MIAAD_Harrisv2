@@ -7,9 +7,11 @@ from pathlib import Path
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
+matplotlib.rcParams["pdf.fonttype"] = 42
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  # noqa
 from matplotlib.ticker import FuncFormatter
+from matplotlib.colors import LinearSegmentedColormap
 
 from app.core.problem import VisaProblem
 from app.core.fifo import run_baseline
@@ -19,6 +21,10 @@ plt.rcParams.update({"font.family": "serif", "font.size": 9, "savefig.bbox": "ti
 FIG = Path("../MICAI/figures")
 R = Path("app/data/results")
 BLUE, RED, GREEN, GREY = "#2E86DE", "#E74C3C", "#27AE60", "#9AA3AF"
+# viridis truncated at 0.85 (drops the pale-yellow extreme, invisible in print),
+# reversed to keep the original viridis_r orientation (low f3 -> light, high -> dark)
+VIRIDIS_T_R = LinearSegmentedColormap.from_list(
+    "viridis_t_r", plt.cm.viridis(np.linspace(0.85, 0.0, 256)))
 
 
 def load_front():
@@ -39,8 +45,9 @@ def fig_pareto3d_v2():
     zfloor = P[:, 2].min()
     ax.scatter(P[:, 0], P[:, 1], np.full(len(P), zfloor), s=6, c=GREY,
                alpha=0.12, edgecolors="none")
-    sc = ax.scatter(P[:, 0], P[:, 1], P[:, 2], c=P[:, 2], cmap="viridis_r",
-                    s=22, alpha=0.92, edgecolors="none", depthshade=True)
+    sc = ax.scatter(P[:, 0], P[:, 1], P[:, 2], c=P[:, 2], cmap=VIRIDIS_T_R,
+                    s=22, alpha=0.92, edgecolors="#333333", linewidths=0.3,
+                    depthshade=True)
     # FIFO star + drop-line down to the front's f3 level -> visualizes domination
     ax.scatter([fifo[0]], [fifo[1]], [fifo[2]], marker="*", s=320, c=RED,
                edgecolors="k", linewidths=0.6, label="FIFO baseline (dominated)")
@@ -50,14 +57,15 @@ def fig_pareto3d_v2():
         e = P[np.argmin(P[:, m])]
         ax.scatter([e[0]], [e[1]], [e[2]], s=70, facecolors="none",
                    edgecolors="k", linewidths=1.1)
-    ax.set_xlabel(r"$f_1$  waiting load", labelpad=3)
-    ax.set_ylabel(r"$f_2$  disparity (yr)", labelpad=3)
-    ax.set_zlabel(r"$f_3$  waste (visas)", labelpad=3)
+    ax.set_xlabel(r"$f_1$  waiting load", labelpad=4, fontsize=11)
+    ax.set_ylabel(r"$f_2$  disparity (yr)", labelpad=4, fontsize=11)
+    ax.set_zlabel(r"$f_3$  waste (visas)", labelpad=4, fontsize=11)
+    ax.tick_params(labelsize=10)
     ax.view_init(elev=18, azim=-66)
     ax.xaxis.pane.set_alpha(0.04); ax.yaxis.pane.set_alpha(0.04); ax.zaxis.pane.set_alpha(0.04)
     cb = fig.colorbar(sc, ax=ax, shrink=0.58, pad=0.09)
-    cb.set_label(r"$f_3$ (wasted visas)", fontsize=8); cb.ax.tick_params(labelsize=7)
-    ax.legend(loc="upper left", fontsize=8)
+    cb.set_label(r"$f_3$ (wasted visas)", fontsize=10); cb.ax.tick_params(labelsize=9)
+    ax.legend(loc="upper left", fontsize=10)
     fig.tight_layout()
     fig.savefig(FIG / "pareto3d_v2.pdf"); fig.savefig(FIG / "pareto3d_v2.png", dpi=200)
     plt.close(fig); print("saved pareto3d_v2")

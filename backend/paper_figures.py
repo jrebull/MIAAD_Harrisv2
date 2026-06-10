@@ -19,8 +19,10 @@ from pathlib import Path
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
+matplotlib.rcParams["pdf.fonttype"] = 42
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.ticker import FuncFormatter
 
 plt.rcParams.update({
@@ -39,7 +41,11 @@ R = Path("app/data/results")
 FIG = Path("../MICAI/figures")
 FIG.mkdir(parents=True, exist_ok=True)
 BLUE, ORANGE, RED, GREY = "#2E86DE", "#E67E22", "#E74C3C", "#9AA3AF"
-millions = FuncFormatter(lambda x, _: f"{x/1e6:.2f}")
+millions = FuncFormatter(lambda x, _: f"{x/1e6:.3f}")
+# viridis truncated at 0.85 (drops the pale-yellow extreme, invisible in print),
+# reversed to keep the original viridis_r orientation (low f3 -> light, high -> dark)
+VIRIDIS_T_R = LinearSegmentedColormap.from_list(
+    "viridis_t_r", plt.cm.viridis(np.linspace(0.85, 0.0, 256)))
 
 
 def load_front():
@@ -69,7 +75,7 @@ def fig_convergence():
         idx = int(np.argmax(mean >= frac * final))
         ax.axvline(idx, color=GREY, ls=":", lw=1.0)
         ax.text(idx + 6, mean.min() + 0.06 * (final - mean.min()),
-                f"{lab} @ it.\\,{idx}", fontsize=7.5, color="#555", rotation=90,
+                f"{lab} @ it. {idx}", fontsize=7.5, color="#555", rotation=90,
                 va="bottom")
     ax.set_xlabel("Iteration")
     ax.set_ylabel("Hypervolume")
@@ -108,15 +114,17 @@ def fig_pareto3d():
 def fig_pareto_f1f2():
     P, fifo = load_front()
     fig, ax = plt.subplots(figsize=(5.2, 3.4))
-    sc = ax.scatter(P[:, 0], P[:, 1], c=P[:, 2], cmap="viridis_r", s=18,
-                    alpha=0.85, edgecolors="none")
+    sc = ax.scatter(P[:, 0], P[:, 1], c=P[:, 2], cmap=VIRIDIS_T_R, s=18,
+                    alpha=0.85, edgecolors="#333333", linewidths=0.3)
     ax.scatter([fifo[0]], [fifo[1]], marker="*", s=180, c=RED, edgecolors="k",
                linewidths=0.5, zorder=5, label="FIFO baseline (dominated)")
-    ax.set_xlabel(r"$f_1$ — unserved waiting load")
-    ax.set_ylabel(r"$f_2$ — inter-country disparity (years)")
+    ax.set_xlabel(r"$f_1$ — unserved waiting load", fontsize=11)
+    ax.set_ylabel(r"$f_2$ — inter-country disparity (years)", fontsize=11)
+    ax.tick_params(labelsize=10)
     cb = fig.colorbar(sc, ax=ax)
-    cb.set_label(r"$f_3$ — wasted visas")
-    ax.legend(loc="upper right", framealpha=0.92)
+    cb.set_label(r"$f_3$ — wasted visas", fontsize=11)
+    cb.ax.tick_params(labelsize=10)
+    ax.legend(loc="upper right", framealpha=0.92, fontsize=10)
     ax.grid(alpha=0.25)
     save(fig, "pareto_f1f2")
 
@@ -155,9 +163,10 @@ def fig_nsga_overlay():
     ng = np.array(json.load(open(f))["front"])
     P, fifo = load_front()
     fig, ax = plt.subplots(figsize=(5.2, 3.4))
-    ax.scatter(ng[:, 0], ng[:, 1], s=16, c=ORANGE, alpha=0.6,
-               label=f"NSGA-II ({len(ng)} sol.)", edgecolors="none")
-    ax.scatter(P[:, 0], P[:, 1], s=16, c=BLUE, alpha=0.7,
+    ax.scatter(ng[:, 0], ng[:, 1], s=22, marker="^", facecolors="none",
+               edgecolors=ORANGE, linewidths=0.8, alpha=0.75,
+               label=f"NSGA-II ({len(ng)} sol.)")
+    ax.scatter(P[:, 0], P[:, 1], s=16, marker="o", c=BLUE, alpha=0.7,
                label=f"MOHHO ({len(P)} sol.)", edgecolors="none")
     ax.scatter([fifo[0]], [fifo[1]], marker="*", s=180, c=RED, edgecolors="k",
                linewidths=0.5, zorder=5, label="FIFO baseline")
