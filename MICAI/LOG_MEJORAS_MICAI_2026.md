@@ -304,3 +304,47 @@ adaptación MO de HHO compacta) para sostener el invariante.
 
 **Invariante final: 30 / 30 / 19 / 19**, A4, 0 undefined, 0 overfull, abstract 241
 palabras, firewall 97/97, reproduce_fast overall_ok, anonymous_zip_hits 0.
+
+## Salto final 2026-06-10 (parte 2): re-título + validación prospectiva registrada
+
+### Título nuevo (decisión del autor, siguiendo al panel unánime)
+
+`A Two-Condition Diagnostic for Decoder-Based Multi-Objective Search: When Blind
+Sampling Beats a Mismatched NSGA-II` — la tesis primero, el gancho después, y
+"Mismatched" en lugar de "Tuned" (que era inexacto: el Taguchi afinó N/T compartidos,
+no a NSGA-II). El cuerpo se limpió en consecuencia ("tuned"→"standard"/"mismatched"
+donde refería a NSGA-II; los usos legítimos de Taguchi quedan).
+
+### Validación prospectiva REGISTRADA en un 5.º problema (mo-SCP)
+
+Registro de 4 predicciones commiteado ANTES de correr (211f9c1 precede al commit de
+resultados — esa es la evidencia de prospectividad). Problema: set covering
+tri-objetivo (150 elementos, 120 conjuntos, 3 vectores de costo), etiquetado
+"selection landscape" por su estructura de subconjuntos.
+
+Veredicto (30 seeds × 5 métodos, mismo presupuesto):
+- **P3 y P4 SOSTENIDAS** (las que dependen solo de las 2 condiciones): perm-NSGA-II
+  0.357 y competent 0.386 vs random 0.259, p=9.3e-10, A12=1.0 ambas.
+- **P1 y P2 FALSIFICADAS** (las que dependían de la etiqueta de paisaje): SBX-NSGA-II
+  +10% SOBRE random (p=1.3e-8) y rk-biased es EL MEJOR método (0.415, +60%, encima
+  incluso de perm-NSGA-II p=9.3e-10).
+
+Lectura integrada al paper (tal cual salió, sin maquillar): el núcleo de 2 condiciones
+predice prospectivamente (el mejor método en las 5 estructuras cumple ambas; los
+métodos de renovación de orden vencen a blind sampling en las 5); la etiqueta
+superficie subset/sequencing NO predice (mo-SCP no satura presupuesto compartido →
+se comporta como sequencing; el gradiente monótono en τ es además instance-specific).
+El paso 3 del protocolo se reescribió como "baseline check" (medir la fuerza de blind
+sampling, no clasificar por estructura) y el determinante operativo queda como
+hipótesis registrada: saturación de presupuesto del decoder (consistente con la
+anticorrelación del headroom).
+
+### Estado verificado
+
+- Invariante: **31 / 31 / 20 / 20** pp (la reducida queda EXACTAMENTE en el límite
+  MICAI de 20 sin contactar organizadores), A4, 0 undefined, 0 overfull.
+- Abstract 247 palabras. Firewall **109/109 n_mismatch=0** (+12 claims prospectivos).
+- reproduce_fast overall_ok=true, anonymous_zip_hits=0. 4 ZIPs + 4 Feasibility-*.pdf
+  refrescados.
+- 4open verificado por el autor en navegador. ⚠️ Subir al snapshot el código nuevo:
+  prospective_scp.py (+ registración y resultados JSON) además de brkga/headroom/tau.

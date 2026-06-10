@@ -189,6 +189,21 @@ CLAIMS = [
     ("headroom_n15_perm_p", 0.001, "headroom_sweep_n15.json", "perm_p_two_sided", 0.0005, "abs"),
     ("headroom_n15_last_frac", 0.85, "headroom_sweep_n15.json", "fracs[14]", 0, "exact"),
     ("headroom_n15_seeds", 10, "headroom_sweep_n15.json", "seeds", 0, "exact"),
+    # ---- 2026-06-10: validacion prospectiva registrada mo-SCP (prospective_scp.json) ----
+    ("scp_random_hv", 0.259, "prospective_scp.json", "hv_mean.random_restart", 0.001, "abs"),
+    ("scp_nsga_rc_hv", 0.286, "prospective_scp.json", "hv_mean.nsga2_realcoded", 0.001, "abs"),
+    ("scp_rk_biased_hv", 0.415, "prospective_scp.json", "hv_mean.rk_nsga2_biased", 0.001, "abs"),
+    ("scp_perm_nsga_hv", 0.357, "prospective_scp.json", "hv_mean.perm_nsga2", 0.001, "abs"),
+    ("scp_competent_hv", 0.386, "prospective_scp.json", "hv_mean.competent_mohho", 0.001, "abs"),
+    ("scp_P1_holds", False, "prospective_scp.json", "verdict.P1.holds", 0, "exact"),
+    ("scp_P2_holds", False, "prospective_scp.json", "verdict.P2.holds", 0, "exact"),
+    ("scp_P3_holds", True, "prospective_scp.json", "verdict.P3.holds", 0, "exact"),
+    ("scp_P4_holds", True, "prospective_scp.json", "verdict.P4.holds", 0, "exact"),
+    ("scp_rk_biased_gap_pct", 59.9, "prospective_scp.json",
+     "verdict.P2.gap_vs_random_pct", 0.5, "abs"),
+    ("scp_P3_p", 9.3e-10, "prospective_scp.json", "verdict.P3.p_one_sided", 1e-10, "abs"),
+    ("scp_P1_p_above", 1.3e-8, "prospective_scp.json",
+     "verdict.P1.p_above_random_one_sided", 5e-9, "abs"),
 ]
 
 

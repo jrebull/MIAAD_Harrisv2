@@ -1,5 +1,5 @@
 {
-  "n_claims_checked": 97,
+  "n_claims_checked": 109,
   "n_mismatch": 0,
   "rows": [
     {
@@ -680,9 +680,93 @@
       "paper": 10,
       "json": 10,
       "delta": 0.0
+    },
+    {
+      "name": "scp_random_hv",
+      "status": "OK",
+      "paper": 0.259,
+      "json": 0.2594614883762723,
+      "delta": 0.000461488376272301
+    },
+    {
+      "name": "scp_nsga_rc_hv",
+      "status": "OK",
+      "paper": 0.286,
+      "json": 0.2856089987063335,
+      "delta": -0.00039100129366648195
+    },
+    {
+      "name": "scp_rk_biased_hv",
+      "status": "OK",
+      "paper": 0.415,
+      "json": 0.4149021461070382,
+      "delta": -9.78538929617967e-05
+    },
+    {
+      "name": "scp_perm_nsga_hv",
+      "status": "OK",
+      "paper": 0.357,
+      "json": 0.3566775558440061,
+      "delta": -0.0003224441559938618
+    },
+    {
+      "name": "scp_competent_hv",
+      "status": "OK",
+      "paper": 0.386,
+      "json": 0.3855846027223516,
+      "delta": -0.0004153972776483883
+    },
+    {
+      "name": "scp_P1_holds",
+      "status": "OK",
+      "paper": false,
+      "json": false,
+      "delta": 0.0
+    },
+    {
+      "name": "scp_P2_holds",
+      "status": "OK",
+      "paper": false,
+      "json": false,
+      "delta": 0.0
+    },
+    {
+      "name": "scp_P3_holds",
+      "status": "OK",
+      "paper": true,
+      "json": true,
+      "delta": 0.0
+    },
+    {
+      "name": "scp_P4_holds",
+      "status": "OK",
+      "paper": true,
+      "json": true,
+      "delta": 0.0
+    },
+    {
+      "name": "scp_rk_biased_gap_pct",
+      "status": "OK",
+      "paper": 59.9,
+      "json": 59.908951692031096,
+      "delta": 0.008951692031097025
+    },
+    {
+      "name": "scp_P3_p",
+      "status": "OK",
+      "paper": 9.3e-10,
+      "json": 9.313225746154785e-10,
+      "delta": 1.3225746154785218e-12
+    },
+    {
+      "name": "scp_P1_p_above",
+      "status": "OK",
+      "paper": 1.3e-08,
+      "json": 1.30385160446167e-08,
+      "delta": 3.8516044616698616e-11
     }
   ],
-  "tex_inventory_count": 1886,
+  "tex_inventory_count": 1902,
   "tex_inventory_sample": [
     {
       "file": "main_submission.tex",

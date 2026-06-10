@@ -197,19 +197,21 @@ def main():
     p3_p = w(pn, rnd, "greater")
     p4_p = w(comp, rnd, "greater")
     verdict = {
-        "P1": {"holds": p1_p < 0.05, "p_one_sided": p1_p, "a12": a12(rc, rnd)},
-        "P2": {"holds": (p2_gap < 0.02) and (p2_p_vs_perm < 0.05),
-               "gap_vs_random_pct": 100 * p2_gap, "p_below_perm": p2_p_vs_perm,
+        "P1": {"holds": bool(p1_p < 0.05), "p_one_sided": p1_p, "a12": a12(rc, rnd),
+               "p_above_random_one_sided": w(rc, rnd, "greater")},
+        "P2": {"holds": bool((p2_gap < 0.02) and (p2_p_vs_perm < 0.05)),
+               "gap_vs_random_pct": float(100 * p2_gap), "p_below_perm": p2_p_vs_perm,
                "p_vs_random_two_sided": w(rkb, rnd, "two-sided"),
+               "p_above_perm_one_sided": w(rkb, pn, "greater"),
                "a12_vs_random": a12(rkb, rnd)},
-        "P3": {"holds": p3_p < 0.05, "p_one_sided": p3_p, "a12": a12(pn, rnd)},
-        "P4": {"holds": p4_p < 0.05, "p_one_sided": p4_p, "a12": a12(comp, rnd)},
+        "P3": {"holds": bool(p3_p < 0.05), "p_one_sided": p3_p, "a12": a12(pn, rnd)},
+        "P4": {"holds": bool(p4_p < 0.05), "p_one_sided": p4_p, "a12": a12(comp, rnd)},
     }
     out = {"registration": REGISTRATION,
            "hv_mean": {k: float(np.mean(v)) for k, v in hv.items()},
            "hv_std": {k: float(np.std(v)) for k, v in hv.items()},
            "hv_per_seed": hv, "verdict": verdict,
-           "all_hold": all(v["holds"] for v in verdict.values()),
+           "all_hold": bool(all(v["holds"] for v in verdict.values())),
            "elapsed_s": time.time() - t0}
     json.dump(out, open(RESULTS / "prospective_scp.json", "w"), indent=2)
     for k, v in verdict.items():
