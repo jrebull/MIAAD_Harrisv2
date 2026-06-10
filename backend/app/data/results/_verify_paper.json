@@ -1,5 +1,5 @@
 {
-  "n_claims_checked": 118,
+  "n_claims_checked": 131,
   "n_mismatch": 0,
   "rows": [
     {
@@ -827,9 +827,100 @@
       "paper": 0.03125,
       "json": 0.03125,
       "delta": 0.0
+    },
+    {
+      "name": "rho_visa_spearman_hv",
+      "status": "OK",
+      "paper": 0.145,
+      "json": 0.14545454545454548,
+      "delta": 0.00045454545454548523
+    },
+    {
+      "name": "rho_knapsack_spearman_hv",
+      "status": "OK",
+      "paper": 0.236,
+      "json": 0.23636363636363636,
+      "delta": 0.00036363636363637153
+    },
+    {
+      "name": "rho_flowshop_spearman_hv",
+      "status": "OK",
+      "paper": 0.482,
+      "json": 0.48181818181818187,
+      "delta": -0.00018181818181811638
+    },
+    {
+      "name": "rho_visa_igd_spearman",
+      "status": "OK",
+      "paper": 0.8,
+      "json": 0.8000000000000002,
+      "delta": 1.1102230246251565e-16
+    },
+    {
+      "name": "rho_knapsack_igd_spearman",
+      "status": "OK",
+      "paper": 0.964,
+      "json": 0.9636363636363637,
+      "delta": -0.00036363636363623275
+    },
+    {
+      "name": "rho_tsp_igd_spearman",
+      "status": "OK",
+      "paper": 1.0,
+      "json": 1.0,
+      "delta": 0.0
+    },
+    {
+      "name": "rho_visa_above_all",
+      "status": "OK",
+      "paper": false,
+      "json": false,
+      "delta": 0.0
+    },
+    {
+      "name": "rho_tsp_above_all",
+      "status": "OK",
+      "paper": true,
+      "json": true,
+      "delta": 0.0
+    },
+    {
+      "name": "rho_flowshop_above_all",
+      "status": "OK",
+      "paper": true,
+      "json": true,
+      "delta": 0.0
+    },
+    {
+      "name": "rho_scp_above_all",
+      "status": "OK",
+      "paper": true,
+      "json": true,
+      "delta": 0.0
+    },
+    {
+      "name": "rho_R1_visa_fails",
+      "status": "OK",
+      "paper": false,
+      "json": false,
+      "delta": 0.0
+    },
+    {
+      "name": "rho_R3_fails",
+      "status": "OK",
+      "paper": false,
+      "json": false,
+      "delta": 0.0
+    },
+    {
+      "name": "rho_knapsack_hv_level0",
+      "status": "OK",
+      "paper": 0.31,
+      "json": 0.30969661577566454,
+      "delta": -0.00030338422433545675
     }
   ],
-  "tex_inventory_count": 2025,
+  "tex_inventory_count": 2043,
   "tex_inventory_sample": [
     {
       "file": "main_submission.tex",

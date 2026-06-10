@@ -416,3 +416,36 @@ versión con título nuevo + prospectivo + ronda 3.
 **Estado final: 31/31/20/20 pp**, A4, 0 undefined/overfull, abstract 245 palabras,
 firewall **118/118**, reproduce_fast ok, anonymous_zip_hits 0, ZIPs + Feasibility
 refrescados.
+
+## Barrido ρ_e registrado: dosis-respuesta limpio (2026-06-10, "subir el nivel")
+
+La palanca #1 de la ronda 3 (R2): un solo operador con perilla continua de disrupción
+(ρ_e del biased uniform crossover, 11 niveles, τ∈[0.42,1.0]), selección NDS fija,
+**las 5 estructuras × 30 seeds** (~1,650 corridas, 2.6 h), HV + IGD⁺ per-run contra
+el pool del propio barrido. Predicciones registradas y PUSHEADAS antes de correr
+(commit 4b9bf2f).
+
+Veredicto (rho_sweep.json, +13 claims al firewall → **131/131**):
+- **R1 (visa/knapsack: monotonía + cruce) FALSIFICADA**: el HV es PLANO en τ en las
+  5 estructuras (Spearman 0.15–0.48, ninguno significativo; visa oscila 98–100% de
+  random sin tendencia; flowshop clavado en 103.2%). **El "gradiente monótono" de 4
+  puntos era un contraste de FAMILIAS, no una dosis-respuesta — τ es bandera, no
+  perilla.** Exactamente lo que R2 sospechaba, demostrado por nuestro propio test.
+- **R2 (TSP/flowshop/SCP encima de random en todos los niveles) SOSTENIDA 3/3.**
+- **R3 (IGD⁺ concuerda con HV) FALSIFICADA-como-formulada, informativamente**: el
+  IGD⁺ SÍ degrada con τ→1 en visa/knapsack/TSP (ρ=0.80/0.96/1.00) mientras el HV no
+  ve nada — el efecto dosis residual existe pero solo es visible a una métrica de
+  cobertura, invisible al HV f₂-dominado.
+- **Hallazgo bonus**: en los DOS problemas de subconjuntos la familia biased-uniform
+  supera al MEJOR método del ladder en todos los niveles (knapsack ~0.31 vs 0.27 del
+  competent) — la hipótesis de saturación de presupuesto acota dónde colapsa SBX,
+  no lo que logra una familia bien acoplada.
+
+Integración: párrafo del gradiente reescrito en las 4 versiones (el "cruce en τ≈0.6"
+eliminado — no existe como curva); figura nueva fig:rho (2 paneles, solo full);
+abstract y conclusiones ahora dicen "registered prospective tests" (plural) y "el
+tipo de renovación, no la cantidad de disrupción, lleva el efecto"; protocolo: "τ es
+bandera, no perilla". Abstract 247 palabras.
+
+**Invariante: 32/32/20/20 pp**, A4, 0 undefined/overfull, firewall 131/131,
+reproduce_fast ok, ZIPs + Feasibility refrescados.
