@@ -92,8 +92,8 @@ def main() -> None:
         "main_reducida_submission.pdf": pdf_pages(MICAI / "main_reducida_submission.pdf"),
     }
     checks["anonymous_zip_scan"] = [
-        scan_zip(MICAI / "VisaPredictAI_MICAI_anonymous.zip"),
-        scan_zip(MICAI / "VisaPredictAI_MICAI_reducida_anonymous.zip"),
+        scan_zip(MICAI / "submission_anonymous_full.zip"),
+        scan_zip(MICAI / "submission_anonymous_reducida.zip"),
     ]
 
     ok = (

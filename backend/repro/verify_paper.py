@@ -152,6 +152,43 @@ CLAIMS = [
      "placement.TSP.competent_position_of_7", 0, "exact"),
     ("struct_competent_flowshop_pos", 2, "structures_v6.json",
      "placement.flow-shop.competent_position_of_7", 0, "exact"),
+    # ---- 2026-06-10: predictive test BRKGA-style (brkga_ladder/brkga_full) ----
+    ("brkga_tau_xover", 0.63, "brkga_ladder.json",
+     "operator_tau.biased_uniform_xover.mean_tau", 0.01, "abs"),
+    ("brkga_hv_mean", 309970, "brkga_ladder.json", "hv_mean", 60, "abs"),
+    ("brkga_hv_std", 9790, "brkga_ladder.json", "hv_std", 30, "abs"),
+    ("brkga_cv_pct", 3.16, "brkga_ladder.json", "cv_pct", 0.02, "abs"),
+    ("brkga_combined_hv", 325465, "brkga_ladder.json", "combined_front_hv", 60, "abs"),
+    ("brkga_combined_sols", 157, "brkga_ladder.json", "combined_front_size", 0, "exact"),
+    ("brkga_vs_random_p", 0.79, "brkga_ladder.json",
+     "paired[0].wilcoxon_p_two_sided", 0.01, "abs"),
+    ("brkga_vs_random_a12", 0.47, "brkga_ladder.json", "paired[0].a12", 0.01, "abs"),
+    ("brkga_vs_realcoded_diff_pct", 5.7, "brkga_ladder.json",
+     "paired[2].mean_diff_pct", 0.1, "abs"),
+    ("brkga_full_hv_mean", 309928, "brkga_full.json", "hv_mean", 60, "abs"),
+    # ---- 2026-06-10: perm-SPEA2 al ladder (perm_spea2.json) ----
+    ("spea2_hv_mean", 317135, "perm_spea2.json", "hv_mean", 60, "abs"),
+    ("spea2_hv_std", 3814, "perm_spea2.json", "hv_std", 30, "abs"),
+    ("spea2_cv_pct", 1.20, "perm_spea2.json", "cv_pct", 0.02, "abs"),
+    ("spea2_combined_hv", 322037, "perm_spea2.json", "combined_front_hv", 60, "abs"),
+    ("spea2_combined_sols", 179, "perm_spea2.json", "combined_front_size", 0, "exact"),
+    ("spea2_vs_perm_nsga_p", 0.47, "perm_spea2.json",
+     "vs_perm_nsga_p_two_sided", 0.01, "abs"),
+    ("spea2_vs_perm_nsga_a12", 0.45, "perm_spea2.json", "vs_perm_nsga_A12", 0.01, "abs"),
+    # ---- 2026-06-10: tau por estructura (tau_structures.json) ----
+    ("tau_struct_knapsack_sbx", 0.99, "tau_structures.json",
+     "structures.knapsack.sbx_family_mean", 0.01, "abs"),
+    ("tau_struct_tsp_sbx", 0.99, "tau_structures.json",
+     "structures.tsp.sbx_family_mean", 0.01, "abs"),
+    ("tau_struct_flowshop_sbx", 0.99, "tau_structures.json",
+     "structures.flowshop.sbx_family_mean", 0.01, "abs"),
+    ("tau_struct_knapsack_hho_near0", 0.0, "tau_structures.json",
+     "structures.knapsack.hho_family_mean", 0.15, "abs"),
+    # ---- 2026-06-10: headroom sweep ampliado a n=15 (headroom_sweep_n15.json) ----
+    ("headroom_n15_rho", -0.78, "headroom_sweep_n15.json", "spearman_rho", 0.01, "abs"),
+    ("headroom_n15_perm_p", 0.001, "headroom_sweep_n15.json", "perm_p_two_sided", 0.0005, "abs"),
+    ("headroom_n15_last_frac", 0.85, "headroom_sweep_n15.json", "fracs[14]", 0, "exact"),
+    ("headroom_n15_seeds", 10, "headroom_sweep_n15.json", "seeds", 0, "exact"),
 ]
 
 

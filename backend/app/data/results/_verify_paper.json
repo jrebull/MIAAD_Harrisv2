@@ -1,5 +1,5 @@
 {
-  "n_claims_checked": 72,
+  "n_claims_checked": 97,
   "n_mismatch": 0,
   "rows": [
     {
@@ -505,9 +505,184 @@
       "paper": 2,
       "json": 2,
       "delta": 0.0
+    },
+    {
+      "name": "brkga_tau_xover",
+      "status": "OK",
+      "paper": 0.63,
+      "json": 0.6309582417582416,
+      "delta": 0.0009582417582415514
+    },
+    {
+      "name": "brkga_hv_mean",
+      "status": "OK",
+      "paper": 309970,
+      "json": 309970.4502023197,
+      "delta": 0.45020231971284375
+    },
+    {
+      "name": "brkga_hv_std",
+      "status": "OK",
+      "paper": 9790,
+      "json": 9789.80546155368,
+      "delta": -0.1945384463197115
+    },
+    {
+      "name": "brkga_cv_pct",
+      "status": "OK",
+      "paper": 3.16,
+      "json": 3.158302817305266,
+      "delta": -0.0016971826947340674
+    },
+    {
+      "name": "brkga_combined_hv",
+      "status": "OK",
+      "paper": 325465,
+      "json": 325465.0441297103,
+      "delta": 0.0441297102952376
+    },
+    {
+      "name": "brkga_combined_sols",
+      "status": "OK",
+      "paper": 157,
+      "json": 157,
+      "delta": 0.0
+    },
+    {
+      "name": "brkga_vs_random_p",
+      "status": "OK",
+      "paper": 0.79,
+      "json": 0.7921590935438871,
+      "delta": 0.002159093543887103
+    },
+    {
+      "name": "brkga_vs_random_a12",
+      "status": "OK",
+      "paper": 0.47,
+      "json": 0.47444444444444445,
+      "delta": 0.004444444444444473
+    },
+    {
+      "name": "brkga_vs_realcoded_diff_pct",
+      "status": "OK",
+      "paper": 5.7,
+      "json": 5.659581732166281,
+      "delta": -0.04041826783371949
+    },
+    {
+      "name": "brkga_full_hv_mean",
+      "status": "OK",
+      "paper": 309928,
+      "json": 309927.759489548,
+      "delta": -0.24051045201485977
+    },
+    {
+      "name": "spea2_hv_mean",
+      "status": "OK",
+      "paper": 317135,
+      "json": 317135.3631383798,
+      "delta": 0.36313837982015684
+    },
+    {
+      "name": "spea2_hv_std",
+      "status": "OK",
+      "paper": 3814,
+      "json": 3814.2393449558376,
+      "delta": 0.23934495583762327
+    },
+    {
+      "name": "spea2_cv_pct",
+      "status": "OK",
+      "paper": 1.2,
+      "json": 1.2027165016256862,
+      "delta": 0.002716501625686263
+    },
+    {
+      "name": "spea2_combined_hv",
+      "status": "OK",
+      "paper": 322037,
+      "json": 322037.4926826981,
+      "delta": 0.492682698124554
+    },
+    {
+      "name": "spea2_combined_sols",
+      "status": "OK",
+      "paper": 179,
+      "json": 179,
+      "delta": 0.0
+    },
+    {
+      "name": "spea2_vs_perm_nsga_p",
+      "status": "OK",
+      "paper": 0.47,
+      "json": 0.47334655725844954,
+      "delta": 0.0033465572584495673
+    },
+    {
+      "name": "spea2_vs_perm_nsga_a12",
+      "status": "OK",
+      "paper": 0.45,
+      "json": 0.44555555555555554,
+      "delta": -0.004444444444444473
+    },
+    {
+      "name": "tau_struct_knapsack_sbx",
+      "status": "OK",
+      "paper": 0.99,
+      "json": 0.9922112044817926,
+      "delta": 0.0022112044817925725
+    },
+    {
+      "name": "tau_struct_tsp_sbx",
+      "status": "OK",
+      "paper": 0.99,
+      "json": 0.992180606060606,
+      "delta": 0.002180606060605994
+    },
+    {
+      "name": "tau_struct_flowshop_sbx",
+      "status": "OK",
+      "paper": 0.99,
+      "json": 0.9922380952380953,
+      "delta": 0.0022380952380952612
+    },
+    {
+      "name": "tau_struct_knapsack_hho_near0",
+      "status": "OK",
+      "paper": 0.0,
+      "json": -0.11962278244631185,
+      "delta": -0.11962278244631185
+    },
+    {
+      "name": "headroom_n15_rho",
+      "status": "OK",
+      "paper": -0.78,
+      "json": -0.7749999999999999,
+      "delta": 0.0050000000000001155
+    },
+    {
+      "name": "headroom_n15_perm_p",
+      "status": "OK",
+      "paper": 0.001,
+      "json": 0.0011749941250293748,
+      "delta": 0.0001749941250293748
+    },
+    {
+      "name": "headroom_n15_last_frac",
+      "status": "OK",
+      "paper": 0.85,
+      "json": 0.85,
+      "delta": 0.0
+    },
+    {
+      "name": "headroom_n15_seeds",
+      "status": "OK",
+      "paper": 10,
+      "json": 10,
+      "delta": 0.0
     }
   ],
-  "tex_inventory_count": 1582,
+  "tex_inventory_count": 1864,
   "tex_inventory_sample": [
     {
       "file": "main_submission.tex",
@@ -525,13 +700,13 @@
       "file": "main_submission.tex",
       "line": 66,
       "token": "140",
-      "context": "Many hard constrained combinatorial problems are solved by pairing a metaheuristic with a feasibility-preserving decoder"
+      "context": "Many hard-constrained combinatorial problems are solved by pairing a metaheuristic with a feasibility-preserving decoder"
     },
     {
       "file": "main_submission.tex",
       "line": 66,
       "token": "000",
-      "context": "Many hard constrained combinatorial problems are solved by pairing a metaheuristic with a feasibility-preserving decoder"
+      "context": "Many hard-constrained combinatorial problems are solved by pairing a metaheuristic with a feasibility-preserving decoder"
     },
     {
       "file": "main_submission.tex",
@@ -649,6 +824,12 @@
     },
     {
       "file": "main_submission.tex",
+      "line": 220,
+      "token": "100,",
+      "context": "The ablation (Section~\\ref{sec:ablation}) reveals that the continuous random-key operators are a poor match for the indu"
+    },
+    {
+      "file": "main_submission.tex",
       "line": 225,
       "token": "000",
       "context": "We assess each approximation front with four indicators: the \\emph{hypervolume} (\\HV; larger is better) dominated with r"
@@ -742,12 +923,6 @@
       "line": 267,
       "token": "100",
       "context": "Min.\\ $f_3$ (full use) & 8.996 & 2.46 & 0 & 100\\,\\% utilization\\\\"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 268,
-      "token": "8.7891",
-      "context": "FIFO baseline & 8.7891 & 13.0 & 1{,}940 & Reference (dominated)\\\\"
     }
   ]
 }
