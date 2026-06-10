@@ -504,3 +504,39 @@ Para caber: la reducida soltó el par de figuras Pareto 3D/2D (la dominación de
 queda numérica en tab:extremes; el ladder — la tesis — se conserva; la full mantiene
 todo). **Invariante: 33/33/20/20 pp**, abstract 248, firewall **143/143**,
 reproduce_fast ok, 0 overfull/undefined.
+
+## Elevación final: "no dejemos nada" (2026-06-10, cierre absoluto)
+
+Los 4 experimentos restantes de las 4 rondas del panel, ejecutados e integrados:
+
+1. **Tuning L9 propio para el NSGA-II real-coded** (`nsga2_l9_tuning.py` → `nsga2_l9.json`;
+   mismo protocolo que el Taguchi de MOHHO: 9 configs, seeds de tuning 201-210 disjuntas,
+   confirmación a 30 seeds). VISA: el mejor (η_c=2, p_m=5/d) sube de 293,367 a 308,082 —
+   **empate estadístico con blind sampling (p=0.25), aún −3.2% bajo el tier**. El colapso
+   del default se mantiene; el techo de la familia es el mismo (~310k). KNAPSACK: el mismo
+   config salta a **+46% SOBRE random (p=1.9e-9)** — el colapso en knapsack era artefacto
+   de configuración por defecto (la mutación ×5 aporta la disrupción de orden que SBX no
+   da, cumpliendo la condición 1 por otra vía). **El colapso robusto-a-configuración es
+   solo el de visa**, donde blind sampling está a 2.6% del tier. Integrado con esa
+   honestidad en abstract ("landscape- and configuration-specific"), scoping, protocolo
+   y conclusiones.
+2. **Ablación de E en Discrete-MOHHO** (`discrete_e_ablation.py`): constantes de
+   run-average (p_explore=0.153, k fijo) → **+0.01%, p=0.87** — el schedule de la
+   metáfora es medible-mente decorativo; los operadores de permutación y el archivo
+   hacen el trabajo (en línea con Sörensen/Aranha, ahora MEDIDO).
+3. **Control PLS** (`pls_control.py`): Pareto local search sobre swaps (mismo
+   archivo/presupuesto) → 303,979 = **−2.0% bajo random (p=3.4e-4)**. Bonus: un swap es
+   casi-identidad en el orden decodificado → PLS falla la condición 1 y el diagnóstico
+   PREDICE su fracaso — otra validación en método no usado para formular la regla.
+4. **Índice de saturación s** (`sat_index.py`): utilización media del recurso global
+   más apretado sobre 1,000 decodes aleatorios (segundos de cómputo): visa 0.994,
+   knapsack 0.998, TSP/PFSP/SCP 0 por construcción. Retrodice el split del colapso-default
+   en 5/5; declarado como retrodicción (test registrado en problemas no vistos = follow-up).
+
+Con esto, la visa tiene **SEIS controles** contando una historia (archivo idéntico,
+Lévy canónico, GRASP, tuning per-familia, PLS, barrido de disrupción registrado):
+nada por debajo de renovación de orden vence al muestreo ciego ahí.
+
+Reducida recortada ~11 líneas de prosa (política, equity audit, trade-off, intro,
+decoder) para sostener el límite. **Invariante: 34/34/20/20 pp**, abstract 248,
+**firewall 158/158**, reproduce_fast ok, ZIPs + Feasibility refrescados.

@@ -1,0 +1,37 @@
+{
+  "K": 1000,
+  "index": {
+    "visa": {
+      "s": 0.994344,
+      "enforced_budget": "total visas V"
+    },
+    "knapsack": {
+      "s": 0.9982819450280196,
+      "enforced_budget": "4 capacities"
+    },
+    "tsp": {
+      "s": 0.0,
+      "enforced_budget": "none (every decode feasible without a capped resource)"
+    },
+    "flowshop": {
+      "s": 0.0,
+      "enforced_budget": "none (every decode feasible without a capped resource)"
+    },
+    "scp": {
+      "s": 0.0,
+      "enforced_budget": "none (every decode feasible without a capped resource)"
+    },
+    "_retrodiction": {
+      "blind_sampling_strong (GA collapse observed)": [
+        "visa",
+        "knapsack"
+      ],
+      "blind_sampling_weak": [
+        "tsp",
+        "flowshop",
+        "scp"
+      ],
+      "separates_all_five": true
+    }
+  }
+}

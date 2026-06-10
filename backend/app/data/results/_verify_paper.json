@@ -1,5 +1,5 @@
 {
-  "n_claims_checked": 143,
+  "n_claims_checked": 158,
   "n_mismatch": 0,
   "rows": [
     {
@@ -1002,9 +1002,114 @@
       "paper": 0.212,
       "json": 0.2117300497206186,
       "delta": -0.00026995027938139793
+    },
+    {
+      "name": "l9_visa_confirm",
+      "status": "OK",
+      "paper": 308082,
+      "json": 308081.8521750417,
+      "delta": -0.14782495831605047
+    },
+    {
+      "name": "l9_visa_diff_pct",
+      "status": "OK",
+      "paper": -0.69,
+      "json": -0.6873707477798484,
+      "delta": 0.0026292522201515345
+    },
+    {
+      "name": "l9_visa_p_two",
+      "status": "OK",
+      "paper": 0.25,
+      "json": 0.25343610532581806,
+      "delta": 0.003436105325818062
+    },
+    {
+      "name": "l9_knap_diff_pct",
+      "status": "OK",
+      "paper": 46.07,
+      "json": 46.06597668055792,
+      "delta": -0.004023319442083562
+    },
+    {
+      "name": "l9_knap_p_two",
+      "status": "OK",
+      "paper": 1.86e-09,
+      "json": 1.862645149230957e-09,
+      "delta": 2.6451492309570436e-12
+    },
+    {
+      "name": "l9_best_eta",
+      "status": "OK",
+      "paper": 2.0,
+      "json": 2.0,
+      "delta": 0.0
+    },
+    {
+      "name": "l9_best_pm_mult",
+      "status": "OK",
+      "paper": 5.0,
+      "json": 5.0,
+      "delta": 0.0
+    },
+    {
+      "name": "eabl_diff_pct",
+      "status": "OK",
+      "paper": 0.01,
+      "json": 0.008700588640139787,
+      "delta": -0.0012994113598602131
+    },
+    {
+      "name": "eabl_p",
+      "status": "OK",
+      "paper": 0.87,
+      "json": 0.871207794174552,
+      "delta": 0.0012077941745519682
+    },
+    {
+      "name": "pls_hv_mean",
+      "status": "OK",
+      "paper": 303979,
+      "json": 303978.77645946183,
+      "delta": -0.22354053816525266
+    },
+    {
+      "name": "pls_vs_random_diff",
+      "status": "OK",
+      "paper": -2.01,
+      "json": -2.0100297569306016,
+      "delta": -2.9756930601809728e-05
+    },
+    {
+      "name": "pls_vs_random_p",
+      "status": "OK",
+      "paper": 0.000345,
+      "json": 0.0003449581563472748,
+      "delta": -4.1843652725203056e-08
+    },
+    {
+      "name": "sat_visa",
+      "status": "OK",
+      "paper": 0.994,
+      "json": 0.994344,
+      "delta": 0.00034400000000001096
+    },
+    {
+      "name": "sat_knapsack",
+      "status": "OK",
+      "paper": 0.998,
+      "json": 0.9982819450280196,
+      "delta": 0.0002819450280195923
+    },
+    {
+      "name": "sat_tsp",
+      "status": "OK",
+      "paper": 0.0,
+      "json": 0.0,
+      "delta": 0.0
     }
   ],
-  "tex_inventory_count": 2085,
+  "tex_inventory_count": 2115,
   "tex_inventory_sample": [
     {
       "file": "main_submission.tex",

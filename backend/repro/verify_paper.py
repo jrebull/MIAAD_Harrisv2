@@ -265,6 +265,22 @@ CLAIMS = [
      "structures.visa.slope_pct_per_0p1_tau_ci95[0]", 0.02, "abs"),
     ("slope_visa_ci_hi", 0.212, "rho_slope_ci.json",
      "structures.visa.slope_pct_per_0p1_tau_ci95[1]", 0.02, "abs"),
+    # ---- 2026-06-10 elevacion final: tuning L9, ablacion E, PLS, indice s ----
+    ("l9_visa_confirm", 308082, "nsga2_l9.json", "visa.confirmation_mean", 60, "abs"),
+    ("l9_visa_diff_pct", -0.69, "nsga2_l9.json", "visa.diff_vs_random_pct", 0.05, "abs"),
+    ("l9_visa_p_two", 0.25, "nsga2_l9.json", "visa.p_vs_random_two_sided", 0.01, "abs"),
+    ("l9_knap_diff_pct", 46.07, "nsga2_l9.json", "knapsack.diff_vs_random_pct", 0.2, "abs"),
+    ("l9_knap_p_two", 1.86e-9, "nsga2_l9.json", "knapsack.p_vs_random_two_sided", 5e-10, "abs"),
+    ("l9_best_eta", 2.0, "nsga2_l9.json", "visa.best_config.eta_c", 0, "exact"),
+    ("l9_best_pm_mult", 5.0, "nsga2_l9.json", "visa.best_config.pm_mult", 0, "exact"),
+    ("eabl_diff_pct", 0.01, "discrete_e_ablation.json", "diff_pct", 0.02, "abs"),
+    ("eabl_p", 0.87, "discrete_e_ablation.json", "p_two_sided_vs_scheduled", 0.01, "abs"),
+    ("pls_hv_mean", 303979, "pls_control.json", "hv_mean", 60, "abs"),
+    ("pls_vs_random_diff", -2.01, "pls_control.json", "vs_random.diff_pct", 0.05, "abs"),
+    ("pls_vs_random_p", 3.45e-4, "pls_control.json", "vs_random.p_two_sided", 5e-5, "abs"),
+    ("sat_visa", 0.994, "sat_index.json", "index.visa.s", 0.005, "abs"),
+    ("sat_knapsack", 0.998, "sat_index.json", "index.knapsack.s", 0.005, "abs"),
+    ("sat_tsp", 0.0, "sat_index.json", "index.tsp.s", 0, "exact"),
 ]
 
 
