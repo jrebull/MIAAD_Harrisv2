@@ -655,3 +655,68 @@ compactación de bloques solo-camera-ready (institute 4→2 líneas, acknowledgm
 **Gates finales: 34/34/20/20 pp** (¡ambas reducidas en 20!), A4, 0 undefined/overfull,
 abstract 246, firewall **158/158**, reproduce_fast overall_ok, anonimato 0 hits,
 4 ZIPs + 4 Feasibility refrescados.
+
+## 25. Banco de rebuttal — dictamen externo "Rechazo fuerte" (10-jun-2026)
+
+Se recibió un dictamen simulado/externo de 9 puntos con recomendación de rechazo.
+Triage: 4 golpes reales (= techo conocido del paper), 4 ya respondidos DENTRO del texto,
+y señales claras de que evaluó la versión equivocada. Respuestas punto a punto:
+
+**Señales de versión equivocada (usar con tacto en rebuttal):**
+- "Justificar 34 páginas" → la submission tiene 20 pp (main_reducida_submission.pdf).
+- "Reportar código, instancias y scripts de registro" → ya liberados: snapshot 4open,
+  seeds fijas, verificador de un comando, registros en git ANTERIORES a los resultados.
+- "HHO como vehículo narrativo no declarado" → el paper lo DECLARA y lo MIDE: ablación
+  del schedule E = +0.01%, p=0.87, "measurably decorative", citando a Sörensen y Aranha.
+  El título ni menciona MOHHO.
+
+**P1 "contribución inflada / diagnóstico obvio"** → Concedido en parte (incremental
+sobre Rothlauf / Raidl & Gottlieb; el paper lo cita y se posiciona como "controlled,
+multi-method, causally graded demonstration"). NO concedido: que sea obvio que el
+mismatch no se arregla con tuning — eso lo refutan los 6 controles (L9 del propio
+NSGA-II solo EMPATA con blind sampling, p=0.25). El abstract ya reporta sus propias
+falsificaciones (verbos honestos, "fixes the shared parameters").
+
+**P2 "caso de visas frágil para política"** → Limitations ya dice: "decision support,
+never an autonomous decision-maker", "illustrate method behavior rather than recommend
+real allocations", procedencia sintética declarada con qué está anclado y qué no.
+"Policy-relevant object is the set of best compromises" describe el OBJETO matemático
+(front vs punto), no una recomendación.
+
+**P3 "el decoder restringe el espacio"** → Texto literal: "a strict subset of F...
+Every dominance and Pareto statement below is therefore relative to this decoder-
+reachable set" + 3 ejes de robustez (2 decoders no-saturantes mantienen el tier,
+p<1e-3; MILP exacto; barrido de referencia). El confound "bounds rather than
+overturns".
+
+**P4 "NSGA-II hombre de paja"** → El título dice "MISMATCHED NSGA-II" (auto-declarado).
+El combo random-keys+MOEA continuo es práctica publicada (las 3 refs MOHHO citadas).
+El competent MO-HHO existe exactamente para esto: real-coded que SÍ vence a blind
+(+2.0%, p=5.7e-4). Y la pregunta interesante no es "¿pierde el mal emparejado?" sino
+"¿se arregla con tuning/archivo/GRASP/PLS?" — no en la visa (6 controles).
+
+**P5 "HHO decorativo"** → Es un RESULTADO del paper, medido y citado (ablación E,
++0.01%, p=0.87). Posición alineada con la crítica anti-metáfora del campo.
+
+**P6 "generaliza menos de lo que afirma"** → Concedido y declarado: "empirical
+regularity, not a general law"; familia SPV/greedy compartida reconocida; la
+falsificación del label de paisaje está REPORTADA con su registro. Diferencia de
+valores: preregistro con falsificación parcial = ciencia que funciona, no inmadurez.
+
+**P7 "efectos de 1-3% / p-values vs relevancia"** → Concedido en magnitud y declarado
+("modest on this saturation-amplified, f2-dominated instance"); el claim es de
+mecanismo. A12 reportado junto a cada p (0.79-1.0 en los headline), Holm 12/12.
+
+**P8 "faltan exactos/matheurísticos"** → Parcialmente respondido (MILP (f1,f3) exacto
+como referencia externa) + AHORA con la justificación en el texto de por qué f2 no
+entra al exacto: es max de diferencias de RATIOS de variables de decisión (espera
+media ponderada = Sum xw / Sum x) — programación fraccional, fuera de forma MILP
+(cláusula añadida hoy a las 4 versiones). epsilon-constraint triobjetivo/matheurísticas
+= future work legítimo.
+
+**P9 "narrativa caótica"** → Concedido como densidad; los "giros" son la secuencia
+controlada del experimento (cada giro es un control nuevo, no un cambio de tesis).
+Run-in labels como señalización. Costo de lectura real reconocido.
+
+**Cierre de la iteración**: cláusula MILP-f2 añadida (4 archivos, gates 34/34/20/20,
+0 overfull), firewall y reproduce_fast re-corridos, ZIPs+Feasibility refrescados.
