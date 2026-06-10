@@ -540,3 +540,33 @@ nada por debajo de renovación de orden vence al muestreo ciego ahí.
 Reducida recortada ~11 líneas de prosa (política, equity audit, trade-off, intro,
 decoder) para sostener el límite. **Invariante: 34/34/20/20 pp**, abstract 248,
 **firewall 158/158**, reproduce_fast ok, ZIPs + Feasibility refrescados.
+
+## Auditoría final de cierre (2026-06-10, "pasa una auditoría de todo")
+
+5 auditores sobre el estado post-elevación. Resultados y fixes:
+
+- **Referencias: LIMPIO TOTAL** (36/36 orden alfabético, bijección perfecta en ambas
+  versiones, feo verificado contra Crossref campo a campo, bibliografías byte-idénticas).
+- **Figuras/tablas**: 1 mayor — fig:eta/fig:rho citadas en orden no ascendente tras la
+  inserción del sweep → bloques intercambiados. Resto limpio (0 Type 3, 0 refs rotas
+  tras remover Pareto/Taguchi de la reducida, reducida = 1 figura coherente).
+- **Números: SÓLIDO** (~140 cifras exactas + 18 porcentajes re-derivados; "six controls"
+  = 6/6 en la full; −3.2%/2.6% con convención de denominador consistente; s 0.99/1.00
+  redondeo exacto). 2 fixes: rango Spearman del sweep −0.07–0.48 (no 0.15–0.48) y
+  visa "below at every level, by 0.1–1.9%" (no "1–2%"), en texto y caption de fig:rho.
+- **Idioma**: 1 mayor (la elisión "lands 2.0% below" de la reducida apuntaba al tier;
+  es bajo blind sampling) + 13 menores de los recortes (that-completivos, artículos,
+  participio colgante, "stays"→"remains", w.p.→with probability) — todos aplicados.
+- **Semántica**: el patrón residual era la propagación del resultado del tuning:
+  contribución (v), captions de tab:structures y fig:ladder2, gloss "saturación⇒strong",
+  y el equívoco strong/weak del knapsack — todo unificado a la taxonomía final
+  (default-config vs configuration-robust; "strong" = visa, donde blind sampling roza
+  el frente alcanzable). El crítico: la reducida decía "six controls" teniendo cinco
+  (el Lévy canónico se recortó) → "five controls". Y el claim "best optimizer satisfies
+  both conditions" se acotó a "best ladder method" en TODAS sus instancias (el sweep
+  τ→1 en subset problems lo exigía).
+
+**Invariante FINAL: 34/34/21/20 pp** (envío = 20, al límite; camera-ready 21 por el
+wrap de ORCID — Springer re-tipografía tras aceptación), A4, 0 undefined/overfull,
+abstract 249, **firewall 158/158**, reproduce_fast ok, anonimato 0, ZIPs + Feasibility
+refrescados.
