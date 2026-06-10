@@ -470,3 +470,37 @@ Objeciones nuevas (material de rebuttal / mejoras futuras):
   ninguna variante publicada; falta baseline con búsqueda local.
 - R1: re-titular alrededor del estudio de falsación; degradar visa a testbed
   en todo el texto.
+
+## Paquete A: blindaje final post-ronda-4 (2026-06-10)
+
+Las tres palancas ejecutables de la ronda 4, ejecutadas:
+
+1. **Re-scoring per-run reference-free de los 9 métodos** (`backend/ladder_igd.py` →
+   `ladder_igd.json`; los 3 métodos sin frentes persistidos se re-corrieron con sanity
+   check de HV contra los valores canónicos — 0 mismatches): contra el frente común
+   |Z₉|=187, **el ladder sobrevive fuera del HV**: correlaciones de ranks HV↔IGD⁺=0.82
+   y HV↔ε=0.85 (Friedman χ²=176.5/169.3); los 4 métodos de ambas-condiciones ocupan el
+   top-4 bajo los TRES indicadores (SPEA2 el mejor bajo ambos reference-free); los 2
+   real-coded degenerados al fondo; única dislocación: perm-MOEA/D (rank 7.2 bajo IGD⁺,
+   cobertura pobre del frente combinado). Era "el cambio único" de R2 (→7.5-8).
+2. **"Flat in τ" acotado** (`backend/rho_slope_ci.py` → `rho_slope_ci.json`): bootstrap
+   CI 95% de la pendiente — |efecto dosis| ≤ ~1 punto porcentual de blind sampling por
+   0.1τ en las 5 estructuras (visa [−0.15,+0.21]). El H₀-aceptado se volvió cota.
+3. **Control GRASP semi-greedy** (`backend/grasp_control.py` → `grasp_control.json`):
+   RCL sobre w_g, α~U(0,1) por construcción, mismo presupuesto/archivo. Resultado:
+   **298,531 = −3.8% BAJO random uniforme** (p=1.9e-9) — la fuerza del blind sampling
+   no es greediness a nivel de orden: el heuristic bias del decoder (Raidl & Gottlieb,
+   mitad que faltaba citar) beneficia a toda construcción, y sesgar el orden hacia un
+   objetivo cuesta diversidad de frente. Ancla el resultado en la literatura GRASP
+   (Feo & Resende, bib 36→37... 36) en vez de dejarlo como sorpresa.
+
+Matices honestos: §6.5 reformulado como robustez DESCRIPTIVA (el sign test n=5 se
+retiró del texto — R2 tenía razón: "significativo por construcción"); "six constraints"
+aclarado (3 budgets vinculantes; R4-R6 automáticas por construcción); procedencia del
+naive-MOHHO declarada (greedy del HHO mono-objetivo elevado a dominancia; las variantes
+publicadas no especifican ese gate — caracteriza la elección de diseño, no a aquellas).
+
+Para caber: la reducida soltó el par de figuras Pareto 3D/2D (la dominación de FIFO
+queda numérica en tab:extremes; el ladder — la tesis — se conserva; la full mantiene
+todo). **Invariante: 33/33/20/20 pp**, abstract 248, firewall **143/143**,
+reproduce_fast ok, 0 overfull/undefined.

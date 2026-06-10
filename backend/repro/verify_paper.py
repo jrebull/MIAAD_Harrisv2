@@ -245,6 +245,26 @@ CLAIMS = [
     ("rho_R3_fails", False, "rho_sweep.json", "verdict.R3_igd_agrees.holds", 0, "exact"),
     ("rho_knapsack_hv_level0", 0.31, "rho_sweep.json",
      "structures.knapsack.hv_mean_levels[0]", 0.005, "abs"),
+    # ---- 2026-06-10 Paquete A: GRASP control, IGD+/eps per-run, slope CI ----
+    ("grasp_hv_mean", 298531, "grasp_control.json", "hv_mean", 60, "abs"),
+    ("grasp_vs_random_diff_pct", -3.77, "grasp_control.json",
+     "paired[0].mean_diff_pct", 0.05, "abs"),
+    ("grasp_vs_random_p", 1.9e-9, "grasp_control.json", "paired[0].p", 5e-10, "abs"),
+    ("igd9_rankcorr_hv_igd", 0.82, "ladder_igd.json",
+     "rank_correlation_hv_vs_igd", 0.01, "abs"),
+    ("igd9_rankcorr_hv_eps", 0.85, "ladder_igd.json",
+     "rank_correlation_hv_vs_eps", 0.01, "abs"),
+    ("igd9_friedman_igd_chi2", 176.5, "ladder_igd.json", "friedman.igd_plus[0]", 0.2, "abs"),
+    ("igd9_friedman_eps_chi2", 169.3, "ladder_igd.json", "friedman.eps[0]", 0.2, "abs"),
+    ("igd9_ref_size", 187, "ladder_igd.json", "reference.size", 0, "exact"),
+    ("igd9_spea2_igd_rank", 1.10, "ladder_igd.json",
+     "mean_ranks_igd_plus.perm_spea2", 0.02, "abs"),
+    ("igd9_moead_igd_rank", 7.23, "ladder_igd.json",
+     "mean_ranks_igd_plus.perm_moead", 0.02, "abs"),
+    ("slope_visa_ci_lo", -0.151, "rho_slope_ci.json",
+     "structures.visa.slope_pct_per_0p1_tau_ci95[0]", 0.02, "abs"),
+    ("slope_visa_ci_hi", 0.212, "rho_slope_ci.json",
+     "structures.visa.slope_pct_per_0p1_tau_ci95[1]", 0.02, "abs"),
 ]
 
 

@@ -1,5 +1,5 @@
 {
-  "n_claims_checked": 131,
+  "n_claims_checked": 143,
   "n_mismatch": 0,
   "rows": [
     {
@@ -918,9 +918,93 @@
       "paper": 0.31,
       "json": 0.30969661577566454,
       "delta": -0.00030338422433545675
+    },
+    {
+      "name": "grasp_hv_mean",
+      "status": "OK",
+      "paper": 298531,
+      "json": 298530.57043474686,
+      "delta": -0.42956525314366445
+    },
+    {
+      "name": "grasp_vs_random_diff_pct",
+      "status": "OK",
+      "paper": -3.77,
+      "json": -3.7663021929805183,
+      "delta": 0.003697807019481747
+    },
+    {
+      "name": "grasp_vs_random_p",
+      "status": "OK",
+      "paper": 1.9e-09,
+      "json": 1.862645149230957e-09,
+      "delta": -3.7354850769043025e-11
+    },
+    {
+      "name": "igd9_rankcorr_hv_igd",
+      "status": "OK",
+      "paper": 0.82,
+      "json": 0.8166666666666667,
+      "delta": -0.0033333333333332993
+    },
+    {
+      "name": "igd9_rankcorr_hv_eps",
+      "status": "OK",
+      "paper": 0.85,
+      "json": 0.8499999999999999,
+      "delta": -1.1102230246251565e-16
+    },
+    {
+      "name": "igd9_friedman_igd_chi2",
+      "status": "OK",
+      "paper": 176.5,
+      "json": 176.45333333333338,
+      "delta": -0.046666666666624224
+    },
+    {
+      "name": "igd9_friedman_eps_chi2",
+      "status": "OK",
+      "paper": 169.3,
+      "json": 169.29585304759257,
+      "delta": -0.0041469524074386754
+    },
+    {
+      "name": "igd9_ref_size",
+      "status": "OK",
+      "paper": 187,
+      "json": 187,
+      "delta": 0.0
+    },
+    {
+      "name": "igd9_spea2_igd_rank",
+      "status": "OK",
+      "paper": 1.1,
+      "json": 1.1,
+      "delta": 0.0
+    },
+    {
+      "name": "igd9_moead_igd_rank",
+      "status": "OK",
+      "paper": 7.23,
+      "json": 7.233333333333333,
+      "delta": 0.0033333333333329662
+    },
+    {
+      "name": "slope_visa_ci_lo",
+      "status": "OK",
+      "paper": -0.151,
+      "json": -0.15061604062569137,
+      "delta": 0.0003839593743086289
+    },
+    {
+      "name": "slope_visa_ci_hi",
+      "status": "OK",
+      "paper": 0.212,
+      "json": 0.2117300497206186,
+      "delta": -0.00026995027938139793
     }
   ],
-  "tex_inventory_count": 2043,
+  "tex_inventory_count": 2085,
   "tex_inventory_sample": [
     {
       "file": "main_submission.tex",
