@@ -1,0 +1,97 @@
+{
+  "trials": 3000,
+  "structures": {
+    "visa": {
+      "dim": 105,
+      "operators": {
+        "sbx": {
+          "mean_tau": 0.9860029304029304,
+          "std_tau": 0.003747900001033066
+        },
+        "poly_mutation": {
+          "mean_tau": 0.998389377289377,
+          "std_tau": 0.002361128830953074
+        },
+        "hho_soft_besiege": {
+          "mean_tau": -0.2647572649572649,
+          "std_tau": 0.19117292319316073
+        },
+        "hho_hard_besiege": {
+          "mean_tau": 0.028555189255189253,
+          "std_tau": 0.06660798619120051
+        }
+      },
+      "sbx_family_mean": 0.9921961538461537,
+      "hho_family_mean": -0.11810103785103784
+    },
+    "knapsack": {
+      "dim": 120,
+      "operators": {
+        "sbx": {
+          "mean_tau": 0.9860827264239028,
+          "std_tau": 0.003440591266222175
+        },
+        "poly_mutation": {
+          "mean_tau": 0.9983396825396824,
+          "std_tau": 0.0021848868698094146
+        },
+        "hho_soft_besiege": {
+          "mean_tau": -0.26761820728291313,
+          "std_tau": 0.18771180251291567
+        },
+        "hho_hard_besiege": {
+          "mean_tau": 0.028372642390289447,
+          "std_tau": 0.0634514591396722
+        }
+      },
+      "sbx_family_mean": 0.9922112044817926,
+      "hho_family_mean": -0.11962278244631185
+    },
+    "tsp": {
+      "dim": 100,
+      "operators": {
+        "sbx": {
+          "mean_tau": 0.9860173737373737,
+          "std_tau": 0.0039033150797810772
+        },
+        "poly_mutation": {
+          "mean_tau": 0.9983438383838383,
+          "std_tau": 0.0024165939615209387
+        },
+        "hho_soft_besiege": {
+          "mean_tau": -0.2607400673400674,
+          "std_tau": 0.19303667137044667
+        },
+        "hho_hard_besiege": {
+          "mean_tau": 0.029270437710437715,
+          "std_tau": 0.07048640611101199
+        }
+      },
+      "sbx_family_mean": 0.992180606060606,
+      "hho_family_mean": -0.11573481481481483
+    },
+    "flowshop": {
+      "dim": 50,
+      "operators": {
+        "sbx": {
+          "mean_tau": 0.9862144217687077,
+          "std_tau": 0.00648148046680717
+        },
+        "poly_mutation": {
+          "mean_tau": 0.9982617687074828,
+          "std_tau": 0.0039210257044366564
+        },
+        "hho_soft_besiege": {
+          "mean_tau": -0.2636299319727891,
+          "std_tau": 0.20059332536396346
+        },
+        "hho_hard_besiege": {
+          "mean_tau": 0.026482721088435374,
+          "std_tau": 0.09959871468908199
+        }
+      },
+      "sbx_family_mean": 0.9922380952380953,
+      "hho_family_mean": -0.11857360544217686
+    }
+  }
+}

@@ -71,18 +71,18 @@ def main():
     spm = json.load(open(RESULTS / "second_problem.json"))["methods"]
     print("running competent on MOMKP..."); comp_mk = run_competent_on(MOMKP())
     mk_ps = {m: spm[m]["per_run_hv"] for m in SIX}; mk_ps[COMP] = comp_mk
-    out["structures"]["knapsack"] = {"avg_rank": avg_ranks(mk_ps), "competent_hv_mean": float(np.mean(comp_mk))}
+    out["structures"]["knapsack"] = {"avg_rank": avg_ranks(mk_ps), "competent_hv_mean": float(np.mean(comp_mk)), "competent_hv_per_seed": comp_mk}
 
     # ---- TSP (MOTSP) ----
     ms = json.load(open(RESULTS / "more_structures.json"))
     print("running competent on MOTSP..."); comp_tsp = run_competent_on(MOTSP())
     tsp_ps = {m: ms["mo-TSP"]["methods"][m]["per_run_hv"] for m in SIX}; tsp_ps[COMP] = comp_tsp
-    out["structures"]["TSP"] = {"avg_rank": avg_ranks(tsp_ps), "competent_hv_mean": float(np.mean(comp_tsp))}
+    out["structures"]["TSP"] = {"avg_rank": avg_ranks(tsp_ps), "competent_hv_mean": float(np.mean(comp_tsp)), "competent_hv_per_seed": comp_tsp}
 
     # ---- flow-shop (MOPFSP) ----
     print("running competent on MOPFSP..."); comp_pf = run_competent_on(MOPFSP())
     pf_ps = {m: ms["mo-PFSP"]["methods"][m]["per_run_hv"] for m in SIX}; pf_ps[COMP] = comp_pf
-    out["structures"]["flow-shop"] = {"avg_rank": avg_ranks(pf_ps), "competent_hv_mean": float(np.mean(comp_pf))}
+    out["structures"]["flow-shop"] = {"avg_rank": avg_ranks(pf_ps), "competent_hv_mean": float(np.mean(comp_pf)), "competent_hv_per_seed": comp_pf}
 
     # ---- sanity: recomputed 6-method ranks vs stored avg_rank ----
     sanity = {}
