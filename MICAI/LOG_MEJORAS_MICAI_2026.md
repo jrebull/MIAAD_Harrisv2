@@ -807,3 +807,43 @@ soporte (el firewall verifica script↔JSON, no el .tex, y quedó en 0).
 **Gates: 34/34/20/20**, 0 overfull/undefined, abstract 247, **firewall 161/161**
 (+3 claims: wilcoxon pareado, permutación, consistencia de la re-corrida),
 reproduce_fast ok, anonimato 0; 4 ZIPs + 4 Feasibility refrescados.
+
+## 29. SUPER FULL AUDIT (5 agentes, todos los frentes) + fixes (10-jun, noche)
+
+**Veredictos:** Números .tex↔JSON: **0 mismatches en ~120 cifras** (incluye re-derivación
+desde datos crudos por seed: 94/104, ranks de Friedman del visa dígito a dígito, hitos
+de convergencia 5/135, frase nueva de extremos, 2×2 pareado). Bibliografía: 4 bibs
+byte-idénticas (md5), orden alfabético 35/35 pares, 0 huérfanos, splncs limpio.
+Anonimato: 0 hits en 19 patrones × (.tex + pdftotext + strings) incluido el tag nuevo
+(solo en camera-ready ✓); ZIPs compilan desde /tmp a 34/20/34/20; metadata limpia.
+LNCS: floats/captions/orden ascendente limpio en las 3 versiones; abstract 250/250
+exactas (SIN margen — no añadir ni una palabra); 0 overfull de cualquier magnitud.
+**Revisor MICAI ciego (solo el PDF de envío): 7.3/10, weak accept** — fortalezas:
+rigor/honestidad percentil alto, mecanismo medido no narrado, scoping honesto;
+debilidades: densidad (abstract, pp. 10-11, 14-15), la aplicación sin figura del
+frente, HV f₂-dominado (divulgado), título promete más que el necesario-no-suficiente.
+
+**HALLAZGO DE PROCESO (importante):** las ediciones de la ronda §24 a los DOS archivos
+section_taguchi*.tex NUNCA persistieron en disco (git lo confirma; causa raíz no
+identificada — posible colisión de cwd) aunque las de los main*.tex sí. Dos zombis
+re-detectados y AHORA SÍ corregidos y verificados: \cite{montgomery,alrafei}→[1,22]
+en la reducida y 5 \emph retóricos de los Taguchi. Lección: verificar con grep
+post-escritura los archivos \input, no solo los principales.
+
+**Fixes de semántica (daño colateral de recortes, 4 mayores):** (M1) \cite{crs,fwd}
+había quedado adherida a la cifra 2.4% (resultado propio) → restaurada a "consistent
+with per-country-cap reform proposals"; (M2) "below the tier"→"below the permutation
+tier" (antecedente); (M3) "+0.43%" huérfano en frase de CVs → "leading Discrete-MOHHO
+by +0.43% in mean HV"; (M4) "(within 2.6% of the best tier)" mal adherido a "the visa"
+→ restaurado "where blind sampling sits within 2.6%". Menores: test nombrado
+(one-sided Mann-Whitney 10 seeds), puntero (Section sec:front), zeugma "shows lower
+spacing", CIs expandido, full: 4 \textbf de problemas fuera + NDS en caption fig:rho.
+Compensación de páginas: 9 cortes de palabras de relleno → ambas reducidas en 20 pp.
+
+**Recomendación pendiente del revisor ciego (alto valor, no ejecutada por presupuesto
+de páginas):** una figura del frente de Pareto con FIFO en la reducida (la aplicación
+está visualmente huérfana) y/o fig:rho del barrido. Requeriría ~20 líneas más de poda
+o esperar al camera-ready.
+
+**Gates: 34/34/20/20**, 0 overfull/undefined, abstract 250/250, firewall **161/161**,
+reproduce_fast ok, anonimato 0, 4 ZIPs + 4 Feasibility refrescados.
