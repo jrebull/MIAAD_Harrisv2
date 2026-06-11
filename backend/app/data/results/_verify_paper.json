@@ -1,5 +1,5 @@
 {
-  "n_claims_checked": 158,
+  "n_claims_checked": 161,
   "n_mismatch": 0,
   "rows": [
     {
@@ -463,6 +463,27 @@
       "paper": true,
       "json": true,
       "delta": 0.0
+    },
+    {
+      "name": "c2x2_wilcoxon_order_nds_p",
+      "status": "OK",
+      "paper": 0.0014,
+      "json": 0.0013831602409482002,
+      "delta": -1.683975905179976e-05
+    },
+    {
+      "name": "c2x2_perm_interaction_p",
+      "status": "OK",
+      "paper": 0.0002,
+      "json": 0.00019998000199980003,
+      "delta": -1.9998000199978726e-08
+    },
+    {
+      "name": "c2x2_paired_rerun_mean",
+      "status": "OK",
+      "paper": 315730,
+      "json": 315730.4392568449,
+      "delta": 0.43925684492569417
     },
     {
       "name": "struct_competent_knapsack_pos",
@@ -1109,7 +1130,7 @@
       "delta": 0.0
     }
   ],
-  "tex_inventory_count": 2091,
+  "tex_inventory_count": 2071,
   "tex_inventory_sample": [
     {
       "file": "main_submission.tex",

@@ -139,6 +139,12 @@ CLAIMS = [
      "anova.eta2_interaction_AxB", 0.01, "abs"),
     ("c2x2_interaction_significant", True, "factorial_2x2_conditions.json",
      "anova.interaction_significant", 0, "exact"),
+    ("c2x2_wilcoxon_order_nds_p", 0.0014, "factorial_2x2_paired.json",
+     "cells.order_nds.wilcoxon_p_vs_random", 0.05, "rel"),
+    ("c2x2_perm_interaction_p", 0.0002, "factorial_2x2_paired.json",
+     "interaction.p_permutation", 0.05, "rel"),
+    ("c2x2_paired_rerun_mean", 315730, "factorial_2x2_paired.json",
+     "cells.order_nds.hv_mean", 0.01, "rel"),
     # ---- v6 FASE 2: competent across 4 structures (structures_v6.json) ----
     ("struct_competent_knapsack_pos", 1, "structures_v6.json",
      "placement.knapsack.competent_position_of_7", 0, "exact"),

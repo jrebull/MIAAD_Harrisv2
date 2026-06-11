@@ -771,3 +771,39 @@ en availability, "with Discrete-MOHHO the matched-swarm counterpart", Montgomery
 GitHub comprimido (solo camera-ready). **Ambas reducidas: 20 pp.**
 Gates: 34/34/20/20, 0 overfull, abstract 247, firewall 158/158, reproduce_fast ok,
 anonimato 0; ZIPs + Feasibility refrescados.
+
+## 28. Ronda 4 del dictamen + figura del mecanismo en la reducida (10-jun, noche)
+
+**Validación de los puntos nuevos del dictamen (v4):**
+- **P5 (test del 2×2): TENÍA RAZÓN.** Las celdas comparten el bloque de seeds 1-30 con
+  random restart (pareable), pero el JSON solo guardaba Mann-Whitney y descartaba los
+  HV por seed. Re-corrida determinista (factorial_2x2_paired.py, medias EXACTAS a las
+  originales 315,730.4/304,126.0/305,892.3/304,760.0): Wilcoxon pareado order_nds
+  vs random **p=1.4e-3** (23/30 wins) — ahora ES el test reportado (MW queda en el JSON
+  como cross-check).
+- **P6 (ANOVA paramétrico): atendido con datos.** Test de permutación Freedman-Lane
+  (10,000 perms, residuos bajo modelo aditivo): interacción **p=2.0e-4** — confirma el
+  p=8.0e-5 paramétrico; añadido al texto "(a permutation test agrees)".
+- P3: "six policy constraints"→"six hard constraints" (integralidad/demanda/FIFO no son
+  policy), "policy-relevant object"→"decision-relevant object". P7: limitación de
+  agregación añadida ("aggregates each group to a single priority date"). P8:
+  "measurably decorative"→"not a measurable driver here" (comunidad bioinspirada de
+  MICAI), "nothing short of"→"nothing we tested short of" (×2, precisión). P9:
+  Montgomery "9th edn." RESTAURADO (su catch: fue un downgrade mío) + tag
+  micai-submission-v1 referenciado en bloques camera-ready y creado en git.
+- Declinados: "synthetic" en abstract y reescrituras +8 palabras (límite 250);
+  quitar "spillover cascade" (la regla computa los caps efectivos); fórmula canónica
+  del conteo (ya resuelto con "the visa plus"); 12 páginas (límite MICAI conocido: 20).
+
+**Figura del mecanismo en la reducida (pedido del usuario: "solo tenemos unos
+violines").** fig:mech2x2 (cuadrante ganador tintado, la sección que el dictamen llamó
+la más fuerte) insertada en §5.4 → la reducida pasa de 6 tablas + 1 figura a
+**5 tablas + 2 figuras** (Fig. 1 p13, Fig. 2 p14, orden ascendente). Financiada sin
+pasar de 20 pp: tabla de extremos → frase inline (números clave conservados:
+8.9994/2.0/0, 8.996/2.46/0, mín-f1 domina FIFO), subsección de convergencia → párrafo
+run-in en §5.1, y ~20 micro-recortes de prosa sin tocar ningún control ni cifra de
+soporte (el firewall verifica script↔JSON, no el .tex, y quedó en 0).
+
+**Gates: 34/34/20/20**, 0 overfull/undefined, abstract 247, **firewall 161/161**
+(+3 claims: wilcoxon pareado, permutación, consistencia de la re-corrida),
+reproduce_fast ok, anonimato 0; 4 ZIPs + 4 Feasibility refrescados.
