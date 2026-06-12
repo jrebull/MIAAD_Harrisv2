@@ -847,3 +847,61 @@ o esperar al camera-ready.
 
 **Gates: 34/34/20/20**, 0 overfull/undefined, abstract 250/250, firewall **161/161**,
 reproduce_fast ok, anonimato 0, 4 ZIPs + 4 Feasibility refrescados.
+
+## 30. VERSIÓN COMPACTA (17 pp) — nueva pareja de entrega, estilo MICAI-2025 (12-jun-2026)
+
+**Misión del usuario:** crear una NUEVA pareja submission+camera-ready (la que se
+entregará) comparando contra los proceedings MICAI 2025 (2 volúmenes surveyados con
+agentes: papers típicos 12–15 pp, diagramas de pipeline con cajas+flechas y contenedor
+sombreado para el loop, captions autocontenidos, tablas→figuras), bajando ≥3–4 pp sin
+afectar calidad. **Las 4 versiones previas quedan CONGELADAS como base** (main,
+main_submission, main_reducida, main_reducida_submission — git diff 0 líneas).
+
+**Resultado: `main_compacta.tex` + `main_compacta_submission.tex`, ambas 17 pp**
+(20→17, −3 pp), A4, 0 undefined, overfull único 4.8 pt (<15), abstract 202 palabras.
+
+**Reestructura visual (lo nuevo):**
+- Fig. 1 NUEVA: diagrama TikZ de la metodología — ruta de evaluación compartida
+  (keys→SPV→π→greedy decoder Eq.(5)→x factible→f1f2f3) + "search block" sombreado
+  (lo único que varía en el ladder) con C1/C2 anotadas. Patrón del survey MICAI-2025.
+- Fig. 2 NUEVA en la reducida: pareto_f1f2 (frente + FIFO dominado) — CIERRA el
+  pendiente del revisor ciego 7.3 ("figura Pareto+FIFO en la reducida").
+- Fig. 4: mechanism_2x2_annot.pdf (nueva variante anotada con HV/Δ%/A12 por celda,
+  generada por backend/repro/fig_mechanism_2x2_annot.py) — ABSORBE tab:factorial2x2.
+- Fig. 5: struct_ranks.pdf (bump chart de ranks Friedman 6 métodos × 4 estructuras,
+  estrellas al mejor, bandas budget-saturating/sequencing; backend/struct_ranks_figure.py,
+  datos de omnibus_visa_paired.json + structures_v6.json) — REEMPLAZA tab:structures.
+- Eliminados: tabla de operadores HHO (→prosa), Algorithm 1 (→Fig. 1 + Eq. 5; la
+  Proposition 1 y su prueba comprimida se conservan), tabla Taguchi de respuesta
+  (→prosa con los 4 Δ; "full response table in the repository"), tabla 2×2, tabla
+  de estructuras. Taguchi pasa de sección a párrafo dentro de 4.4 (\phantomsection
+  conserva \ref{sec:taguchi}).
+- Quedan: tab:ladder (la tabla central, footnotesize) + fig:ladder. Balance final:
+  5 figuras + 1 tabla (antes 2 figuras + 5 tablas).
+
+**Poda de prosa (~25%):** dedup Results↔Discussion↔Conclusions (regularity fusionada,
+confound comprimido, conclusiones a ~60%), contribuciones (iv)/(v) compactadas,
+instancias perturbadas a 3 líneas, restricciones R1–R6 en align de 2 columnas,
+3 rondas de caza de viudas (líneas finales de 1–3 palabras). REGLA RESPETADA: ninguna
+cifra alterada — audit mecánico: todo token numérico de la compacta existe en la
+reducida congelada (las 4 excepciones son anchos de figura/TikZ). Controles, stats
+(Friedman/Holm/IGD+), ética y scoping INTACTOS.
+
+**Audit (2 agentes ciegos):** 2 CRÍTICOS cazados y corregidos: (1) la fusión del
+abstract convertía las réplicas estructurales en "registered prospective tests"
+(overclaim de prerregistro) → separación restaurada; (2) "among the six core ladder
+methods" podado creaba contradicción con el competent ganando knapsack → restaurado.
+1 MAYOR: PLS "2.0% below" había perdido su comparador ("blind sampling") → restaurado.
++6 menores de gramática en frases comprimidas + tipografía (\IGD^+, "Spearman −0.07 to
+0.48", vs./versus unificado).
+
+**Entregables nuevos:** Feasibility-Preserving_MOHHO_MICAI_compacta.pdf,
+Feasibility-Preserving_MOHHO_MICAI_compacta_anonymous.pdf,
+submission_anonymous_compacta.zip (compila desde /tmp a 17 pp; tex + llncs.cls +
+4 figuras). Anonimato: grep 18 patrones = 0 fugas; diff cuerpo = solo los 3 bloques
+esperados (autores, data availability→4open, acks fuera).
+
+**Gates compacta: 17/17 pp**, 0 undefined, overfull 4.8 pt único, abstract 202,
+cifras = subconjunto exacto del firewall 161/161, anonimato 0, citas ascendentes,
+Figs. 1–5 en orden. PENDIENTE: decidir si la compacta sustituye a la reducida como
+envío oficial (el límite MICAI es 20; 17 deja holgura de 3 pp para el camera-ready).
