@@ -1015,3 +1015,22 @@ Etiquetar igual a ambos mezclaría los dos modos de fallo que el 2×2 separa.
 Además "weak" es foso anti-strawman (la tesis no depende de que el swarm sea
 fuerte). Alternativa correcta si se insiste: "deliberately standard, degenerate
 baseline".
+
+## 34. Cierre de notas de Gibran sobre la compacta (12-jun, noche)
+
+Revisión nota por nota de sus 12 anotaciones contra la compacta:
+- **Completadas hoy**: (a) R^105 residual de §4.3 → R^G (la generalización quedó al
+  100% en los 4 sitios; commit 5d541cd); (b) **negritas de nombres de método
+  ELIMINADAS** (9 \textbf del texto corrido: NSGA-II, random restart,
+  permutation-native, perm-NSGA-II/MOEA/D/SPEA2, Discrete-MOHHO, rk-NSGA-II, FIFO)
+  — su nota apuntaba exactamente a estas; la regla literal de Springer ("bold only
+  for run-in headings") la respalda y las ópticas de IA-generado son riesgo real.
+  Las negritas de la Tabla 1 (mejores valores) se CONSERVAN (práctica estándar de
+  los proceedings, no objetada). Etiquetas (a)-(h) en itálica siguen estructurando
+  la lista. 17/17 pp.
+- **Verificadas ya cumplidas**: Pareto condensado a mención+cita; vector
+  generalizado x_1,x_2,...,x_G; frase "fixes the model's decision variable".
+- **Sostenidas como declinadas** (razones re-validadas hoy): vectores angulares
+  (paréntesis es la convención EMO: Deb/Coello/Zhang&Li), notación f_2 (max con
+  subíndice + |.| = notación Tchebycheff canónica de nuestra ref [33]), renombrar
+  x_g (Eq. 5 es asignación de la misma variable de decisión, no overload).
