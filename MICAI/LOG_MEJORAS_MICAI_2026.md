@@ -985,3 +985,33 @@ el 3×3 factorial es descriptivo, no factorial puro; bound certificado para f₂
 
 **Gates: 17/17 pp**, 0 undefined, overfull 4.8pt único, abstract 214, subset exacto
 del firewall, anonimato 0, ZIP compila desde /tmp, p17 cierra con la última ref.
+
+## 33. Dictamen externo final: 1 cambio aplicado, 2 declinados (12-jun-2026)
+
+El revisor externo pidió 3 cambios (y conservar el título — coincidimos).
+
+**APLICADO — "calibrated case study" → "calibrated synthetic case study"** (abstract,
+contribución (ii) y "calibrated synthetic instance" en Conclusions; Limitations ya
+decía "plausible synthetic disaggregation"): los 3 revisores del panel ciego
+golpearon exactamente ahí de forma independiente; declararlo en el abstract
+convierte el gotcha en scope. No es la sobre-retirada del dictamen v2 ("synthetic
+benchmark", declinada): conserva "calibrated" y "case study". 17/17 pp, abstract 215.
+
+**DECLINADO — "policy trade-offs" → "policy-inspired trade-offs"** (banco): (1) la
+frase actual YA es la retirada negociada del dictamen v2 (de "policy-relevant");
+(2) redundante con el cambio aplicado — "calibrated synthetic case study ...
+policy-inspired trade-offs" sería doble hedge en la misma oración; (3) menos preciso
+que los hedges existentes ("under the assumed model", "decision support, not a
+policy prescription"): los objetivos f1/f2/f3 SÍ son los objetivos reales del debate
+de política; lo sintético son los números, y eso ya queda declarado; (4) el revisor
+pro-novedad del panel ya leyó "the policy contribution is hedged into near-nothing".
+
+**DECLINADO — "weak baseline" → "representation-mismatched baseline"** (banco):
+técnicamente INCORRECTO. El naive MOHHO cumple C1 (sus moves tienen τ≈0 — el mismo
+párrafo lo dice) y falla C2 (aceptación dominance-gated); su colapso persiste en
+ZDT2, un benchmark CONTINUO sin decoder, que no puede ser "representation-
+mismatched". El método representation-mismatched es NSGA-II (el del título).
+Etiquetar igual a ambos mezclaría los dos modos de fallo que el 2×2 separa.
+Además "weak" es foso anti-strawman (la tesis no depende de que el swarm sea
+fuerte). Alternativa correcta si se insiste: "deliberately standard, degenerate
+baseline".
