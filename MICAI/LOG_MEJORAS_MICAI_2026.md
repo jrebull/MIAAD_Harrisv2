@@ -950,3 +950,38 @@ citas ascendentes; Figs. 1–5 en orden; abstract 214 palabras.
 cifras subset exacto (4 tokens nuevos = layout), anonimato 0, ZIP compila desde
 /tmp a 17pp. Veredicto de los auditores: "rechazo no justificable por
 semántica/lógica"; bib "cero hallazgos".
+
+## 32. PANEL CIEGO de 3 revisores + fixes finales (12-jun-2026, noche)
+
+Pedido del usuario: blind audit + calificación del nuevo estado. Panel: experto EMO,
+escéptico pro-novedad, estadístico — solo vieron el PDF de envío, sin historia.
+
+**Calificaciones: 6/10 (weak accept) · 5/10 (borderline→weak reject) · 6.5/10 (weak
+accept). Promedio 5.8** — consistente con la meseta histórica del panel adversarial
+(~6.3 en 4 rondas sobre la reducida); la nota 7.3 previa era de UN revisor solo
+(calibración distinta, no comparable). El estadístico: "no material numeric
+contradictions; cross-page consistency unusually good" — la compresión NO rompió
+sustancia. Las críticas restantes son las estructurales de siempre (novedad vs
+Rothlauf/Raidl, instancia casi-mono-objetivo, densidad) = material de rebuttal.
+
+**Catches REALES corregidos:**
+- "strictly dominated" (regresión MÍA de compresión: FIFO empata f₂, la dominancia
+  no es estricta) → "Pareto-dominated" en prosa y caption (el estadístico la cazó).
+- SIDEDNESS del Wilcoxon (catch del experto EMO, verificado contra los scripts:
+  ladder_v5/factorial_2x2_paired/prospective_scp usan alternative="greater"): los
+  p=9.3e-10 (Discrete-vs-MOHHO, mo-SCP), p=1.4e-3 (2×2), p=5.7e-4 (competent) y
+  p<10⁻³ (tier por decoder) son ONE-SIDED y el paper no lo declaraba mientras el
+  headline decía "two-sided" → convención declarada en §4.4 ("two-sided unless
+  noted") + etiqueta "one-sided" en los 5 sitios. PLS y GRASP verificados two-sided.
+- Fig. 2 caption: nota de que el f₃=1,940 de FIFO excede la escala de color.
+- Fig. 4 caption: "(slightly negative for the HHO moves)" explica el τ<0 del plot.
+- "0.9% of this skeleton's individuals" (desambigua del 0.6% del MOHHO naive).
+- 6 micro-recortes de viudas para mantener **17/17 pp**.
+
+**Material de rebuttal nuevo (no editable sin re-derivar):** TOST/CIs para los
+"statistical ties"; p-value del blind-vs-naive-swarm (no está en el firewall);
+descomposición del HV por objetivo; preregistro auto-atestado (commits propios);
+el 3×3 factorial es descriptivo, no factorial puro; bound certificado para f₂.
+
+**Gates: 17/17 pp**, 0 undefined, overfull 4.8pt único, abstract 214, subset exacto
+del firewall, anonimato 0, ZIP compila desde /tmp, p17 cierra con la última ref.
