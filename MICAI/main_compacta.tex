@@ -209,7 +209,7 @@ Each step caps $x_g$ by every remaining budget and by $n_g$, so by induction eve
 \subsection{Benchmarks and a representation-matched optimizer}
 \label{sec:nsga}
 
-The \emph{ladder} of methods shares the greedy decoder, objectives, hypervolume reference point, and $50\times500$ budget; the methods differ only in how they explore. Two operate on the continuous SPV random keys in $\mathbb{R}^{105}$:
+The \emph{ladder} of methods shares the greedy decoder, objectives, hypervolume reference point, and $50\times500$ budget; the methods differ only in how they explore. Two operate on the continuous SPV random keys in $\mathbb{R}^{G}$:
 \emph{(a)}~the MOHHO of Section~\ref{sec:mohho}; and
 \emph{(b)}~\textbf{NSGA-II}~\cite{deb} with simulated binary crossover (SBX, $\eta_c=20$, $p_c=0.9$), polynomial mutation ($\eta_m=20$, $p_m=1/d$), binary tournament selection, and elitist $(\mu+\lambda)$ replacement.
 A third, \emph{(c)}~\textbf{random restart}, draws all $25{,}000$ candidates uniformly at random, isolating the decoder's contribution.
