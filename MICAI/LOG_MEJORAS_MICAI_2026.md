@@ -905,3 +905,7 @@ esperados (autores, data availability→4open, acks fuera).
 cifras = subconjunto exacto del firewall 161/161, anonimato 0, citas ascendentes,
 Figs. 1–5 en orden. PENDIENTE: decidir si la compacta sustituye a la reducida como
 envío oficial (el límite MICAI es 20; 17 deja holgura de 3 pp para el camera-ready).
+
+**DECISIÓN DEL USUARIO (12-jun):** la COMPACTA es el envío oficial. Data Availability
+de la camera-ready actualizado a tag `micai-submission-v2` (creado y pusheado); el
+usuario sincroniza 4open por su cuenta.
