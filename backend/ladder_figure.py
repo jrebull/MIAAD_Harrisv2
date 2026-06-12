@@ -83,7 +83,8 @@ ax.plot([4.62, 9.38], [yb, yb], color="0.45", lw=0.6)
 ax.plot([4.62, 4.62], [yb, yb - 0.0012], color="0.45", lw=0.6)
 ax.plot([9.38, 9.38], [yb, yb - 0.0012], color="0.45", lw=0.6)
 ax.text(7.0, yb + 0.0006, "top tier", ha="center", va="bottom",
-        fontsize=6.2, color="0.30", style="italic")
+        fontsize=6.2, color="0.30", style="italic",
+        bbox=dict(fc="white", ec="none", pad=0.4))
 ax.set_yticks([0.28, 0.29, 0.30, 0.31, 0.32])
 ax.grid(axis="y", alpha=0.22, lw=0.4)
 fig.savefig("../MICAI/figures/ladder.pdf"); fig.savefig("../MICAI/figures/ladder.png", dpi=300)

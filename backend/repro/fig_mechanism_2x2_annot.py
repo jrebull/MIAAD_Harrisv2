@@ -51,7 +51,7 @@ for name, cell in fac["cells"].items():
     sign = "+" if cell["vs_random_pct"] >= 0 else "$-$"
     block = (HEAD2[name]
              + f"\nHV {cell['hv_mean']:,.0f}"
-             + f"\n{sign}{abs(cell['vs_random_pct']):.2f}% vs. blind"
+             + f"\n{sign}{abs(cell['vs_random_pct']):.2f}%"
              + f"\n$A_{{12}}$ {cell['A12_vs_random']:.2f}")
     # blocks hang below the top markers and sit above the bottom ones
     ax.annotate(block, (x, y), textcoords="offset points",
@@ -60,13 +60,12 @@ for name, cell in fac["cells"].items():
                 color=("#145A32" if win else "0.20"))
 ax.set_xlabel("operator order-preservation $\\tau$\n(low $=$ changes the decoded order)",
               fontsize=7.2, linespacing=1.3)
-ax.set_ylabel("Realized population movement / iter", fontsize=7.3)
+ax.set_ylabel("Realized population\nmovement per iteration", fontsize=7.3,
+              linespacing=1.25)
 ax.tick_params(labelsize=6.8, length=2, pad=2)
 ax.spines[["top", "right"]].set_visible(False)
-# blind-sampling reference the percentages refer to
-ax.text(-0.575, 0.46, f"blind random restart:\nHV {rr:,.0f}",
-        fontsize=6.3, color="0.30", ha="left", va="top", style="italic",
-        linespacing=1.3)
+# blind-sampling reference (HV value) lives in the LaTeX caption to avoid
+# colliding with the lower-left cell block at the final physical size
 FIG.mkdir(parents=True, exist_ok=True)
 fig.savefig(FIG / "mechanism_2x2_annot.pdf")
 fig.savefig(FIG / "mechanism_2x2_annot.png", dpi=300)

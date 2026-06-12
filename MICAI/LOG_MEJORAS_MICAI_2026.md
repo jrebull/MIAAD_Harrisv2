@@ -909,3 +909,44 @@ envío oficial (el límite MICAI es 20; 17 deja holgura de 3 pp para el camera-r
 **DECISIÓN DEL USUARIO (12-jun):** la COMPACTA es el envío oficial. Data Availability
 de la camera-ready actualizado a tag `micai-submission-v2` (creado y pusheado); el
 usuario sincroniza 4open por su cuenta.
+
+## 31. SUPER AUDIT de la compacta (5 agentes + pase mecánico) — 12-jun-2026
+
+Pedido del usuario: que TODO quede impoluto antes de leer el ZIP. 5 auditores ciegos
+en paralelo (números-vs-JSONs, semántica adversarial, bibliografía, inglés completo,
+figuras/tablas visual) + pase mecánico propio.
+
+**Cobertura:** firewall re-corrido 161/161; ~250 cifras re-derivadas desde JSONs
+(incl. las 36 celdas de la Tabla 1, las 13 de mech_annot y los 24 ranks de
+struct_ranks contra sus JSONs); bib diff byte-a-byte vs congelada (idéntica, 36/36
+citados bidireccional, alfabético verificado, 6+et al. 5/5, 27 DOIs + 7 URLs);
+anonimato 0/17 patrones; ZIP md5-idéntico al disco; 0 fuentes Type 3; brackets de
+citas ascendentes; Figs. 1–5 en orden; abstract 214 palabras.
+
+**Corregido (lo que cazaron):**
+- MAYOR números: la elipsis "4.3% and 1.4%" había INVERTIDO la atribución de los
+  decoders no-saturantes (JSON: stochastic-skip=4.27, fractional=1.45) → etiquetas
+  restauradas.
+- 3 MAYORES semántica: caption Fig. 5 sin el scoping "among the six core methods";
+  conclusiones sin el hedge "(within the critical difference)" (el naive knapsack
+  swarm la contradecía nominalmente); "the four both-condition methods" vs los cinco
+  del cuerpo → "four of the five... (perm-MOEA/D is the one displacement)".
+- Restauraciones de soporte: decoder SCP "(adds a set iff it covers a new element)",
+  PCA "(the first alone captures 0.81–0.91)", abstract recupera el sweep registrado
+  (plural de "registered prospective tests" ahora identificable), "Added as a seventh
+  method" (antecedente de "1.13 of seven").
+- ~14 fixes de inglés (concordancia, antecedente "It does not"→"The prediction
+  fails", "choice of metaheuristic family", cita SPV bean+tasgetiren, perm-→
+  permutation- en prosa, dB en Taguchi, apositivo MILP, paralelismo future work,
+  on-trajectory, Friedman/Nemenyi post-hoc, etc.).
+- Visual: nota "blind random restart: HV 310,214" chocaba con la celda inferior-izq
+  del mech_annot → movida al caption; celdas ahora solo "%"; ylabel a 2 líneas.
+  ladder.pdf: "top tier" tachado por su corchete (PREEXISTENTE, venía así en la v1
+  enviada) → bbox blanco en ladder_figure.py. ⚠️ ladder.pdf es figura COMPARTIDA con
+  las versiones congeladas: sus PDFs committeados no cambian, pero una recompilación
+  de las congeladas tomaría la figura corregida (diff cosmético).
+
+**Gates finales: 17/17 pp**, 0 undefined, overfull único 4.8pt, abstract 214,
+cifras subset exacto (4 tokens nuevos = layout), anonimato 0, ZIP compila desde
+/tmp a 17pp. Veredicto de los auditores: "rechazo no justificable por
+semántica/lógica"; bib "cero hallazgos".
