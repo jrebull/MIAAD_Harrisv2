@@ -1034,3 +1034,42 @@ Revisión nota por nota de sus 12 anotaciones contra la compacta:
   (paréntesis es la convención EMO: Deb/Coello/Zhang&Li), notación f_2 (max con
   subíndice + |.| = notación Tchebycheff canónica de nuestra ref [33]), renombrar
   x_g (Eq. 5 es asignación de la misma variable de decisión, no overload).
+
+## 35. Auditoría de notación (familia-Gibran) + full audit final + citas (12-jun, noche)
+
+**Auditoría de notación pedida por el usuario** ("que no haya más casos"): agente ciego
+listó símbolo por símbolo. 4 MAYORES corregidos: (1) d sin definir y colisionando con
+d_g → "p_m=1/d for search-space dimension d"; (2) Eq. 5 mezclaba V_rem subíndice con
+P^rem/K^rem superíndices → unificado V^rem + "(initialized to V, P_c, K_j^eff)";
+(3) 𝒞/𝒥/C sin definir → "G=|𝒞|×|𝒥|... each group g pairs a country c(g)∈𝒞 with a
+category j(g)∈𝒥" (define 4 símbolos en una cláusula); (4) q,r∈U(0,1) → al final q,r
+ELIMINADOS (sin papel tras quitar la tabla de operadores). Menores: h_g componente
+de H, ρ_e=0.7 nombrada, IGD⁺ "dominance-compliant variant", K_j^base "pre-spillover
+value", Spearman ρ consistente. Sostenidas: η_c/η_m vs η² (canónicas), U dual
+(nombres propios), Z⁺₀, punto-y-coma del ref point, MOHHO/MO-HHO.
+
+**Crisis de paginación resuelta**: los fixes (+60 palabras) → 18pp con p18 clavada
+en 59 palabras por DOS \vbox underfull (p14-15 rompían temprano ante los headings de
+Conclusions/References). Diagnóstico clave: cortes upstream NO propagan (los absorben
+las páginas de floats); solo cortes en p14-15 (Discussion/Conclusions/end-matter)
+mueven el inicio de References. Compactaciones quirúrgicas ahí → **17/17 pp**.
+⚠️ Lección de proceso: hubo falsa alarma de "ediciones no persistidas" — era un salto
+de línea de pdftotext partiendo el patrón de grep; verificar con grep sin frase
+multi-palabra o sobre el .tex.
+
+**Full audit final (3 agentes)**: semántico ("las ediciones de hoy NO dejaron daño
+estructural"; verificó sidedness de hoy contra JSONs = todos correctos; 6 menores),
+inglés (1 moderado: "real constrained problem" contradecía el framing synthetic →
+"realistic"; 5 menores), visual (figuras regeneradas limpias; trío de etiquetas de
+Fig. 5 apretado pero sin solape). ~18 fixes aplicados con compensación de palabras
+(extremos re-identificados min-f2/min-f3, abstract +cláusula "under diversity-
+preserving selection", em-dashes, MILP;, feasibility-preserving decoders, archive
+"as MOHHO", overfull integrality→integer). Gates: 17/17pp, abstract 217, 0 undefined,
+cifras subset exacto, anonimato 0, ZIP /tmp OK, citas 36/36 bidireccional.
+
+**Nota de Gibran sobre orden de citas (IEEE secuencial) = DECLINADA con evidencia**:
+MICAI delega a Springer LNCS (guía oficial 2026); splncs04 ordena ALFABÉTICO con
+citas numéricas; los proceedings MICAI 2025 publicados (verificado extrayendo listas:
+[1] Asafuddoula... [1] Adeyanju...) son alfabéticos, NO por aparición. Renumerar por
+aparición VIOLARÍA el estándar del venue. Su petición de cross-check exhaustivo SÍ
+ejecutada: 36/36 citados, 0 huérfanos, 0 citas sin bibitem, brackets ascendentes.

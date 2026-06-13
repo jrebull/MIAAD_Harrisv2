@@ -30,7 +30,7 @@ HEAD2 = {"order_nds": "order-changing\n+ NDS",
          "near_nds": "near-identity\n+ NDS",
          "near_gated": "near-identity\n+ gated"}
 
-fig, ax = plt.subplots(figsize=(3.10, 2.02))
+fig, ax = plt.subplots(figsize=(3.05, 1.88))
 ax.set_xlim(-0.6, 1.15); ax.set_ylim(-0.1, 1.15)
 # hint the four quadrants; tint the only favorable one (low tau, high movement)
 ax.axvline(0.5, color="grey", lw=0.5, ls=":")

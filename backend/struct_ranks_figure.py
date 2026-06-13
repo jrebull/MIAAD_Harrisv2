@@ -43,7 +43,7 @@ ranks = {}
 for kv, ks, col, label in METHODS:
     ranks[label] = [visa[kv]] + [rest[s][ks] for s in STRUCTS[1:]]
 
-fig, ax = plt.subplots(figsize=(4.15, 1.58))
+fig, ax = plt.subplots(figsize=(4.15, 1.46))
 x = range(len(STRUCTS))
 best_per_struct = {i: min(ranks[l][i] for _, _, _, l in METHODS)
                    for i in x}
