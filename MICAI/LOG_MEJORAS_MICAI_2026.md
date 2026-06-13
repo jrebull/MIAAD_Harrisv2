@@ -1073,3 +1073,40 @@ citas numéricas; los proceedings MICAI 2025 publicados (verificado extrayendo l
 [1] Asafuddoula... [1] Adeyanju...) son alfabéticos, NO por aparición. Renumerar por
 aparición VIOLARÍA el estándar del venue. Su petición de cross-check exhaustivo SÍ
 ejecutada: 36/36 citados, 0 huérfanos, 0 citas sin bibitem, brackets ascendentes.
+
+## 36. SEGUNDO FULL BLIND AUDIT (5 agentes, sin contexto) + fixes (12-jun, madrugada)
+
+Pedido del usuario. Mecánico: firewall 161/161, ZIP md5-idéntico, 0 Type 3.
+
+**Veredictos**: NÚMEROS limpio (~240 cifras, sidedness verificada test-por-test contra
+los JSONs — "one-sided" anotados = alternative=greater, no anotados = two-sided, todos
+correctos); BIBLIOGRAFÍA limpio total (35 pares adyacentes verificados, Yüzgeç
+confirmado primer autor contra la web del journal); INGLÉS muy limpio (7 menores);
+VISUAL sin mayores (negritas de Tabla 1 verificadas valor-por-valor, paleta RGB
+coherente entre figuras); ADVERSARIAL: "ninguna contradicción numérica... scoping
+ejemplarmente honesto", con 1 crítico FALSA ALARMA (leyó la camera-ready con nombres
+— la submission verificada 0 fugas) y 6 mayores de redacción/lógica.
+
+**Corregido (~25 fixes)**: zombi "A second registered sweep"→"A registered sweep";
+"four of the five both-condition methods"→"top-tier methods" (rk-NSGA-II también
+cumple ambas en lectura binaria — exclusión silenciosa); "both real-coded searches"→
+"both default real-coded baselines" (hay 4 real-coded en la tabla); "all five problem
+structures (Section 5.4)" (referencia adelantada anclada); five controls ENUMERADOS
+("archive, semi-greedy construction, tuning, local search, and the sweep"); "twelve
+headline claims" (sin "pairwise": la familia Holm incluye la interacción); contribución
+(iv) reordenada; "out of scope"; paréntesis anidados GA; glosa ZDT2; "plus polynomial
+mutation" (ambigüedad de alcance); "never as an autonomous decision rule"; caption
+Fig.4 "negative" (τ=−0.33 no es "slightly"); Fig.1 etiquetas TikZ 5pt→6pt; Fig.5
+rótulos 6.2→6.8pt con min_gap 0.55. DECLINADOS/banco: M4 (lógica de predicciones
+necesarias→wins: el registro dice lo que dice; banco), p-value restart-vs-naive (no
+está en firewall), reconciliación 315,730/316,347, "capacity sweep" críptico, refpoint
+"over the decoder's image".
+
+**Paginación**: el lote (+30 palabras) disparó 18pp; diagnóstico fino: TODAS las
+páginas llenan al mismo límite (0.785 de altura, medido por tinta) — no había pin,
+solo overage real + histéresis de bibitems (~3 líneas de granularidad). 6 viudas
+quirúrgicas → **17/17 pp**, p18 inexistente.
+
+**Gates finales: 17/17pp, A4, 0 undefined, overfull único 4.8pt, abstract 217,
+subset exacto del firewall, citas 36/36 bidireccional + brackets ascendentes,
+anonimato 0, ZIP compila desde /tmp.**

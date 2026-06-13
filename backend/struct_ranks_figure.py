@@ -63,21 +63,21 @@ for kv, ks, col, label in METHODS:
 # direct labels on the right edge (flow-shop ranks), stacked downward in data
 # coords where they collide (the y-axis is inverted: larger rank = lower)
 right = sorted(((ranks[l][-1], col, l) for _, _, col, l in METHODS))
-ypos, min_gap = [], 0.42
+ypos, min_gap = [], 0.55
 for r, _, _ in right:
     y = r if not ypos else max(r, ypos[-1] + min_gap)
     ypos.append(y)
 for (r, col, label), y in zip(right, ypos):
-    ax.text(3.13, y, label, fontsize=6.2, color=col,
+    ax.text(3.13, y, label, fontsize=6.8, color=col,
             va="center", ha="left", clip_on=False)
 
 # landscape families: shaded budget-saturating block vs sequencing block
 ax.axvspan(-0.35, 1.5, color="#E67E22", alpha=0.05)
 ax.axvspan(1.5, 3.35, color="#2E86DE", alpha=0.035)
 ax.text(0.575, 6.6, "budget-saturating (selection)", ha="center", va="bottom",
-        fontsize=6.3, color="#9C5410", style="italic")
+        fontsize=6.8, color="#9C5410", style="italic")
 ax.text(2.5, 6.6, "sequencing", ha="center", va="bottom",
-        fontsize=6.3, color="#1B5E9C", style="italic")
+        fontsize=6.8, color="#1B5E9C", style="italic")
 
 ax.set_xlim(-0.35, 3.35)
 ax.set_ylim(6.75, 0.55)            # rank 1 (best) on top
