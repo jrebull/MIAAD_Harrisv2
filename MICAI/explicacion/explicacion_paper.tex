@@ -1,0 +1,303 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noindentfirst]{babel}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\usepackage{parskip}
+
+% --- paleta sobria
+\definecolor{tinta}{HTML}{1A2330}
+\definecolor{acento}{HTML}{1F5C8B}
+\definecolor{acento2}{HTML}{B5651D}
+\definecolor{cajaanalogia}{HTML}{EAF2F8}
+\definecolor{cajaclave}{HTML}{FBEEE3}
+\definecolor{cajadato}{HTML}{ECECEC}
+\definecolor{regla}{HTML}{1F5C8B}
+
+\color{tinta}
+
+% --- títulos de sección con color
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\color{acento}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\large\bfseries\color{tinta}}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.4em}{0.5em}
+
+% --- caja genérica reutilizable (multi-párrafo via minipage)
+\newsavebox{\cajabox}
+\newcommand{\cajacolor}{cajadato}
+\newenvironment{caja}[2]{% #1 color de fondo, #2 título
+  \par\medskip\noindent
+  \renewcommand{\cajacolor}{#1}%
+  \begin{lrbox}{\cajabox}%
+  \begin{minipage}{\dimexpr\linewidth-2\fboxsep-1.2em\relax}%
+  \setlength{\parskip}{0.5em}%
+  {\bfseries\color{acento2}#2}\par\smallskip}
+  {\end{minipage}%
+  \end{lrbox}%
+  \setlength{\fboxsep}{0.6em}%
+  \colorbox{\cajacolor}{\usebox{\cajabox}}\par\medskip}
+
+\newcommand{\analogia}[1]{\begin{caja}{cajaanalogia}{Analogía}#1\end{caja}}
+\newcommand{\enpocas}[1]{\begin{caja}{cajaclave}{En pocas palabras}#1\end{caja}}
+
+\newcommand{\term}[1]{\textbf{\color{acento}#1}}
+
+\begin{document}
+\thispagestyle{empty}
+
+\begin{center}
+{\Large\bfseries Explicación para todo público}\\[0.4em]
+{\large Un paper sobre cómo repartir visas\\[0.15em]
+y, en el fondo, sobre cuándo conviene ser ``listo'' al buscar soluciones}\\[1em]
+{\normalsize Guía de lectura del artículo\\[0.3em]
+\emph{``A Two-Condition Diagnostic for Decoder-Based Multi-Objective Search:\\
+When Blind Sampling Beats a Mismatched NSGA-II''}}
+\end{center}
+\medskip
+
+\noindent\textcolor{regla}{\rule{\linewidth}{1.2pt}}
+
+\begin{caja}{cajadato}{Cómo leer este documento}
+Este texto acompaña al artículo académico, pero no hace falta saber matemáticas ni programación para entenderlo. Va \textbf{parte por parte}, en el mismo orden que el paper. Cada concepto técnico aparece primero con una \textbf{analogía cotidiana} y luego con lo que realmente dice el artículo. Los números que aparecen son los mismos del paper.
+\end{caja}
+
+%================================================================
+\section{La idea en una sola frase}
+
+El artículo usa un problema real y conmovedor (cómo repartir las visas de trabajo de Estados Unidos entre miles de familias que llevan años esperando) como \textbf{banco de pruebas} para responder una pregunta más profunda de ciencias de la computación: \emph{¿cuándo vale la pena usar un algoritmo ``inteligente'' para buscar soluciones, y cuándo ese algoritmo en realidad funciona peor que probar opciones al azar?}
+
+\enpocas{
+El resultado sorprendente: en este problema, un método clásico y muy respetado (NSGA-II) pierde contra \textbf{adivinar al azar}. El paper explica \emph{por qué} ocurre eso y entrega una \textbf{prueba barata de dos condiciones} para saber de antemano si tu algoritmo va a caer en la misma trampa.
+}
+
+%================================================================
+\section{El problema del mundo real: las visas}
+
+Cada año el Congreso de EE.\,UU.\ autoriza unas \term{140{,}000} visas de inmigración por empleo, repartidas en cinco categorías (EB-1 a EB-5). Hay dos reglas que complican todo:
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \term{Tope por país}: ningún país puede llevarse más de $\sim$25{,}620 visas (el límite legal del 7\%). No importa cuánta gente espere en ese país.
+  \item \term{Cascada de sobrantes}: las visas que una categoría no usa ``se derraman'' hacia otras.
+\end{itemize}
+
+Hoy el sistema atiende por estricto orden de llegada: \term{FIFO} (\emph{first-in, first-out}, ``el primero que llega es el primero en salir''). El problema: dos países concentran tres cuartas partes de la demanda (India $\approx 63\%$, China $\approx 14\%$), con esperas de \textbf{10 a 13 años}, mientras que el choque con el tope deja \textbf{miles de visas sin usar}.
+
+\analogia{
+Imagina una sola fila en un banco con una regla rígida: ``máximo 7 personas atendidas por cada empresa''. Si una empresa trajo a 600 empleados, casi todos se quedan esperando años; y mientras tanto hay ventanillas vacías porque nadie más llegó a tiempo. La fila por orden de llegada (FIFO) es ``justa'' en apariencia, pero produce esperas enormes y ventanillas desperdiciadas a la vez.
+}
+
+\subsection{Tres metas que se pelean entre sí}
+
+No existe un reparto perfecto, porque hay tres objetivos legítimos que se contradicen:
+
+\begin{enumerate}[leftmargin=1.6em]
+  \item \term{Eficiencia} ($f_1$): atender primero a quien lleva más tiempo esperando.
+  \item \term{Equidad} ($f_2$): que la espera sea parecida entre nacionalidades, no que un país espere 13 años y otro 2.
+  \item \term{Aprovechamiento} ($f_3$): no desperdiciar ninguna visa.
+\end{enumerate}
+
+Mejorar una meta empeora otra. Por eso no se busca \emph{una} solución, sino el \textbf{conjunto de los mejores compromisos posibles}. Eso tiene un nombre técnico: el \term{frente de Pareto}.
+
+\analogia{
+Comprar un coche: quieres que sea barato, seguro y veloz. No existe el coche que gane en las tres cosas a la vez. El ``frente de Pareto'' es la lista de coches donde, para mejorar en una cosa, forzosamente sacrificas otra. Todo lo que está fuera de esa lista es directamente peor y se descarta.
+}
+
+%================================================================
+\section{Por qué el problema es difícil}
+
+Tres dificultades se juntan:
+
+\begin{itemize}[leftmargin=1.4em]
+  \item Es \term{combinatorio}: hay que asignar números enteros de visas a 105 grupos (21 países $\times$ 5 categorías) cumpliendo seis restricciones a la vez. La cantidad de combinaciones es astronómica.
+  \item Los objetivos \term{de verdad se contradicen} (no hay ganador único).
+  \item Las restricciones son \term{duras e inviolables}: una solución que rompe una regla simplemente no sirve.
+\end{itemize}
+
+\analogia{
+Es como armar un presupuesto familiar enorme: no puedes gastar más de lo que tienes (tope total), ni más de cierto monto por categoría, y todo en cantidades exactas. Un programa que ``proponga'' gastar números rotos o pasarse del límite genera planes imposibles. Necesitas un método que \textbf{solo produzca planes válidos}.
+}
+
+%================================================================
+\section{La pieza ingeniosa: el ``decodificador'' que nunca rompe reglas}
+
+Aquí está una de las ideas centrales del paper. Los algoritmos de búsqueda ``inteligentes'' trabajan moviendo números continuos (con decimales), pero nuestro problema exige números enteros que respeten seis reglas. ¿Cómo se conectan los dos mundos?
+
+Con un \term{decodificador que preserva la factibilidad}. Funciona en dos pasos:
+
+\begin{enumerate}[leftmargin=1.6em]
+  \item \textbf{Random keys (llaves aleatorias) + regla SPV}: a cada uno de los 105 grupos se le asigna un número entre 0 y 1. Ordenar esos números de menor a mayor define \textbf{un orden de prioridad} (una ``permutación'').
+  \item \textbf{Llenado codicioso (greedy)}: se recorre la lista en ese orden y a cada grupo se le dan tantas visas como sea posible \emph{sin romper ninguna regla}. Cuando una regla se agota, simplemente se da menos.
+\end{enumerate}
+
+Como cada paso respeta los topes por construcción, \textbf{toda solución que sale es válida}: sin penalizaciones, sin ``reparaciones'' posteriores. El paper incluso lo demuestra formalmente (Proposición 1).
+
+\analogia{
+Piensa en repartir un pastel con una lista de invitados ordenada. Recorres la lista y a cada persona le das la tajada que pida, \emph{siempre que quede pastel}. Cuando se acaba, el resto recibe cero. Hagas la lista que hagas, nunca repartes más pastel del que existe. El ``orden de la lista'' es lo que el algoritmo busca optimizar; el reparto siempre es válido.
+}
+
+%================================================================
+\section{El ``cazador'': Harris Hawks Optimization (MOHHO)}
+
+El algoritmo principal del paper se llama \term{Harris Hawks Optimization} (Optimización de Halcones de Harris). Está inspirado en cómo cazan en grupo los halcones de Harris: rodean a la presa, ajustan su ``energía de escape'' y deciden si se acercan suave o agresivamente.
+
+En la versión del paper (MOHHO, la M es por ``multi-objetivo''), cada ``halcón'' es una posible solución, y el grupo de halcones va explorando el espacio de soluciones. Una variable llamada \term{energía de escape} decide en cada paso si el halcón explora a lo lejos o se lanza en picada hacia la mejor presa.
+
+\analogia{
+Como un grupo de detectives buscando algo en una ciudad. Al principio se dispersan por toda la ciudad (explorar); cuando alguien encuentra una pista caliente, todos convergen hacia esa zona (explotar). La ``energía'' regula cuándo pasar de una fase a la otra.
+}
+
+\enpocas{
+Por sí mismo, este es solo \emph{uno} de los nueve métodos que el paper compara. Lo importante no es qué método gana, sino \textbf{descubrir por qué algunos métodos famosos fracasan estrepitosamente}.
+}
+
+%================================================================
+\section{El hallazgo incómodo: adivinar al azar le gana a un método célebre}
+
+El paper monta una \term{escalera de nueve métodos} (en inglés, \emph{ladder}): todos comparten el mismo decodificador y el mismo presupuesto de cómputo, y solo cambian en \emph{cómo buscan}. Entre ellos está el \term{NSGA-II}, uno de los algoritmos más usados y citados del mundo para este tipo de problemas.
+
+El resultado que da nombre al paper:
+
+\begin{caja}{cajadato}{El número que asombra}
+El \textbf{muestreo ciego} (probar soluciones totalmente al azar, sin ninguna estrategia) obtiene mejor desempeño que el NSGA-II clásico \textbf{por un 5.7\%}, y mejor que la versión básica del MOHHO por un 2.5\%. En otras palabras: dos métodos ``inteligentes'' muy respetados pierden contra \textbf{tirar dardos a ciegas}.
+\end{caja}
+
+\subsection{¿Por qué? El diagnóstico clave}
+
+El paper no se queda en el asombro: explica \emph{el mecanismo}. La razón es que la búsqueda de esos métodos es \term{degenerada}, es decir, en la práctica casi no se mueve:
+
+\begin{itemize}[leftmargin=1.4em]
+  \item El NSGA-II hace cambios tan pequeños en las llaves que \textbf{el orden decodificado casi no cambia}. Medido con un indicador llamado \term{tau de Kendall} (que mide cuánto se parece el orden ``antes'' y ``después''), el valor es $\tau = 0.99$: prácticamente idéntico. Es como si el método estuviera congelado en el espacio de soluciones.
+  \item La versión básica del MOHHO sí propone saltos grandes, pero su regla de aceptación es tan estricta que casi nunca acepta moverse (\textbf{solo $\sim$0.6\% de los halcones se mueve por iteración}). La población se queda congelada.
+\end{itemize}
+
+\analogia{
+Dos personas buscando la salida de un laberinto. La primera (NSGA-II) da pasos tan diminutos que tras una hora sigue casi en el mismo punto. La segunda (MOHHO básico) podría dar saltos grandes, pero es tan miedosa que casi nunca se atreve a moverse. Mientras tanto, alguien que simplemente se teletransporta a puntos al azar (muestreo ciego) acaba explorando más del laberinto que las dos. \emph{No es que el azar sea genial: es que los otros dos apenas se movieron.}
+}
+
+%================================================================
+\section{La solución: emparejar el operador con la representación}
+
+Si el problema es que los métodos ``no se mueven de verdad'', la solución es hacer que actúen \textbf{directamente sobre el orden} (sobre las permutaciones), en lugar de sobre las llaves continuas. Cuando el paper hace eso, cuatro familias de métodos muy distintas \textbf{suben todas por encima del muestreo ciego} y quedan agrupadas dentro de $\sim$1\% entre sí.
+
+Conclusión del paper aquí: \emph{lo que divide a ganadores de perdedores no es la ``marca'' del algoritmo ni la codificación, sino si la búsqueda realmente se mueve de forma útil.}
+
+%================================================================
+\section{El producto estrella: el diagnóstico de dos condiciones}
+
+Esta es la contribución más valiosa y reutilizable del paper. En vez de gastar semanas de cómputo probando algoritmos, propone una \term{prueba barata, a priori}, de dos condiciones. Un método solo le ganará al azar si cumple AMBAS:
+
+\begin{enumerate}[leftmargin=1.6em]
+  \item \term{Condición 1 --- el operador cambia el orden decodificado.} (Medible con la tau de Kendall: si $\tau$ está lejos de 1, sí cambia.)
+  \item \term{Condición 2 --- la selección preserva la diversidad.} Es decir, que el método no colapse toda la población a una sola idea ni la congele.
+\end{enumerate}
+
+\begin{caja}{cajadato}{Por qué importa esto}
+Es una receta práctica: antes de invertir un gran presupuesto experimental, mides estas dos cosas en unos minutos y sabes si tu algoritmo está condenado a perder contra el azar. El NSGA-II falla la condición 1; el MOHHO básico falla la condición 2.
+\end{caja}
+
+\subsection{Honestidad científica: las dos condiciones son necesarias, pero no suficientes}
+
+Aquí el paper hace algo que lo distingue: \textbf{pone a prueba su propia regla y reporta que no es perfecta}. Probaron un método (rk-NSGA-II) que cumple las dos condiciones sobre el papel. Si la regla fuera infalible, debería ganarle al azar. \textbf{No lo hizo}: quedó empatado con el muestreo ciego.
+
+La conclusión honesta: las dos condiciones son \emph{necesarias} (sin ellas, seguro pierdes) pero \emph{no garantizan} la victoria. Hace falta ``el tipo correcto de renovación del orden''. Reportar este matiz, en lugar de esconderlo, es señal de integridad científica.
+
+\analogia{
+Tener gasolina y un motor que arranca son condiciones \emph{necesarias} para que el coche llegue lejos. Pero no son \emph{suficientes}: también necesitas que las ruedas agarren el camino. El paper descubrió que faltaba esa tercera pieza y lo dijo abiertamente.
+}
+
+%================================================================
+\section{El experimento limpio: un 2$\times$2 controlado}
+
+Para aislar el efecto de cada condición, el paper hace un experimento de manual: un \term{diseño 2$\times$2}. Toma un mismo esqueleto de algoritmo y varía solo dos cosas (el operador y la selección), creando cuatro combinaciones. El resultado es nítido:
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \textbf{Solo la celda que cumple las DOS condiciones} le gana al muestreo ciego (por 1.78\%).
+  \item Cualquier celda que cumple solo una condición \textbf{pierde} contra el azar.
+\end{itemize}
+
+Además, las dos condiciones son \term{sinérgicas}, no simplemente aditivas: juntas logran más que la suma de sus partes (hay una ``interacción'' estadísticamente significativa). Es decir, necesitas las dos a la vez; tener media receta no sirve.
+
+%================================================================
+\section{¿Esto vale solo para las visas? La generalización}
+
+Un buen paper no se queda en un solo caso. Aquí se prueba la idea en otros problemas clásicos muy distintos:
+
+\begin{itemize}[leftmargin=1.4em]
+  \item Una mochila multidimensional (problema de \emph{selección}).
+  \item El vendedor viajero (problema de \emph{secuenciación} de rutas).
+  \item Un taller de producción / \emph{flow-shop} (problema de \emph{calendarización}).
+\end{itemize}
+
+\textbf{Lo que SÍ se generaliza:} en las cuatro estructuras, el mejor método siempre es uno que cumple las dos condiciones; ni el azar ni los métodos ingenuos ganan nunca.
+
+\textbf{Lo que NO se generaliza:} el resultado dramático de ``el método famoso pierde contra el azar'' \emph{no} ocurre en todos los problemas. En los de secuenciación (rutas, calendarios), el NSGA-II sí es competitivo. El paper explica la razón con cuidado y \textbf{no exagera su alcance}: lo llama ``una regularidad empírica para este problema, no una ley general''.
+
+\subsection{La prueba más exigente: una predicción registrada}
+
+Para evitar engañarse a sí mismos, los autores hicieron algo riguroso: \term{registraron cuatro predicciones por escrito ANTES de correr el experimento} en un quinto problema nuevo (set-covering, ``cobertura de conjuntos''). Esto es como sellar un sobre con tus apuestas antes de ver el resultado, para que nadie pueda acusarte de ajustar la historia después.
+
+\begin{itemize}[leftmargin=1.4em]
+  \item Las dos predicciones que venían de las \textbf{dos condiciones} se cumplieron.
+  \item Las dos que venían de una etiqueta superficial del problema \textbf{fallaron}.
+\end{itemize}
+
+Resultado: el núcleo de dos condiciones queda confirmado, y la parte más frágil de la teoría queda \emph{refutada} de forma transparente. Otra vez, honestidad por encima del marketing.
+
+%================================================================
+\section{¿Y qué pasa con las visas? El resultado de política}
+
+Aunque el corazón del paper es metodológico, el caso de las visas da frutos concretos. El método encuentra un \term{frente de Pareto de 104 soluciones}, y \textbf{todas ellas son mejores que el FIFO actual} (técnicamente, lo ``dominan''), sobre todo porque desperdician muchas menos visas.
+
+\begin{caja}{cajadato}{Cifras concretas del caso de visas}
+\begin{itemize}[leftmargin=1.2em, nosep]
+  \item El FIFO actual desperdicia \textbf{1{,}940} visas; \textbf{94 de las 104 soluciones} encontradas desperdician \textbf{cero}.
+  \item Se puede bajar la disparidad de espera entre países de \textbf{13.0 años a 2.0 años} sacrificando solo $\sim$2.4\% en eficiencia frente al FIFO.
+  \item Medidas alternativas de equidad confirman la mejora (el índice de Gini de espera baja de 0.79 a 0.17).
+\end{itemize}
+\end{caja}
+
+En palabras simples: existe un menú de repartos que son, a la vez, \textbf{más justos y menos derrochadores} que el sistema actual, con un costo mínimo en eficiencia.
+
+%================================================================
+\section{Lo que el paper NO afirma (límites y ética)}
+
+Una parte admirable del artículo es lo cuidadoso que es con sus propios límites:
+
+\begin{itemize}[leftmargin=1.4em]
+  \item El modelo cubre \textbf{un solo año fiscal}, usa 21 países representativos y \textbf{datos sintéticos calibrados} (no datos reales persona por persona), porque los datos detallados no son públicos. Esto afecta la validez externa, pero \emph{no} la comparación interna entre métodos, que comparten exactamente los mismos datos.
+  \item Reconoce que su medida de ``equidad'' ($f_2$) es \textbf{una noción discutible} de justicia, y que trata a las nacionalidades como ``cubetas'' de asignación.
+  \item Por eso insiste: el frente de soluciones es \textbf{apoyo auditable a la decisión}, \textbf{nunca} una regla automática que decida por las personas.
+\end{itemize}
+
+\analogia{
+Es como un nutriólogo que te entrega varios menús equilibrados y te explica el costo de cada uno, en lugar de decidir por ti qué comer. La herramienta informa; la decisión sigue siendo humana.
+}
+
+%================================================================
+\section{Resumen final: por qué este paper vale la pena}
+
+\begin{enumerate}[leftmargin=1.6em]
+  \item Toma un \textbf{problema humano real} (familias esperando visas hasta 13 años) y lo convierte en un banco de pruebas riguroso.
+  \item Descubre un resultado \textbf{contraintuitivo}: métodos famosos pueden perder contra el puro azar.
+  \item No se queda en la sorpresa: \textbf{explica el mecanismo} con mediciones.
+  \item Lo destila en una herramienta práctica: un \textbf{diagnóstico barato de dos condiciones} que cualquiera puede aplicar antes de gastar su presupuesto de cómputo.
+  \item Pone a prueba su propia teoría, \textbf{reporta dónde falla} y registra predicciones por anticipado.
+  \item Entrega, de paso, un \textbf{menú de repartos de visas} más justo y menos derrochador que el actual, con honestidad total sobre sus límites éticos.
+\end{enumerate}
+
+\begin{caja}{cajaclave}{La moraleja, sin tecnicismos}
+Tener un algoritmo de moda no garantiza buenos resultados. Si tu método ``no se mueve de verdad'' por el espacio de soluciones, hasta tirar dardos al azar lo supera. Antes de confiar en una herramienta sofisticada, vale la pena hacer una prueba sencilla para confirmar que de hecho está buscando, y no solo fingiendo que busca.
+\end{caja}
+
+\vfill
+\noindent\textcolor{regla}{\rule{\linewidth}{0.8pt}}
+\begin{center}
+\small\itshape Documento de divulgación basado fielmente en el artículo y sus cifras.\\ No reemplaza la lectura del paper original.
+\end{center}
+
+\end{document}

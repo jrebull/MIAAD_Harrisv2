@@ -1,0 +1,23 @@
+country,fifo_visas,mohho_visas,delta
+Philippines,25620,6000,-19620
+Mexico,21440,7940,-13500
+China,25620,14420,-11200
+Afghanistan,1300,400,-900
+Nigeria,800,740,-60
+India,25620,25620,0
+Iran,1000,1000,0
+Iraq,1100,1500,400
+Ethiopia,300,1500,1200
+Taiwan,1500,3000,1500
+Japan,1500,3000,1500
+Germany,1500,3340,1840
+South Korea,2960,5000,2040
+Colombia,800,3000,2200
+Canada,2000,4500,2500
+Bangladesh,500,3000,2500
+Pakistan,1000,4000,3000
+United Kingdom,2000,6500,4500
+Rest of World,20000,25620,5620
+Vietnam,500,9500,9000
+Brazil,1000,10420,9420
+__policy__,f1=8.9994,f2=2.0000,f3=0
