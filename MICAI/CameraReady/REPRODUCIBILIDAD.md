@@ -1,8 +1,9 @@
 # Reproducibilidad del camera-ready — MICAI 2026, paper #38
 
-Manifiesto de entorno para reproducir el PDF y sus cifras. `backend/requirements.txt` es
-el manifiesto de Python del repositorio completo; este documento añade lo que aquél no
-puede expresar: **versiones concretas probadas** y **dependencias de sistema**.
+Manifiesto de entorno para reproducir el PDF y sus cifras. `backend/requirements.txt` cubre
+el backend y la cadena del camera-ready —no el frontend Nuxt, que no interviene aquí—; este
+documento añade lo que aquél no puede expresar: **versiones concretas probadas** y
+**dependencias de sistema**.
 
 ## Artefactos de referencia
 
@@ -22,7 +23,9 @@ peor, se salta controles.
 | Requisito | Para qué | Versión probada |
 |---|---|---|
 | **TeX Live** (`pdflatex`) | compilar el `.tex`; `tools/compila_cr.sh` fuerza `SOURCE_DATE_EPOCH` para que el PDF sea reproducible | pdfTeX 3.141592653-2.6-1.40.27 (TeX Live 2025) |
-| **Poppler** (`pdftotext`, `pdfinfo`, `pdffonts`) | `cr_firewall.py` extrae el texto del PDF; `compila_cr.sh` cuenta páginas, fuentes Type 3 y no incrustadas | 26.04.0 |
+| **Poppler** (`pdftotext`, `pdfinfo`, `pdffonts`, `pdftoppm`) | `cr_firewall.py` extrae el texto del PDF; `compila_cr.sh` cuenta páginas, fuentes Type 3 y no incrustadas; `pdftoppm` rasteriza para el cotejo visual página a página | 26.04.0 |
+| **`iconv`** | el `.log` de pdfTeX viene en latin-1 y `compila_cr.sh` lo convierte antes de leerlo | GNU/BSD del sistema |
+| **`git`** | `cr_derive.py` registra el commit base en el manifiesto de procedencia | 2.x |
 
 `llncs.cls` **no** se toma de TeX Live: viaja en `src/` y dentro del ZIP de envío, para que la
 compilación no dependa de qué versión de la clase tenga instalada quien reproduzca.
@@ -81,7 +84,7 @@ bash MICAI/CameraReady/tools/compila_cr.sh MICAI/CameraReady/src main_cr
 
 # 2. los cuatro gates, desde backend/
 cd backend
-python3 repro/verify_paper.py                     # 190 cifras contra instantáneas
+python3 repro/verify_paper.py                     # 190 comprobaciones derivadas
 python3 repro/cr_firewall.py --pdf ../MICAI/CameraReady/src/main_cr.pdf \
                              --figdir ../MICAI/CameraReady/src/figures
 python3 repro/cr_gate_derived.py --derived app/data/results/cr_derived.json
@@ -103,6 +106,11 @@ comprueba: que el PDF coincida byte a byte con una recompilación limpia.
   (`6cf9cd5`), no las declaraba; se conserva intacto como versión histórica, con su propio
   sello, y quien reproduzca desde él debe instalarlas a mano. La receta de arriba las
   instala de todos modos, así que funciona con cualquiera de los dos.
+- Las **figuras van commiteadas** en `MICAI/CameraReady/src/figures/` y son la fuente
+  reproducible del PDF: regenerarlas con `matplotlib` produce ficheros equivalentes pero no
+  byte-idénticos, de modo que la identidad byte a byte del PDF depende de usar las
+  commiteadas. `matplotlib` hace falta para inspeccionarlas o modificarlas, no para
+  reproducir el PDF.
 - Las cifras no se re-ejecutan desde cero: se re-derivan de instantáneas gobernadas en
   `backend/app/data/results/`. Reproducir el artículo significa reproducir esa derivación,
   no volver a correr 30 semillas × 9 métodos.

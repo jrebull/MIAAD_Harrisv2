@@ -247,8 +247,11 @@ def controls_vs_random():
     out = {}
     for nombre, fichero in (("grasp", "grasp_control.json"), ("pls", "pls_control.json")):
         x = J(fichero)["hv_per_seed"]
-        dos = mannwhitneyu(x, rr, alternative="two-sided").pvalue
-        una = mannwhitneyu(x, rr, alternative="less").pvalue
+        # method y use_continuity explicitos: los p impresos no deben depender de que
+        # version de SciPy cambie un valor por defecto bajo los pies
+        mw = dict(method="asymptotic", use_continuity=True)
+        dos = mannwhitneyu(x, rr, alternative="two-sided", **mw).pvalue
+        una = mannwhitneyu(x, rr, alternative="less", **mw).pvalue
         out[nombre] = {"n": [len(x), len(rr)],
                        "hv_mean": float(np.mean(x)),
                        "vs_random_pct": float(100 * (np.mean(x) / np.mean(rr) - 1)),

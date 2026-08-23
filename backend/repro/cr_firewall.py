@@ -55,7 +55,7 @@ REQUIRED = {
     # N1: la refutacion de C2 fuera del visa
     "gated acceptance did so only on the visa": 1,
     "p = 9.0 \u00d7 10\u221211": 1, "9.2 %": 3,
-    "the sweep running to 25,000": 1,
+    "whose first fully dominating value is 20,201 and which runs to 25,000": 1,
     "one-sided Mann\u2013Whitney p < 10\u22124": 1,
     "genetic algorithm (BRKGA) crossover": 1,
     "five simultaneous constraints": 1, "wait disparity": 4,

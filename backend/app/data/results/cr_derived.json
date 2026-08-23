@@ -1,6 +1,6 @@
 {
  "_provenance": {
-  "base_commit": "c93c0280050d391392cddf9a299fdc8bf6169ece",
+  "base_commit": "ecb07d89f48caf69f7f0f2479ebcf72dba845186",
   "base_commit_note": "commit del arbol EN EL MOMENTO DE DERIVAR. Es por construccion un ancestro del commit que contiene este JSON: el fichero no puede registrar el hash del commit que aun no existe cuando se escribe. No se exige igualdad; lo que si se exige es que los sha256 de inputs_sha256 coincidan con los ficheros vivos.",
   "config": {
    "alpha": 0.05,
@@ -57,7 +57,7 @@
   "no_optimizers_executed": true,
   "schema_version": "cr-derived/1.0",
   "script": "backend/repro/cr_derive.py",
-  "script_sha256": "1fd95544e0f5e18953b0c7fe22871ebf34b294a62d92475231b19863f24c85b2"
+  "script_sha256": "44c2b9bcd349cbe8b96550d1a8491a3be17eb44b3100dbd80bd8c3091f10a98d"
  },
  "controls_vs_random": {
   "grasp": {
