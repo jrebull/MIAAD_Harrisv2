@@ -8,11 +8,11 @@ puede expresar: **versiones concretas probadas** y **dependencias de sistema**.
 
 | Qué | Identidad |
 |---|---|
-| Commit del camera-ready | `6cf9cd5` |
-| Tag citado en Data Availability | `micai-cameraready` |
-| PDF | `MICAI/CameraReady/src/main_cr.pdf` — sha256 `9c5d62120feba1ace9de37d54557ba716ed5b9d78ae5eff6f6ba6cd37a986d97` |
-| Paquete de envío | `MICAI/CameraReady/038.zip` — sha256 `383d512991f4249e4022ad1c1324ab2e8623f0dee7f912d7d8b910942f3554b3` |
-| Sello | `MICAI/CameraReady/038_SHA256.txt` |
+| Commit del camera-ready | el que contiene este fichero, etiquetado `micai-cameraready-r1` |
+| Tag citado en Data Availability | `micai-cameraready-r1` |
+| PDF | `MICAI/CameraReady/src/main_cr.pdf` — sha256 `ceeacee775611f89a415d46f7d595296f8627115d317f192c44ca9867f599452` |
+| Paquete de envío | `MICAI/CameraReady/038_r1.zip` — su sha256 va en el sello |
+| Sello | `MICAI/CameraReady/038_r1_SHA256.txt`; el del paquete anterior se conserva en `038_SHA256.txt` |
 
 ## Dependencias de sistema
 
@@ -24,7 +24,7 @@ peor, se salta controles.
 | **TeX Live** (`pdflatex`) | compilar el `.tex`; `tools/compila_cr.sh` fuerza `SOURCE_DATE_EPOCH` para que el PDF sea reproducible | pdfTeX 3.141592653-2.6-1.40.27 (TeX Live 2025) |
 | **Poppler** (`pdftotext`, `pdfinfo`, `pdffonts`) | `cr_firewall.py` extrae el texto del PDF; `compila_cr.sh` cuenta páginas, fuentes Type 3 y no incrustadas | 26.04.0 |
 
-`llncs.cls` **no** se toma de TeX Live: viaja en `src/` y dentro de `038.zip`, para que la
+`llncs.cls` **no** se toma de TeX Live: viaja en `src/` y dentro del ZIP de envío, para que la
 compilación no dependa de qué versión de la clase tenga instalada quien reproduzca.
 
 **CBC no aparece como requisito de sistema aparte.** En el entorno probado, `pulp` 3.3.2
@@ -69,11 +69,11 @@ observación sobre estas dos, no una garantía sobre todas.
 
 ```bash
 git clone https://github.com/jrebull/MIAAD_Harrisv2
-cd MIAAD_Harrisv2 && git checkout micai-cameraready
+cd MIAAD_Harrisv2 && git checkout micai-cameraready-r1
 python3 -m venv backend/.venv && source backend/.venv/bin/activate
 pip install -r backend/requirements.txt
-# El requirements.txt del tag NO declara estas tres; hay que instalarlas a mano.
-# Versiones del entorno A, el unico donde las tres coexistieron y se ejercitaron juntas.
+# Versiones del entorno A, el unico donde las tres coexistieron y se ejercitaron
+# juntas. requirements.txt ya las declara en r1; el pin fija la terna probada.
 pip install "matplotlib==3.10.9" "pdfplumber==0.11.10" "pulp==3.3.2"
 
 # 1. compilar (reproducible: SOURCE_DATE_EPOCH fijo)
@@ -99,9 +99,10 @@ comprueba: que el PDF coincida byte a byte con una recompilación limpia.
 
 ## Alcance conocido de este manifiesto
 
-- El tag `micai-cameraready` (`6cf9cd5`) **no** declara `matplotlib`, `pdfplumber` ni
-  `pulp`: las tres se añadieron después. Quien reproduzca desde el tag debe instalarlas a
-  mano, o usar el `requirements.txt` de un commit posterior de `main`.
+- `micai-cameraready-r1` **sí** declara las tres. El tag anterior, `micai-cameraready`
+  (`6cf9cd5`), no las declaraba; se conserva intacto como versión histórica, con su propio
+  sello, y quien reproduzca desde él debe instalarlas a mano. La receta de arriba las
+  instala de todos modos, así que funciona con cualquiera de los dos.
 - Las cifras no se re-ejecutan desde cero: se re-derivan de instantáneas gobernadas en
   `backend/app/data/results/`. Reproducir el artículo significa reproducir esa derivación,
   no volver a correr 30 semillas × 9 métodos.

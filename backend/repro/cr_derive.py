@@ -46,6 +46,12 @@ def provenance():
             "script": "backend/repro/cr_derive.py",
             "script_sha256": sha(Path(__file__)),
             "base_commit": commit,
+            "base_commit_note": ("commit del arbol EN EL MOMENTO DE DERIVAR. Es por "
+                                 "construccion un ancestro del commit que contiene este "
+                                 "JSON: el fichero no puede registrar el hash del commit "
+                                 "que aun no existe cuando se escribe. No se exige "
+                                 "igualdad; lo que si se exige es que los sha256 de "
+                                 "inputs_sha256 coincidan con los ficheros vivos."),
             "no_optimizers_executed": True,
             "inputs_sha256": dict(sorted(_READS.items())),   # lecturas EFECTIVAS
             "n_inputs_read": len(_READS),
@@ -230,6 +236,28 @@ def z9():
                               "used_for": "el re-scoring IGD+/epsilon citado en 5.2"},
             "must_not_be_conflated": True}
 
+def controls_vs_random():
+    """MWU de los dos controles contra blind random restart, derivada de las series.
+
+    El articulo declara en la Seccion 4.4 que los contrastes van a DOS COLAS salvo
+    aviso, asi que la cifra impresa es la bilateral. Se guarda tambien la unilateral
+    para que la relacion 2x quede a la vista y nadie tenga que recalcularla fuera.
+    """
+    rr = J("ladder_v5.json")["methods"]["random_restart"]["hv_per_seed"]
+    out = {}
+    for nombre, fichero in (("grasp", "grasp_control.json"), ("pls", "pls_control.json")):
+        x = J(fichero)["hv_per_seed"]
+        dos = mannwhitneyu(x, rr, alternative="two-sided").pvalue
+        una = mannwhitneyu(x, rr, alternative="less").pvalue
+        out[nombre] = {"n": [len(x), len(rr)],
+                       "hv_mean": float(np.mean(x)),
+                       "vs_random_pct": float(100 * (np.mean(x) / np.mean(rr) - 1)),
+                       "p_two_sided": float(dos),      # <- la que se imprime
+                       "p_one_sided_less": float(una),
+                       "A12_vs_random": a12(x, rr),
+                       "reported": "two-sided, per the Section 4.4 convention"}
+    return out
+
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--out", default="staging")
     a = ap.parse_args(); out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
@@ -237,7 +265,8 @@ def main():
     expc = expC(); fact = factorial_reanalysis()
     doc = {"omnibus": omnibus(), "interaction_2x2": inter,
            "holm": holm_families(inter), "expC_reanalysis": expc,
-           "factorial_2x2_reanalysis": fact, "z9_provenance": z9()}
+           "factorial_2x2_reanalysis": fact, "z9_provenance": z9(),
+           "controls_vs_random": controls_vs_random()}
     doc["_provenance"] = provenance()          # ultimo: ya estan todas las lecturas
     (out / "expC_reanalysis_cr.json").write_text(json.dumps(expc, indent=1, sort_keys=True))
     (out / "factorial_2x2_reanalysis_cr.json").write_text(json.dumps(fact, indent=1, sort_keys=True))

@@ -1,6 +1,7 @@
 {
  "_provenance": {
-  "base_commit": "661c71cda52929c752858f52faf324d98700f889",
+  "base_commit": "c93c0280050d391392cddf9a299fdc8bf6169ece",
+  "base_commit_note": "commit del arbol EN EL MOMENTO DE DERIVAR. Es por construccion un ancestro del commit que contiene este JSON: el fichero no puede registrar el hash del commit que aun no existe cuando se escribe. No se exige igualdad; lo que si se exige es que los sha256 de inputs_sha256 coincidan con los ficheros vivos.",
   "config": {
    "alpha": 0.05,
    "seeds": [
@@ -43,18 +44,46 @@
    "expC_decoder_ladder.json": "2b5d24bef3c784294d85c12a5244ce42a3edfec304b46c567f836f3682e8528a",
    "factorial_2x2_conditions.json": "fb105bb2a058f83b1bcc1f31eef9e95166108609bae1b5b97965716b69bb3f51",
    "factorial_2x2_paired.json": "2defea88732656dc9989e412b8d9863d22666cd67979b50e7f15afc239cf9a2a",
+   "grasp_control.json": "8d56bee063ba7a53e66ae86772ac2f7d4954ce633c3f0b05a3f6c8fa1ab9e1b0",
    "ladder_igd.json": "1a1e2de2461b0754a701a90f46e957b268ce49f7caba31d86f03ef275020794c",
    "ladder_v5.json": "819aa5aafac37e97a65d9cdf837d1221ffa967d4ce40c1f45dc87e889dbc6fc7",
    "more_structures.json": "1ee72f57d4eedd221e277a3bf9f4afe925c42867434c8c40bbfca76c400515cb",
    "perm_spea2.json": "d7beaf3857ea0083b2f6cad9d7a1bffbdfe225a13b3d6a0aed4b9f4a12e33573",
+   "pls_control.json": "9bcbd47ad58b87f7921d1368cf28222a9f244b8f32c40e651fae4bc72434f592",
    "prospective_scp.json": "e188cae24b2db0c5c3004bfffd0febefe24d0cda23dd826d86d0c9d7a51a7509",
    "second_problem.json": "5ba103dc8f2581d5ef65360d86063585d8b508c8b17e88f8bfb834e5ee11af24"
   },
-  "n_inputs_read": 12,
+  "n_inputs_read": 14,
   "no_optimizers_executed": true,
   "schema_version": "cr-derived/1.0",
   "script": "backend/repro/cr_derive.py",
-  "script_sha256": "17d79ed0cb6ff5d946e232ec73fe2b0338ba8f00e58654bf49df6ac015bc5fde"
+  "script_sha256": "1fd95544e0f5e18953b0c7fe22871ebf34b294a62d92475231b19863f24c85b2"
+ },
+ "controls_vs_random": {
+  "grasp": {
+   "A12_vs_random": 0.0077777777777777776,
+   "hv_mean": 298530.57043474686,
+   "n": [
+    30,
+    30
+   ],
+   "p_one_sided_less": 3.0328785045233554e-11,
+   "p_two_sided": 6.065757009046711e-11,
+   "reported": "two-sided, per the Section 4.4 convention",
+   "vs_random_pct": -3.7663021929805196
+  },
+  "pls": {
+   "A12_vs_random": 0.21888888888888888,
+   "hv_mean": 303978.77645946183,
+   "n": [
+    30,
+    30
+   ],
+   "p_one_sided_less": 9.458096801054232e-05,
+   "p_two_sided": 0.00018916193602108464,
+   "reported": "two-sided, per the Section 4.4 convention",
+   "vs_random_pct": -2.010029756930598
+  }
  },
  "expC_reanalysis": {
   "_derived_from": "expC_decoder_ladder.json (historico, intacto: contiene las series crudas)",

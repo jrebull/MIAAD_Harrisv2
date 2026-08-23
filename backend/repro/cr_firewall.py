@@ -32,9 +32,19 @@ REQUIRED = {
     "0.972": 1, "0.961": 1, "0.999": 1,
     "NDS-selected": 10, "Kruskal\u2013Wallis": 5, "Rebull-Saucedo": 11,
     "Disclosure of Interests": 1,
+    # los dos controles, con su p bilateral y la frase entera que lo enmarca
+    "same budget) lands 3.8 % below uniform constructions (298,531, Mann\u2013Whitney p = 6.1 \u00d7 10\u221211": 1,
+    "lands 2.0 % below blind sampling (Mann\u2013Whitney p = 1.9 \u00d7 10\u22124": 1,
+    # la salvedad de procedencia que el Reviewer #1 pregunto explicitamente
+    "a calibrated synthetic case study": 2,
+    # Jain: sobre que cantidad se calcula
+    "Jain\u2019s index on inverse waits 0.80 \u2192 0.94": 1,
+    # la Fig. 4 era la unica figura con label y sin referencia en el texto
+    "Of the four packages (Figure 4)": 1,
+    "(tag micai-cameraready-r1)": 1,
     # la frase de equidad, con la Gini corregida (la version enviada imprimia 0.17)
     "wait standard deviation falls 3.14 \u2192 0.75": 1,
-    "Gini 0.79 \u2192 0.23": 1, "Jain 0.80 \u2192 0.94": 1,
+    "Gini 0.79 \u2192 0.23": 1,
     # credits acordados por los tres autores: la declaracion de financiamiento es
     # una afirmacion de hecho y debe sobrevivir a cualquier recompactacion
     "Gilberto Rivera-Z\u00e1rate, coordinator of the": 1,
@@ -42,7 +52,6 @@ REQUIRED = {
     "without external funding": 1,
     "provided non-financial": 1,
     # el tag citado en Data Availability: una afirmacion sobre donde vive el codigo
-    "(tag micai-cameraready)": 1,
     # N1: la refutacion de C2 fuera del visa
     "gated acceptance did so only on the visa": 1,
     "p = 9.0 \u00d7 10\u221211": 1, "9.2 %": 3,
@@ -53,7 +62,7 @@ REQUIRED = {
     # lote semantico-numerico
     "316,345 \u00b1 6,682": 1, "Z9 (185)": 1, "per-run fronts against Z9,hist": 1, "Z9,hist (187)": 1, "Z2 (126 points": 1,
     "20,201": 1,
-    "p = 3.0 \u00d7 10\u221211": 2, "seed-label Wilcoxon sensitivity p = 1.9 × 10−9": 1,
+    "p = 3.0 \u00d7 10\u221211": 1, "seed-label Wilcoxon sensitivity p = 1.9 × 10−9": 1,
     "\u03b7c \u2208 {2, 5, 10, 20, 50, 100}": 1,
     "five hard constraints": 3, "FIFO ordering convention": 4,
     # 2x2 reescrito como paquetes
@@ -75,6 +84,10 @@ FORBIDDEN = [
     "diversity-preserving mechanism control",
     "ranks them as the two-condition account predicts",
     "micai-submission-v1", "micai-submission-v2",
+    "uniform constructions (298,531, Mann\u2013Whitney p = 3.0",   # unilateral de GRASP
+    "blind sampling (Mann\u2013Whitney p = 9.5",       # unilateral de la busqueda local
+    "Jain 0.80 \u2192 0.94",                       # sin decir sobre que cantidad
+    "(tag micai-cameraready)",                     # el tag anterior, ya historico
     "Gini 0.79 \u2192 0.17",   # valor erroneo de la version enviada
     "no competing interests to declare",
     "nominal exception", "lies within the critical difference",

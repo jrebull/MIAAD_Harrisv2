@@ -80,18 +80,22 @@ CLAIMS = [
     ("taguchi_grand_mean_sn", 109.46, "taguchi.json", "grand_mean_sn", 0.01, "abs"),
     # ---- policy of Fig.10 (f2 recomputed) ----
     ("policy_f2_years", 7.59, "policy_impact.json", "f2", 0.01, "abs"),
+    # La frase de equidad compara DOS asignaciones concretas: FIFO y la de minima f2.
+    # Antes estos claims leian front_ranges.min/.max, que son extremos de TODO el
+    # frente y por tanto OTRA cantidad: de ahi salio el Gini 0.17 de la version
+    # enviada (el minimo del frente) en vez del 0.23 de la asignacion citada, y el
+    # Jain coincidia solo por redondeo (0.9443 del extremo vs 0.9360 de la asignacion).
+    # Los tres valores del lado corregido los cubren los claims cr_equity_* de abajo.
     ("equity_wait_std_fifo", 3.14, "equity_audit.json",
-     "front_ranges.wait_std.fifo", 0.02, "abs"),
-    ("equity_wait_std_front_best", 0.75, "equity_audit.json",
-     "front_ranges.wait_std.min", 0.02, "abs"),
+     "fifo.fairness.wait_std", 0.005, "abs"),
     ("equity_gini_fifo", 0.79, "equity_audit.json",
-     "front_ranges.wait_gini.fifo", 0.02, "abs"),
-    ("equity_gini_front_best", 0.17, "equity_audit.json",
-     "front_ranges.wait_gini.min", 0.02, "abs"),
+     "fifo.fairness.wait_gini", 0.005, "abs"),
     ("equity_jain_fifo", 0.80, "equity_audit.json",
-     "front_ranges.jain_inverse_wait.fifo", 0.02, "abs"),
-    ("equity_jain_front_best", 0.94, "equity_audit.json",
-     "front_ranges.jain_inverse_wait.max", 0.02, "abs"),
+     "fifo.fairness.jain_inverse_wait", 0.005, "abs"),
+    # el extremo del frente NO es lo que la frase reporta; se vigila aparte para que
+    # nadie los vuelva a confundir
+    ("equity_gini_front_min_is_not_reported", 0.1740, "equity_audit.json",
+     "front_ranges.wait_gini.min", 5e-4, "abs"),
     # ---- Friedman ranks (Tabla 8, visa column) ----
     ("rank_perm_nsga2_visa", 1.60, "omnibus_visa_paired.json", "avg_rank.perm-NSGA-II", 0.01, "abs"),
     ("rank_discrete_visa", 2.23, "omnibus_visa_paired.json", "avg_rank.Discrete-MOHHO", 0.01, "abs"),
@@ -338,6 +342,12 @@ CLAIMS = [
      "cells.order_nds.pm", 1e-9, "abs"),
     ("cr2x2_pm_near", 0.00952381, "factorial_2x2_reanalysis_cr.json",
      "cells.near_nds.pm", 1e-6, "abs"),
+    # ---- controles GRASP y busqueda local: la cifra IMPRESA es la bilateral,
+    # ---- conforme a la convencion de la Seccion 4.4, y ya se deriva en cr_derive.py
+    ("cr_grasp_p_two_sided", 6.07e-11, "cr_derived.json",
+     "controls_vs_random.grasp.p_two_sided", 0.02, "rel"),
+    ("cr_pls_p_two_sided", 1.89e-04, "cr_derived.json",
+     "controls_vs_random.pls.p_two_sided", 0.02, "rel"),
     # ---- N1: el enjambre gated gana en knapsack (rompe la mitad C2 fuera del visa)
     ("cr_knapsack_gated_hv", 0.216608, "second_problem.json",
      "methods.MOHHO (real-coded).hv_mean", 1e-5, "abs"),
@@ -409,7 +419,7 @@ def main():
     Path(a.results, "_verify_paper.json").write_text(json.dumps(out, indent=2))
     for r in rows:
         print(f"  [{r['status']:12s}] {r['name']}: paper={r.get('paper')} json={r.get('json')}")
-    print(f"\nn_mismatch = {n_mismatch} (de {len(rows)} claims cableados). "
+    print(f"\nn_mismatch = {n_mismatch} (de {len(rows)} comprobaciones derivadas cableadas). "
           f"Inventario .tex: {len(inv)} tokens. -> _verify_paper.json")
     if n_mismatch:
         print("FALLO: hay cifras del paper sin respaldo o stale. Corrige el PAPER, no el JSON.")

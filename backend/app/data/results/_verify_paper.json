@@ -234,25 +234,11 @@
       "delta": 0.00396930821307695
     },
     {
-      "name": "equity_wait_std_front_best",
-      "status": "OK",
-      "paper": 0.75,
-      "json": 0.7516129321225241,
-      "delta": 0.0016129321225241133
-    },
-    {
       "name": "equity_gini_fifo",
       "status": "OK",
       "paper": 0.79,
       "json": 0.7943060426035153,
       "delta": 0.004306042603515303
-    },
-    {
-      "name": "equity_gini_front_best",
-      "status": "OK",
-      "paper": 0.17,
-      "json": 0.1739987144130255,
-      "delta": 0.003998714413025489
     },
     {
       "name": "equity_jain_fifo",
@@ -262,11 +248,11 @@
       "delta": 0.004036826045409003
     },
     {
-      "name": "equity_jain_front_best",
+      "name": "equity_gini_front_min_is_not_reported",
       "status": "OK",
-      "paper": 0.94,
-      "json": 0.944293192892489,
-      "delta": 0.004293192892489084
+      "paper": 0.174,
+      "json": 0.1739987144130255,
+      "delta": -1.2855869744865522e-06
     },
     {
       "name": "rank_perm_nsga2_visa",
@@ -1289,6 +1275,20 @@
       "paper": 0.00952381,
       "json": 0.009523809523809525,
       "delta": -4.761904759398305e-10
+    },
+    {
+      "name": "cr_grasp_p_two_sided",
+      "status": "OK",
+      "paper": 6.07e-11,
+      "json": 6.065757009046711e-11,
+      "delta": -4.242990953288598e-14
+    },
+    {
+      "name": "cr_pls_p_two_sided",
+      "status": "OK",
+      "paper": 0.000189,
+      "json": 0.00018916193602108464,
+      "delta": 1.619360210846298e-07
     },
     {
       "name": "cr_knapsack_gated_hv",

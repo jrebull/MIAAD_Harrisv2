@@ -30,4 +30,12 @@ if [ -f "$JOB.pdf" ]; then
   echo "  fuentes Type 3      = $T3"
   echo "  fuentes NO incrust. = $EMB"
 fi
+# Estas tres condiciones rompen el camera-ready y antes solo se IMPRIMIAN: quien
+# leyera el codigo de salida veia 0 con referencias rotas o fuentes sin incrustar.
+FALLOS=0
+[ "${UNDEF:-0}" -ne 0 ] && { echo "FALLO: $UNDEF referencias o citas indefinidas"; FALLOS=1; }
+[ "${T3:-0}"    -ne 0 ] && { echo "FALLO: $T3 fuentes Type 3"; FALLOS=1; }
+[ "${EMB:-0}"   -ne 0 ] && { echo "FALLO: $EMB fuentes sin incrustar"; FALLOS=1; }
+[ "${BANG:-0}"  -ne 0 ] && { echo "FALLO: $BANG lineas '!' en el log"; FALLOS=1; }
+[ $rc -eq 0 ] && [ $FALLOS -ne 0 ] && rc=3
 exit $rc
