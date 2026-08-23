@@ -11,7 +11,7 @@ documento añade lo que aquél no puede expresar: **versiones concretas probadas
 |---|---|
 | Commit del camera-ready | el que contiene este fichero, etiquetado `micai-cameraready-r1` |
 | Tag citado en Data Availability | `micai-cameraready-r1` |
-| PDF | `MICAI/CameraReady/src/main_cr.pdf` — sha256 `ceeacee775611f89a415d46f7d595296f8627115d317f192c44ca9867f599452` |
+| PDF | `MICAI/CameraReady/src/main_cr.pdf` — sha256 `a208022d28a63ae379c7428871fda2cee173f93ee59180d1aaaca7710deb8cb1` |
 | Paquete de envío | `MICAI/CameraReady/038_r1.zip` — su sha256 va en el sello |
 | Sello | `MICAI/CameraReady/038_r1_SHA256.txt`; el del paquete anterior se conserva en `038_SHA256.txt` |
 

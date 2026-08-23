@@ -222,6 +222,21 @@ def source_phrases(pdf_path):
     t = tex.read_text()
     return [(f"fuente: {k!r} x{n}", t.count(k) == n) for k, n in SOURCE_REQUIRED.items()]
 
+
+# (7) el sha256 del PDF que REPRODUCIBILIDAD.md declara tiene que ser el del PDF vivo.
+# Se quedo atras dos veces: el documento va dentro del tag, asi que un hash obsoleto
+# ahi es una afirmacion falsa publicada.
+def hash_declarado(pdf_path):
+    import hashlib
+    pdf = Path(pdf_path)
+    doc = pdf.parent.parent / "REPRODUCIBILIDAD.md"
+    if not doc.exists():
+        return [("REPRODUCIBILIDAD.md no hallado junto al PDF", False)]
+    real = hashlib.sha256(pdf.read_bytes()).hexdigest()
+    txt = doc.read_text(encoding="utf-8")
+    return [(f"REPRODUCIBILIDAD.md declara el sha256 vivo del PDF ({real[:12]}...)",
+             real in txt)]
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pdf", required=True); ap.add_argument("--figdir", required=True)
@@ -235,6 +250,8 @@ def main():
     for k in FORBIDDEN:
         if k in T: fails.append(f"PROHIBIDO y presente en el PDF: {k!r}")
     fails += check_metadata(a.pdf)
+    for desc, ok in hash_declarado(a.pdf):
+        if not ok: fails.append(f"HASH desalineado: {desc}")
     for desc, ok in source_phrases(a.pdf):
         if not ok: fails.append(f"FUENTE incumplida: {desc}")
     art = artwork_lettering(a.pdf)
