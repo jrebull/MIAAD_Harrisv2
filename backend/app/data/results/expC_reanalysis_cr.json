@@ -1,0 +1,33 @@
+{
+ "_derived_from": "expC_decoder_ladder.json (historico, intacto: contiene las series crudas)",
+ "obsolete_keys_removed": [
+  "paired_wilcoxon_p_perm_gt_rk",
+  "C1_paired_significant"
+ ],
+ "tier_separation": {
+  "C1_fractional": {
+   "mwu_p_perm_gt_rk": 5.5288629840418816e-05,
+   "perm_gt_rk_seed_fraction": 0.767,
+   "perm_mean": 0.6747227930568073,
+   "perm_minus_rk_pct": 1.45,
+   "rk_mean": 0.6650504674629969,
+   "seedlabel_wilcoxon_p_perm_gt_rk": 0.00020919833332300186
+  },
+  "C2_stochastic_skip": {
+   "mwu_p_perm_gt_rk": 9.249970397456438e-09,
+   "perm_gt_rk_seed_fraction": 0.967,
+   "perm_mean": 0.6575716620131843,
+   "perm_minus_rk_pct": 4.27,
+   "rk_mean": 0.6306582471964538,
+   "seedlabel_wilcoxon_p_perm_gt_rk": 1.30385160446167e-08
+  },
+  "greedy": {
+   "mwu_p_perm_gt_rk": 1.5099296795810782e-11,
+   "perm_gt_rk_seed_fraction": 1.0,
+   "perm_mean": 0.7001279482580508,
+   "perm_minus_rk_pct": 6.93,
+   "rk_mean": 0.6547657420566161,
+   "seedlabel_wilcoxon_p_perm_gt_rk": 9.313225746154785e-10
+  }
+ }
+}

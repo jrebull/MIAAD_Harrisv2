@@ -32,7 +32,7 @@ def random_restart(seed,budget):
 def naive(seed):
     pos,fit,_=M.run_mohho(p,seed,POP,GEN,100); return hv(fit)
 def competent(seed):
-    return C.run_competent_mohho(ev,M.NUM_GROUPS,3,hv,seed,POP,GEN,pm=PM,use_sbx=USE_SBX)['hv']
+    return C.run_competent_mohho(ev,M.NUM_GROUPS,3,hv,seed,POP,GEN,pm=PM,use_sbx=USE_SBX,arch_cap=100)['hv']
 
 def main():
     t0=time.time(); seeds=list(range(1,1+SEEDS)); B_=POP*GEN

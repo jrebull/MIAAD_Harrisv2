@@ -44,7 +44,7 @@ def main():
     brk = json.load(open(RESULTS / "brkga_ladder.json"))
     missing = {
         "competent_mohho": (lambda s: C.run_competent_mohho(
-            ev, M.NUM_GROUPS, 3, HV, s, 50, 500, pm=0.15, use_sbx=True)["front"],
+            ev, M.NUM_GROUPS, 3, HV, s, 50, 500, pm=0.15, use_sbx=True, arch_cap=100)["front"],
             lad["competent_mohho"]["hv_per_seed"]),
         "perm_spea2": (lambda s: run_perm_spea2(p, s), spea["per_run_hv"]),
         "rk_nsga2_biased": (lambda s: run_brkga_nsga2(p, s), brk["hv_per_seed"]),

@@ -95,7 +95,7 @@ def common_box_hv(res):
 def tier_separation(norm):
     """Por decoder: perm-tier vs rk-tier sobre HV normalizado (box comun), con prueba
     pareada por seed (Wilcoxon, perm-tier mean vs rk-tier mean por seed)."""
-    from scipy.stats import wilcoxon
+    from scipy.stats import wilcoxon, mannwhitneyu
     sep = {}
     for dname, methods in norm.items():
         rk_methods = [m for m in methods if methods[m]["tier"] == "random_key"]
@@ -110,13 +110,15 @@ def tier_separation(norm):
                       for s in range(nseed)]
         pm_by_seed = [float(np.mean([methods[m]["hv_norm_per_seed"][s] for m in pm_methods]))
                       for s in range(nseed)]
-        wp = None
+        # Este contraste NO es uno de los dos disenos con bloqueo genuino: las
+        # etiquetas de semilla no acoplan tiers distintos. MWU es la primaria.
+        wp = mwu = None
         if nseed >= 6 and any(a != b for a, b in zip(rk_by_seed, pm_by_seed)):
             try:
-                _, wp = wilcoxon(pm_by_seed, rk_by_seed, alternative="greater")
-                wp = float(wp)
+                mwu = float(mannwhitneyu(pm_by_seed, rk_by_seed, alternative="greater").pvalue)
+                wp = float(wilcoxon(pm_by_seed, rk_by_seed, alternative="greater").pvalue)
             except ValueError:
-                wp = None
+                pass
         sep[dname] = {
             "rk_tier_methods_hv": {m: methods[m]["hv_norm_mean"] for m in rk_methods},
             "perm_tier_methods_hv": {m: methods[m]["hv_norm_mean"] for m in pm_methods},
@@ -124,7 +126,8 @@ def tier_separation(norm):
             "perm_minus_rk_pct": round(gap, 2),
             "perm_min_gt_rk_max": bool(min(pm) > max(rk)),
             "perm_beats_rk": bool(pm_mean > rk_mean),
-            "paired_wilcoxon_p_perm_gt_rk": wp,
+            "mwu_p_perm_gt_rk": mwu,                      # PRIMARIA (no pareada)
+            "seedlabel_wilcoxon_p_perm_gt_rk": wp,        # sensibilidad
             "perm_gt_rk_seed_fraction": round(np.mean([p > r for p, r in
                                               zip(pm_by_seed, rk_by_seed)]), 3),
         }
@@ -298,7 +301,7 @@ def main():
     c2_sep = sep["C2_stochastic_skip"]["perm_minus_rk_pct"]
     c1_ratio = c1_sep / g_sep if g_sep else 0.0       # fraccion de separacion que sobrevive
     c2_ratio = c2_sep / g_sep if g_sep else 0.0
-    c1_sig = sep["C1_fractional"]["paired_wilcoxon_p_perm_gt_rk"]
+    c1_sig = sep["C1_fractional"]["mwu_p_perm_gt_rk"]
     c1_significant = (c1_sig is not None and c1_sig < 0.05)
 
     if c1_ratio >= 0.6 and c1_significant:
@@ -342,7 +345,7 @@ def main():
             "C2_perm_minus_rk_pct": c2_sep,
             "C1_fraction_of_greedy_separation_surviving": round(c1_ratio, 3),
             "C2_fraction_of_greedy_separation_surviving": round(c2_ratio, 3),
-            "C1_paired_significant": c1_significant,
+            "C1_significant_mwu": c1_significant,
         },
         "phenotype_preservation": pheno,
         "empirical_Q1_C1": eq1,

@@ -1,3 +1,22 @@
+"""OBSOLETO -- NO EJECUTAR.
+
+Este script calculaba la interaccion del 2x2 con una permutacion que barajaba
+residuos ENTRE semillas, rompiendo los bloques del diseno. El p=2.0e-4 que
+producia fue RETIRADO del articulo.
+
+El analisis vigente es diferencias-en-diferencias dentro de cada semilla, en
+  backend/repro/cr_derive.py  ->  results/cr_derived.json["interaction_2x2"]
+(Wilcoxon bloqueado principal p=7.979e-4; t bloqueada y sign-flip de sensibilidad).
+
+Las SERIES por semilla que este script genero se conservan en
+results/factorial_2x2_paired.json y siguen siendo la entrada valida.
+"""
+import sys
+print(__doc__)
+print("ABORTADO: este generador esta obsoleto. Usa repro/cr_derive.py.")
+sys.exit(2)
+
+# --- codigo historico conservado solo como referencia, inalcanzable ---
 """
 Reviewer point (round 4): the 2x2 cells share the common seed block 1-30 with the
 random-restart baseline, so the paper's primary paired test (Wilcoxon signed-rank)

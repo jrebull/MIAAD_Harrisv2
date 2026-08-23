@@ -28,7 +28,7 @@ def main():
         for name,b in B.BENCHMARKS.items():
             tf=B.true_front_hv(name)
             hvs=[C.run_competent_mohho(b['fn'],b['dim'],b['M'],
-                  lambda F,ref=b['ref']:B.hv_any(F,ref),s,POP,GEN,**cfg)['hv'] for s in seeds]
+                  lambda F,ref=b['ref']:B.hv_any(F,ref),s,POP,GEN,arch_cap=100,**cfg)['hv'] for s in seeds]
             r=float(np.mean(hvs))/tf; worst=min(worst,r)
             row["per_benchmark"][name]={"hv_over_true":round(r,4),"sane":bool(r>=THR)}
         row["min_over_benchmarks"]=round(worst,4); row["sane_all"]=bool(worst>=THR)

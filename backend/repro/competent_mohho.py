@@ -64,14 +64,15 @@ def _sbx(a, b, rng, eta=15.0):
 
 
 def run_competent_mohho(eval_fn, dim, M, hv_fn, seed, pop=100, gen=500,
-                        pm=0.1, eta=20.0, use_sbx=False, pc=0.9):
+                        pm=0.1, eta=20.0, use_sbx=False, pc=0.9, *, arch_cap,
+                        fingerprint=False):
     """eval_fn: x->tuple(M floats). hv_fn: list_of_fitness->float (caller supplies
     the right HV/ref). Budget ~ pop*gen single-trial evaluations (FE parity)."""
     rng = np.random.default_rng(seed)
     P = [rng.uniform(0, 1, dim) for _ in range(pop)]
     FP = [tuple(eval_fn(p)) for p in P]
     arch_pos, arch_fit = [], []
-    for i in range(pop): B.archive_add(arch_pos, arch_fit, P[i], FP[i], 200, rng)
+    for i in range(pop): B.archive_add(arch_pos, arch_fit, P[i], FP[i], arch_cap, rng)
     for t in range(gen):
         first = B._fast_nd_sort(FP)[0]; xmean = np.mean(P, axis=0); O = []
         for i in range(pop):
@@ -90,8 +91,15 @@ def run_competent_mohho(eval_fn, dim, M, hv_fn, seed, pop=100, gen=500,
             O.append(o)
         FO = [tuple(eval_fn(o)) for o in O]
         P, FP = _env_select(P + O, FP + FO, pop)
-        for i in range(len(O)): B.archive_add(arch_pos, arch_fit, O[i], FO[i], 200, rng)
-    return dict(hv=hv_fn(arch_fit), archive=len(arch_fit), front=arch_fit)
+        for i in range(len(O)): B.archive_add(arch_pos, arch_fit, O[i], FO[i], arch_cap, rng)
+    out = dict(hv=hv_fn(arch_fit), archive=len(arch_fit), front=arch_fit)
+    if fingerprint:
+        import hashlib
+        h = hashlib.sha256()
+        for v in P: h.update(np.asarray(v, dtype=np.float64).tobytes())
+        for f in FP: h.update(np.asarray(f, dtype=np.float64).tobytes())
+        out["pop_fingerprint"] = h.hexdigest()
+    return out
 
 
 def offspring_move(parent, rng, dim, pm=0.1, use_sbx=False):

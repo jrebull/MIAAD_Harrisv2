@@ -37,7 +37,7 @@ def run_competent_on(prob):
     for s in seeds:
         front = C.run_competent_mohho(prob.eval_keys, prob.n, 3,
                                       lambda F: compute_hypervolume(F, REF),
-                                      s, POP, GEN, pm=PM, use_sbx=True)["front"]
+                                      s, POP, GEN, pm=PM, use_sbx=True, arch_cap=100)["front"]
         hv.append(compute_hypervolume(front, REF))
     return hv
 

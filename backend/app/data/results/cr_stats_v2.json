@@ -1,0 +1,272 @@
+{
+ "rules": "(una prueba PRIMARIA por afirmacion):\n  * Contrastes exploratorios entre algoritmos (visa): Mann-Whitney U es PRIMARIA.\n    Compartir etiqueta de semilla no acopla dos representaciones. El Wilcoxon por\n    etiqueta de semilla se reporta como SENSIBILIDAD.\n  * mo-SCP: el Wilcoxon pareado es PREREGISTRADO y se conserva como primario --\n    una prueba registrada no se sustituye retrospectivamente. MWU va de sensibilidad.\n  * 2x2: las cuatro celdas comparten inicializacion por construccion\n    (factorial_2x2.py sortea P antes de ramificar operador/seleccion), asi que el\n    bloqueo es real: Wilcoxon pareado primario + sign-flip como confirmacion.\n  * Holm sobre la familia enumerada de 12, con el p PRIMARIO de cada afirmacion.",
+ "visa": {
+  "competent_vs_random": {
+   "p_primary": 5.873595805246185e-05,
+   "primary_test": "Mann-Whitney U (unpaired)",
+   "p_sensitivity": 0.0005657272413372993,
+   "sensitivity_test": "Wilcoxon signed-rank (seed-label)",
+   "alternative": "greater",
+   "a12": 0.79
+  },
+  "mohho_vs_nsga2": {
+   "p_primary": 3.5708008787916228e-06,
+   "primary_test": "Mann-Whitney U (unpaired)",
+   "p_sensitivity": 4.421919584274292e-06,
+   "sensitivity_test": "Wilcoxon signed-rank (seed-label)",
+   "alternative": "two-sided",
+   "a12": 0.8488888888888889
+  },
+  "discrete_vs_mohho": {
+   "p_primary": 1.4357923871490578e-10,
+   "primary_test": "Mann-Whitney U (unpaired)",
+   "p_sensitivity": 9.313225746154785e-10,
+   "sensitivity_test": "Wilcoxon signed-rank (seed-label)",
+   "alternative": "greater",
+   "a12": 0.9744444444444444
+  },
+  "perm_nsga2_vs_random": {
+   "p_primary": 1.6691944102144e-11,
+   "primary_test": "Mann-Whitney U (unpaired)",
+   "p_sensitivity": 9.313225746154785e-10,
+   "sensitivity_test": "Wilcoxon signed-rank (seed-label)",
+   "alternative": "greater",
+   "a12": 0.9988888888888889
+  },
+  "perm_moead_vs_random": {
+   "p_primary": 8.6451563124246e-07,
+   "primary_test": "Mann-Whitney U (unpaired)",
+   "p_sensitivity": 0.00015637744218111038,
+   "sensitivity_test": "Wilcoxon signed-rank (seed-label)",
+   "alternative": "greater",
+   "a12": 0.86
+  },
+  "perm_spea2_vs_random": {
+   "p_primary": 4.445495661649468e-10,
+   "primary_test": "Mann-Whitney U (unpaired)",
+   "p_sensitivity": 1.1743977665901184e-06,
+   "sensitivity_test": "Wilcoxon signed-rank (seed-label)",
+   "alternative": "greater",
+   "a12": 0.9611111111111111
+  },
+  "nsga2_vs_random": {
+   "p_primary": 1.579444744064764e-10,
+   "primary_test": "Mann-Whitney U (unpaired)",
+   "p_sensitivity": 1.862645149230957e-09,
+   "sensitivity_test": "Wilcoxon signed-rank (seed-label)",
+   "alternative": "less",
+   "a12": 0.02666666666666667
+  },
+  "mohho_vs_random": {
+   "p_primary": 0.0005571282341778824,
+   "primary_test": "Mann-Whitney U (unpaired)",
+   "p_sensitivity": 8.494872599840164e-05,
+   "sensitivity_test": "Wilcoxon signed-rank (seed-label)",
+   "alternative": "less",
+   "a12": 0.2544444444444444
+  },
+  "rk_nsga2_vs_random": {
+   "p_primary": 0.7393988193114496,
+   "primary_test": "Mann-Whitney U (unpaired)",
+   "p_sensitivity": 0.7921590935438871,
+   "sensitivity_test": "Wilcoxon signed-rank (seed-label)",
+   "alternative": "two-sided",
+   "a12": 0.47444444444444445
+  },
+  "spea2_vs_perm_nsga2": {
+   "p_primary": 0.47334655725844954,
+   "primary_test": "Mann-Whitney U (unpaired)",
+   "p_sensitivity": 0.23665234446525574,
+   "sensitivity_test": "Wilcoxon signed-rank (seed-label)",
+   "alternative": "two-sided",
+   "a12": 0.44555555555555554
+  },
+  "grasp_vs_random": {
+   "p_primary": 3.0328785045233554e-11,
+   "primary_test": "Mann-Whitney U (unpaired)",
+   "p_sensitivity": 9.313225746154785e-10,
+   "sensitivity_test": "Wilcoxon signed-rank (seed-label)",
+   "alternative": "less",
+   "a12": 0.0077777777777777776
+  },
+  "pls_vs_random": {
+   "p_primary": 9.458096801054232e-05,
+   "primary_test": "Mann-Whitney U (unpaired)",
+   "p_sensitivity": 0.0001724790781736374,
+   "sensitivity_test": "Wilcoxon signed-rank (seed-label)",
+   "alternative": "less",
+   "a12": 0.21888888888888888
+  },
+  "nsga2_l9_vs_random": {
+   "p_primary": 0.1536672354850899,
+   "primary_test": "Mann-Whitney U (unpaired)",
+   "p_sensitivity": 0.25343610532581806,
+   "sensitivity_test": "Wilcoxon signed-rank (seed-label)",
+   "alternative": "two-sided",
+   "a12": 0.39222222222222225
+  }
+ },
+ "factorial_2x2": {
+  "note": "cells share the initial population per seed by construction; blocking is real",
+  "order_nds": {
+   "p_primary": 0.0013831602409482002,
+   "primary_test": "Wilcoxon signed-rank (paired)",
+   "p_sensitivity": 5.5288629840418816e-05,
+   "sensitivity_test": "Mann-Whitney U (unpaired)",
+   "alternative": "greater",
+   "a12": 0.7911111111111111,
+   "sign_flip_p": 0.0004
+  },
+  "order_gated": {
+   "p_primary": 0.00016989745199680328,
+   "primary_test": "Wilcoxon signed-rank (paired)",
+   "p_sensitivity": 0.0006202653652039718,
+   "sensitivity_test": "Mann-Whitney U (unpaired)",
+   "alternative": "two-sided",
+   "a12": 0.24222222222222223,
+   "sign_flip_p": 0.99985
+  },
+  "near_nds": {
+   "p_primary": 0.01453801617026329,
+   "primary_test": "Wilcoxon signed-rank (paired)",
+   "p_sensitivity": 0.033874280129520255,
+   "sensitivity_test": "Mann-Whitney U (unpaired)",
+   "alternative": "two-sided",
+   "a12": 0.34,
+   "sign_flip_p": 0.99495
+  },
+  "near_gated": {
+   "p_primary": 0.00016989745199680328,
+   "primary_test": "Wilcoxon signed-rank (paired)",
+   "p_sensitivity": 9.791710196799423e-05,
+   "sensitivity_test": "Mann-Whitney U (unpaired)",
+   "alternative": "two-sided",
+   "a12": 0.20666666666666667,
+   "sign_flip_p": 1.0
+  },
+  "interaction_permutation_p": 0.00019998000199980003
+ },
+ "mo_scp": {
+  "note": "preregistered paired Wilcoxon retained as primary; MWU as sensitivity",
+  "perm_nsga2_vs_random": {
+   "p_primary": 9.313225746154785e-10,
+   "primary_test": "Wilcoxon signed-rank (paired)",
+   "p_sensitivity": 1.5099296795810782e-11,
+   "sensitivity_test": "Mann-Whitney U (unpaired)",
+   "alternative": "greater",
+   "a12": 1.0
+  },
+  "competent_vs_random": {
+   "p_primary": 9.313225746154785e-10,
+   "primary_test": "Wilcoxon signed-rank (paired)",
+   "p_sensitivity": 1.5099296795810782e-11,
+   "sensitivity_test": "Mann-Whitney U (unpaired)",
+   "alternative": "greater",
+   "a12": 1.0
+  }
+ },
+ "holm_family": {
+  "m": 12,
+  "results": {
+   "perm_nsga2_vs_random": {
+    "p_primary": 1.6691944102144e-11,
+    "holm_threshold": 0.004166666666666667,
+    "survives": true
+   },
+   "discrete_vs_mohho": {
+    "p_primary": 1.4357923871490578e-10,
+    "holm_threshold": 0.004545454545454546,
+    "survives": true
+   },
+   "nsga2_vs_random": {
+    "p_primary": 1.579444744064764e-10,
+    "holm_threshold": 0.005,
+    "survives": true
+   },
+   "perm_spea2_vs_random": {
+    "p_primary": 4.445495661649468e-10,
+    "holm_threshold": 0.005555555555555556,
+    "survives": true
+   },
+   "scp_perm_vs_random": {
+    "p_primary": 9.313225746154785e-10,
+    "holm_threshold": 0.00625,
+    "survives": true
+   },
+   "scp_competent_vs_random": {
+    "p_primary": 9.313225746154785e-10,
+    "holm_threshold": 0.0071428571428571435,
+    "survives": true
+   },
+   "perm_moead_vs_random": {
+    "p_primary": 8.6451563124246e-07,
+    "holm_threshold": 0.008333333333333333,
+    "survives": true
+   },
+   "mohho_vs_nsga2": {
+    "p_primary": 3.5708008787916228e-06,
+    "holm_threshold": 0.01,
+    "survives": true
+   },
+   "competent_vs_random": {
+    "p_primary": 5.873595805246185e-05,
+    "holm_threshold": 0.0125,
+    "survives": true
+   },
+   "interaction_2x2": {
+    "p_primary": 0.00019998000199980003,
+    "holm_threshold": 0.016666666666666666,
+    "survives": true
+   },
+   "mohho_vs_random": {
+    "p_primary": 0.0005571282341778824,
+    "holm_threshold": 0.025,
+    "survives": true
+   },
+   "cell2x2_vs_random": {
+    "p_primary": 0.0013831602409482002,
+    "holm_threshold": 0.05,
+    "survives": true
+   }
+  },
+  "all_survive": true,
+  "recomputed": "every p is the PRIMARY test for its claim; no hardcoded literals"
+ },
+ "omnibus": {
+  "primary": {
+   "test": "Kruskal-Wallis (unpaired)",
+   "H": 149.81150744840772,
+   "p": 2.1465716568207193e-28,
+   "k": 9,
+   "n": 30
+  },
+  "sensitivity": {
+   "test": "Friedman by seed label (descriptive)",
+   "chi2": 133.79555555555567,
+   "p": 4.617054344146542e-25,
+   "note": "seed labels do not couple methods; reported as descriptive sensitivity only"
+  }
+ },
+ "omnibus_structures": {
+  "visa": {
+   "H": 134.28225905463466,
+   "p": 2.9342062395656855e-27,
+   "test": "Kruskal-Wallis (unpaired)"
+  },
+  "knapsack": {
+   "H": 159.7420748925722,
+   "p": 1.123381572461523e-32,
+   "test": "Kruskal-Wallis (unpaired)"
+  },
+  "TSP": {
+   "H": 173.81461019030075,
+   "p": 1.1195905032785435e-35,
+   "test": "Kruskal-Wallis (unpaired)"
+  },
+  "flow-shop": {
+   "H": 127.92341313689383,
+   "p": 6.564053622641802e-26,
+   "test": "Kruskal-Wallis (unpaired)"
+  }
+ }
+}

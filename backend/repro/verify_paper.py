@@ -66,8 +66,6 @@ CLAIMS = [
     ("canonical_levy_fematched_1to30", 309180, "control_canonical_hho.json",
      "fe_matched.hv_mean", 0.01, "rel"),
     # ---- omnibus / mechanism ----
-    ("omnibus_chi2", 112.6, "omnibus_visa_paired.json", "chi2", 0.5, "abs"),
-    ("omnibus_CD", 1.38, "omnibus_visa_paired.json", "nemenyi_CD", 0.01, "abs"),
     ("tau_sbx", 0.99, "operator_order.json",
      "operators.SBX crossover (GA).mean_tau", 0.01, "abs"),
     # ---- FIFO baseline + extremes (Tabla 4) ----
@@ -102,7 +100,6 @@ CLAIMS = [
     ("rank_mohho_visa", 4.67, "omnibus_visa_paired.json", "avg_rank.MOHHO", 0.01, "abs"),
     ("rank_nsga2_visa", 5.77, "omnibus_visa_paired.json", "avg_rank.NSGA-II", 0.01, "abs"),
     # ---- v5: competent MO-HHO + order-preservation ----
-    ("competent_hv_mean", 316347, "ladder_v5.json", "methods.competent_mohho.hv_mean", 0.01, "rel"),
     ("competent_vs_random_pct", 2.0, "ladder_v5.json",
      "key_finding.competent_beats_random_pct", 0.6, "abs"),
     ("competent_beats_random", True, "ladder_v5.json",
@@ -131,12 +128,6 @@ CLAIMS = [
      "cells.order_nds.A12_vs_random", 0.02, "abs"),
     ("c2x2_only_order_nds_wins", True, "factorial_2x2_conditions.json",
      "only_order_nds_wins", 0, "exact"),
-    ("c2x2_eta2_operator", 0.076, "factorial_2x2_conditions.json",
-     "anova.eta2_operator_A", 0.01, "abs"),
-    ("c2x2_eta2_selection", 0.145, "factorial_2x2_conditions.json",
-     "anova.eta2_selection_B", 0.01, "abs"),
-    ("c2x2_eta2_interaction", 0.098, "factorial_2x2_conditions.json",
-     "anova.eta2_interaction_AxB", 0.01, "abs"),
     ("c2x2_interaction_significant", True, "factorial_2x2_conditions.json",
      "anova.interaction_significant", 0, "exact"),
     ("c2x2_wilcoxon_order_nds_p", 0.0014, "factorial_2x2_paired.json",
@@ -166,8 +157,6 @@ CLAIMS = [
     ("brkga_cv_pct", 3.16, "brkga_ladder.json", "cv_pct", 0.02, "abs"),
     ("brkga_combined_hv", 325465, "brkga_ladder.json", "combined_front_hv", 60, "abs"),
     ("brkga_combined_sols", 157, "brkga_ladder.json", "combined_front_size", 0, "exact"),
-    ("brkga_vs_random_p", 0.79, "brkga_ladder.json",
-     "paired[0].wilcoxon_p_two_sided", 0.01, "abs"),
     ("brkga_vs_random_a12", 0.47, "brkga_ladder.json", "paired[0].a12", 0.01, "abs"),
     ("brkga_vs_realcoded_diff_pct", 5.7, "brkga_ladder.json",
      "paired[2].mean_diff_pct", 0.1, "abs"),
@@ -255,14 +244,12 @@ CLAIMS = [
     ("grasp_hv_mean", 298531, "grasp_control.json", "hv_mean", 60, "abs"),
     ("grasp_vs_random_diff_pct", -3.77, "grasp_control.json",
      "paired[0].mean_diff_pct", 0.05, "abs"),
-    ("grasp_vs_random_p", 1.9e-9, "grasp_control.json", "paired[0].p", 5e-10, "abs"),
     ("igd9_rankcorr_hv_igd", 0.82, "ladder_igd.json",
      "rank_correlation_hv_vs_igd", 0.01, "abs"),
     ("igd9_rankcorr_hv_eps", 0.85, "ladder_igd.json",
      "rank_correlation_hv_vs_eps", 0.01, "abs"),
     ("igd9_friedman_igd_chi2", 176.5, "ladder_igd.json", "friedman.igd_plus[0]", 0.2, "abs"),
     ("igd9_friedman_eps_chi2", 169.3, "ladder_igd.json", "friedman.eps[0]", 0.2, "abs"),
-    ("igd9_ref_size", 187, "ladder_igd.json", "reference.size", 0, "exact"),
     ("igd9_spea2_igd_rank", 1.10, "ladder_igd.json",
      "mean_ranks_igd_plus.perm_spea2", 0.02, "abs"),
     ("igd9_moead_igd_rank", 7.23, "ladder_igd.json",
@@ -274,7 +261,6 @@ CLAIMS = [
     # ---- 2026-06-10 elevacion final: tuning L9, ablacion E, PLS, indice s ----
     ("l9_visa_confirm", 308082, "nsga2_l9.json", "visa.confirmation_mean", 60, "abs"),
     ("l9_visa_diff_pct", -0.69, "nsga2_l9.json", "visa.diff_vs_random_pct", 0.05, "abs"),
-    ("l9_visa_p_two", 0.25, "nsga2_l9.json", "visa.p_vs_random_two_sided", 0.01, "abs"),
     ("l9_knap_diff_pct", 46.07, "nsga2_l9.json", "knapsack.diff_vs_random_pct", 0.2, "abs"),
     ("l9_knap_p_two", 1.86e-9, "nsga2_l9.json", "knapsack.p_vs_random_two_sided", 5e-10, "abs"),
     ("l9_best_eta", 2.0, "nsga2_l9.json", "visa.best_config.eta_c", 0, "exact"),
@@ -283,10 +269,89 @@ CLAIMS = [
     ("eabl_p", 0.87, "discrete_e_ablation.json", "p_two_sided_vs_scheduled", 0.01, "abs"),
     ("pls_hv_mean", 303979, "pls_control.json", "hv_mean", 60, "abs"),
     ("pls_vs_random_diff", -2.01, "pls_control.json", "vs_random.diff_pct", 0.05, "abs"),
-    ("pls_vs_random_p", 3.45e-4, "pls_control.json", "vs_random.p_two_sided", 5e-5, "abs"),
     ("sat_visa", 0.994, "sat_index.json", "index.visa.s", 0.005, "abs"),
     ("sat_knapsack", 0.998, "sat_index.json", "index.knapsack.s", 0.005, "abs"),
     ("sat_tsp", 0.0, "sat_index.json", "index.tsp.s", 0, "exact"),
+    # ---- CAMERA-READY MICAI 2026: cifras nuevas impresas en el .tex ----
+    # punto de referencia del HV (respuesta a Reviewer #1)
+    ("cr_refpoint_total_points", 15273, "cr_indicators.json",
+     "reference_point.total_points", 0, "abs"),
+    ("cr_refpoint_n_excluded", 3, "cr_indicators.json",
+     "reference_point.n_excluded_by_primary", 0, "abs"),
+    ("cr_refpoint_max_f3", 20200.0, "cr_indicators.json",
+     "reference_point.max_f3_observed_in_fronts", 0.5, "abs"),
+    # frentes de referencia declarados en 4.4
+    ("cr_Z9_size", 185, "cr_indicators.json", "reference_front_Z9.size", 0, "abs"),
+    ("cr_Z2_size", 126, "nsga2_comparison.json", "reference_front_size", 0, "abs"),
+    # Spacing e IGD clasicos MOHHO-NSGA-II (protocolo compartido), impresos en 4.3
+    ("cr_spacing_mohho", 0.011, "nsga2_comparison.json", "mohho.spacing", 0.0005, "abs"),
+    ("cr_spacing_nsga2", 0.046, "nsga2_comparison.json", "nsga2.spacing", 0.0005, "abs"),
+    ("cr_igd_mohho", 0.021, "nsga2_comparison.json", "mohho.igd", 0.0005, "abs"),
+    ("cr_igd_nsga2", 0.007, "nsga2_comparison.json", "nsga2.igd", 0.0005, "abs"),
+    # columna A12 de la Tabla 1 (9 metodos, linaje sellado ladder_v5)
+    ("cr_a12_nsga2", 0.03, "cr_indicators.json",
+     "a12_vs_random_restart.nsga2_realcoded", 0.005, "abs"),
+    ("cr_a12_mohho", 0.25, "cr_indicators.json",
+     "a12_vs_random_restart.mohho_realcoded", 0.005, "abs"),
+    ("cr_a12_rk_nsga2", 0.47, "cr_indicators.json",
+     "a12_vs_random_restart.rk_nsga2_biased", 0.005, "abs"),
+    ("cr_a12_competent", 0.79, "cr_indicators.json",
+     "a12_vs_random_restart.competent_mohho", 0.005, "abs"),
+    ("cr_a12_perm_moead", 0.86, "cr_indicators.json",
+     "a12_vs_random_restart.perm_moead", 0.005, "abs"),
+    ("cr_a12_discrete", 0.97, "cr_indicators.json",
+     "a12_vs_random_restart.discrete_mohho", 0.005, "abs"),
+    ("cr_a12_perm_spea2", 0.96, "cr_indicators.json",
+     "a12_vs_random_restart.perm_spea2", 0.005, "abs"),
+    ("cr_a12_perm_nsga2", 1.00, "cr_indicators.json",
+     "a12_vs_random_restart.perm_nsga2", 0.005, "abs"),
+    # ---- correccion archivo 200->100 y jerarquia estadistica ----
+    ("cr_nds_hv_mean", 316345.0, "competent_arch100.json", "hv_mean_arch100", 2.0, "abs"),
+    ("cr_nds_trajectory_invariance", 30, "competent_arch100.json",
+     "trajectory_invariance.seeds_identical", 0, "abs"),
+    ("cr_kw_omnibus_H", 149.8, "cr_derived.json", "omnibus.ladder9.primary.H", 0.1, "abs"),
+    ("cr_mwu_nds_vs_random", 5.87e-05, "cr_derived.json",
+     "holm.unpaired_primary.results.nds_vs_random.p", 0.02, "rel"),
+    ("cr_wilcoxon_sensitivity_nds", 5.66e-04, "cr_derived.json",
+     "holm.seed_label_sensitivity.results.nds_vs_random.p", 0.02, "rel"),
+    ("cr_holm_family_size", 12, "cr_derived.json", "holm.unpaired_primary.m", 0, "abs"),
+    # ---- 2x2 reanalizado: paquetes, interaccion bloqueada, presupuesto real ----
+    ("cr2x2_interaction_wilcoxon", 7.9789758e-04, "cr_derived.json",
+     "interaction_2x2.primary.p", 1e-3, "rel"),
+    ("cr2x2_signflip", 6.029994e-04, "cr_derived.json",
+     "interaction_2x2.sensitivity.blocked_sign_flip.p", 1e-3, "rel"),
+    ("cr2x2_hv_order_nds", 315730.4, "factorial_2x2_reanalysis_cr.json",
+     "cells.order_nds.hv_mean", 0.5, "abs"),
+    ("cr2x2_hv_near_nds", 305892.3, "factorial_2x2_reanalysis_cr.json",
+     "cells.near_nds.hv_mean", 0.5, "abs"),
+    ("cr2x2_hv_order_gated", 304126.0, "factorial_2x2_reanalysis_cr.json",
+     "cells.order_gated.hv_mean", 0.5, "abs"),
+    ("cr2x2_hv_near_gated", 304760.0, "factorial_2x2_reanalysis_cr.json",
+     "cells.near_gated.hv_mean", 0.5, "abs"),
+    ("cr2x2_moved_order_gated", 0.0087, "factorial_2x2_reanalysis_cr.json",
+     "cells.order_gated.moved_fraction_mean", 1e-5, "abs"),
+    ("cr2x2_moved_near_gated", 0.0175, "factorial_2x2_reanalysis_cr.json",
+     "cells.near_gated.moved_fraction_mean", 1e-5, "abs"),
+    ("cr2x2_total_evals", 25050, "factorial_2x2_reanalysis_cr.json",
+     "budget.total_evals", 0, "abs"),
+    ("cr2x2_pm_order", 0.15, "factorial_2x2_reanalysis_cr.json",
+     "cells.order_nds.pm", 1e-9, "abs"),
+    ("cr2x2_pm_near", 0.00952381, "factorial_2x2_reanalysis_cr.json",
+     "cells.near_nds.pm", 1e-6, "abs"),
+    # ---- N1: el enjambre gated gana en knapsack (rompe la mitad C2 fuera del visa)
+    ("cr_knapsack_gated_hv", 0.216608, "second_problem.json",
+     "methods.MOHHO (real-coded).hv_mean", 1e-5, "abs"),
+    ("cr_knapsack_random_hv", 0.198307, "second_problem.json",
+     "methods.Random restart.hv_mean", 1e-5, "abs"),
+    # ---- equidad: la asignacion unica de minima f2
+    ("cr_equity_std", 0.752, "equity_audit.json",
+     "best_by_metric.f2_gap.fairness.wait_std", 5e-4, "abs"),
+    ("cr_equity_gini", 0.2295, "equity_audit.json",
+     "best_by_metric.f2_gap.fairness.wait_gini", 5e-4, "abs"),
+    ("cr_equity_jain", 0.9360, "equity_audit.json",
+     "best_by_metric.f2_gap.fairness.jain_inverse_wait", 5e-4, "abs"),
+    ("cr_equity_served", 21, "equity_audit.json",
+     "best_by_metric.f2_gap.fairness.served_countries", 0, "abs"),
 ]
 
 
@@ -348,7 +413,9 @@ def main():
           f"Inventario .tex: {len(inv)} tokens. -> _verify_paper.json")
     if n_mismatch:
         print("FALLO: hay cifras del paper sin respaldo o stale. Corrige el PAPER, no el JSON.")
+    return 1 if n_mismatch else 0
 
 
 if __name__ == "__main__":
-    main()
+    import sys as _sys
+    _sys.exit(main())

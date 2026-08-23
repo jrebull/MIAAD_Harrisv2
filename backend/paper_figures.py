@@ -46,7 +46,9 @@ plt.rcParams.update({
 })
 
 R = Path("app/data/results")
-FIG = Path("../MICAI/figures")
+import os as _os
+# FIGDIR evita sobrescribir MICAI/figures/, que esta CONGELADO en el envio
+FIG = Path(_os.environ.get("FIGDIR", "../MICAI/figures"))
 FIG.mkdir(parents=True, exist_ok=True)
 BLUE, ORANGE, RED, GREY = "#2E86DE", "#E67E22", "#E74C3C", "#9AA3AF"
 millions = FuncFormatter(lambda x, _: f"{x/1e6:.3f}")
@@ -130,14 +132,14 @@ def fig_pareto_f1f2():
     ax.annotate("FIFO baseline\n(dominated)", xy=(fifo[0], fifo[1]),
                 xytext=(6, -2), textcoords="offset points", fontsize=6.3,
                 color="#7B241C", ha="left", va="top")
-    ax.set_xlabel(r"$f_1$ — unserved waiting load", fontsize=7.5)
-    ax.set_ylabel(r"$f_2$ — disparity (years)", fontsize=7.5)
+    ax.set_xlabel(r"$f_1$ — unserved waiting load", fontsize=8.6)
+    ax.set_ylabel(r"$f_2$ — disparity (yr)", fontsize=8.6)
     ax.set_xticks([8.80, 8.85, 8.90, 8.95, 9.00])
     ax.set_yticks([2, 4, 6, 8, 10, 12])
     ax.set_ylim(1.4, 13.9)
     ax.tick_params(labelsize=6.8)
     cb = fig.colorbar(sc, ax=ax, pad=0.03)
-    cb.set_label(r"$f_3$ — wasted visas", fontsize=7.5)
+    cb.set_label(r"$f_3$ — wasted visas", fontsize=8.6)
     cb.ax.tick_params(labelsize=6.8, length=2, pad=2)
     cb.outline.set_linewidth(0.6)
     ax.grid(alpha=0.25, lw=0.4)
@@ -196,6 +198,8 @@ def fig_nsga_overlay():
 
 def save(fig, name):
     fig.tight_layout()
+    # el bbox "tight" subestima la extension de las etiquetas rotadas con mathtext
+    # y recortaba el parentesis de cierre de "disparity (years)": se anade margen
     fig.savefig(FIG / f"{name}.pdf")
     fig.savefig(FIG / f"{name}.png", dpi=300)
     plt.close(fig)

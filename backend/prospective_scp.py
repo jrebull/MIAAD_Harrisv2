@@ -151,7 +151,7 @@ def run_rk_biased(prob, seed):
 def run_competent(prob, seed):
     return C.run_competent_mohho(prob.eval_keys, prob.n, 3,
                                  lambda F: compute_hypervolume(F, REF),
-                                 seed, POP, GEN, pm=0.15, use_sbx=True)["front"]
+                                 seed, POP, GEN, pm=0.15, use_sbx=True, arch_cap=100)["front"]
 
 
 def a12(x, y):

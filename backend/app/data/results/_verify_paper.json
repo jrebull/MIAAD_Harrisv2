@@ -1,5 +1,5 @@
 {
-  "n_claims_checked": 161,
+  "n_claims_checked": 190,
   "n_mismatch": 0,
   "rows": [
     {
@@ -157,20 +157,6 @@
       "delta": -0.178284622146748
     },
     {
-      "name": "omnibus_chi2",
-      "status": "OK",
-      "paper": 112.6,
-      "json": 112.60952380952392,
-      "delta": 0.00952380952392673
-    },
-    {
-      "name": "omnibus_CD",
-      "status": "OK",
-      "paper": 1.38,
-      "json": 1.3766807908879968,
-      "delta": -0.0033192091120031186
-    },
-    {
       "name": "tau_sbx",
       "status": "OK",
       "paper": 0.99,
@@ -325,13 +311,6 @@
       "delta": -0.0033333333333329662
     },
     {
-      "name": "competent_hv_mean",
-      "status": "OK",
-      "paper": 316347,
-      "json": 316347.1,
-      "delta": 0.09999999997671694
-    },
-    {
       "name": "competent_vs_random_pct",
       "status": "OK",
       "paper": 2.0,
@@ -356,8 +335,8 @@
       "name": "competent_zdt2_validation",
       "status": "OK",
       "paper": 0.99,
-      "json": 0.9956,
-      "delta": 0.005600000000000049
+      "json": 0.9915,
+      "delta": 0.0015000000000000568
     },
     {
       "name": "tau_nsga2",
@@ -435,27 +414,6 @@
       "paper": true,
       "json": true,
       "delta": 0.0
-    },
-    {
-      "name": "c2x2_eta2_operator",
-      "status": "OK",
-      "paper": 0.076,
-      "json": 0.0758,
-      "delta": -0.00019999999999999185
-    },
-    {
-      "name": "c2x2_eta2_selection",
-      "status": "OK",
-      "paper": 0.145,
-      "json": 0.1452,
-      "delta": 0.00020000000000000573
-    },
-    {
-      "name": "c2x2_eta2_interaction",
-      "status": "OK",
-      "paper": 0.098,
-      "json": 0.0982,
-      "delta": 0.00019999999999999185
     },
     {
       "name": "c2x2_interaction_significant",
@@ -568,13 +526,6 @@
       "paper": 157,
       "json": 157,
       "delta": 0.0
-    },
-    {
-      "name": "brkga_vs_random_p",
-      "status": "OK",
-      "paper": 0.79,
-      "json": 0.7921590935438871,
-      "delta": 0.002159093543887103
     },
     {
       "name": "brkga_vs_random_a12",
@@ -955,13 +906,6 @@
       "delta": 0.003697807019481747
     },
     {
-      "name": "grasp_vs_random_p",
-      "status": "OK",
-      "paper": 1.9e-09,
-      "json": 1.862645149230957e-09,
-      "delta": -3.7354850769043025e-11
-    },
-    {
       "name": "igd9_rankcorr_hv_igd",
       "status": "OK",
       "paper": 0.82,
@@ -988,13 +932,6 @@
       "paper": 169.3,
       "json": 169.29585304759257,
       "delta": -0.0041469524074386754
-    },
-    {
-      "name": "igd9_ref_size",
-      "status": "OK",
-      "paper": 187,
-      "json": 187,
-      "delta": 0.0
     },
     {
       "name": "igd9_spea2_igd_rank",
@@ -1037,13 +974,6 @@
       "paper": -0.69,
       "json": -0.6873707477798484,
       "delta": 0.0026292522201515345
-    },
-    {
-      "name": "l9_visa_p_two",
-      "status": "OK",
-      "paper": 0.25,
-      "json": 0.25343610532581806,
-      "delta": 0.003436105325818062
     },
     {
       "name": "l9_knap_diff_pct",
@@ -1102,13 +1032,6 @@
       "delta": -2.9756930601809728e-05
     },
     {
-      "name": "pls_vs_random_p",
-      "status": "OK",
-      "paper": 0.000345,
-      "json": 0.0003449581563472748,
-      "delta": -4.1843652725203056e-08
-    },
-    {
       "name": "sat_visa",
       "status": "OK",
       "paper": 0.994,
@@ -1128,249 +1051,288 @@
       "paper": 0.0,
       "json": 0.0,
       "delta": 0.0
+    },
+    {
+      "name": "cr_refpoint_total_points",
+      "status": "OK",
+      "paper": 15273,
+      "json": 15273,
+      "delta": 0.0
+    },
+    {
+      "name": "cr_refpoint_n_excluded",
+      "status": "OK",
+      "paper": 3,
+      "json": 3,
+      "delta": 0.0
+    },
+    {
+      "name": "cr_refpoint_max_f3",
+      "status": "OK",
+      "paper": 20200.0,
+      "json": 20200.0,
+      "delta": 0.0
+    },
+    {
+      "name": "cr_Z9_size",
+      "status": "OK",
+      "paper": 185,
+      "json": 185,
+      "delta": 0.0
+    },
+    {
+      "name": "cr_Z2_size",
+      "status": "OK",
+      "paper": 126,
+      "json": 126,
+      "delta": 0.0
+    },
+    {
+      "name": "cr_spacing_mohho",
+      "status": "OK",
+      "paper": 0.011,
+      "json": 0.010629738413954678,
+      "delta": -0.00037026158604532185
+    },
+    {
+      "name": "cr_spacing_nsga2",
+      "status": "OK",
+      "paper": 0.046,
+      "json": 0.0462832006826156,
+      "delta": 0.0002832006826156003
+    },
+    {
+      "name": "cr_igd_mohho",
+      "status": "OK",
+      "paper": 0.021,
+      "json": 0.02116304167034433,
+      "delta": 0.00016304167034432784
+    },
+    {
+      "name": "cr_igd_nsga2",
+      "status": "OK",
+      "paper": 0.007,
+      "json": 0.00714834624818486,
+      "delta": 0.00014834624818485954
+    },
+    {
+      "name": "cr_a12_nsga2",
+      "status": "OK",
+      "paper": 0.03,
+      "json": 0.02666666666666667,
+      "delta": -0.0033333333333333305
+    },
+    {
+      "name": "cr_a12_mohho",
+      "status": "OK",
+      "paper": 0.25,
+      "json": 0.2544444444444444,
+      "delta": 0.0044444444444444176
+    },
+    {
+      "name": "cr_a12_rk_nsga2",
+      "status": "OK",
+      "paper": 0.47,
+      "json": 0.47444444444444445,
+      "delta": 0.004444444444444473
+    },
+    {
+      "name": "cr_a12_competent",
+      "status": "OK",
+      "paper": 0.79,
+      "json": 0.79,
+      "delta": 0.0
+    },
+    {
+      "name": "cr_a12_perm_moead",
+      "status": "OK",
+      "paper": 0.86,
+      "json": 0.86,
+      "delta": 0.0
+    },
+    {
+      "name": "cr_a12_discrete",
+      "status": "OK",
+      "paper": 0.97,
+      "json": 0.9722222222222222,
+      "delta": 0.0022222222222222365
+    },
+    {
+      "name": "cr_a12_perm_spea2",
+      "status": "OK",
+      "paper": 0.96,
+      "json": 0.9611111111111111,
+      "delta": 0.0011111111111111738
+    },
+    {
+      "name": "cr_a12_perm_nsga2",
+      "status": "OK",
+      "paper": 1.0,
+      "json": 0.9988888888888889,
+      "delta": -0.0011111111111110628
+    },
+    {
+      "name": "cr_nds_hv_mean",
+      "status": "OK",
+      "paper": 316345.0,
+      "json": 316345.04660378076,
+      "delta": 0.04660378076368943
+    },
+    {
+      "name": "cr_nds_trajectory_invariance",
+      "status": "OK",
+      "paper": 30,
+      "json": 30,
+      "delta": 0.0
+    },
+    {
+      "name": "cr_kw_omnibus_H",
+      "status": "OK",
+      "paper": 149.8,
+      "json": 149.81150744840772,
+      "delta": 0.011507448407712673
+    },
+    {
+      "name": "cr_mwu_nds_vs_random",
+      "status": "OK",
+      "paper": 5.87e-05,
+      "json": 5.873595805246185e-05,
+      "delta": 3.5958052461855766e-08
+    },
+    {
+      "name": "cr_wilcoxon_sensitivity_nds",
+      "status": "OK",
+      "paper": 0.000566,
+      "json": 0.0005657272413372993,
+      "delta": -2.7275866270064144e-07
+    },
+    {
+      "name": "cr_holm_family_size",
+      "status": "OK",
+      "paper": 12,
+      "json": 12,
+      "delta": 0.0
+    },
+    {
+      "name": "cr2x2_interaction_wilcoxon",
+      "status": "OK",
+      "paper": 0.00079789758,
+      "json": 0.0007978975772857666,
+      "delta": -2.7142333519636352e-12
+    },
+    {
+      "name": "cr2x2_signflip",
+      "status": "OK",
+      "paper": 0.0006029994,
+      "json": 0.000602999397000603,
+      "delta": -2.9993970631844724e-12
+    },
+    {
+      "name": "cr2x2_hv_order_nds",
+      "status": "OK",
+      "paper": 315730.4,
+      "json": 315730.4392568449,
+      "delta": 0.0392568449024111
+    },
+    {
+      "name": "cr2x2_hv_near_nds",
+      "status": "OK",
+      "paper": 305892.3,
+      "json": 305892.257371587,
+      "delta": -0.042628413008060306
+    },
+    {
+      "name": "cr2x2_hv_order_gated",
+      "status": "OK",
+      "paper": 304126.0,
+      "json": 304126.00873397704,
+      "delta": 0.00873397703981027
+    },
+    {
+      "name": "cr2x2_hv_near_gated",
+      "status": "OK",
+      "paper": 304760.0,
+      "json": 304760.0312147919,
+      "delta": 0.03121479187393561
+    },
+    {
+      "name": "cr2x2_moved_order_gated",
+      "status": "OK",
+      "paper": 0.0087,
+      "json": 0.0087,
+      "delta": 0.0
+    },
+    {
+      "name": "cr2x2_moved_near_gated",
+      "status": "OK",
+      "paper": 0.0175,
+      "json": 0.0175,
+      "delta": 0.0
+    },
+    {
+      "name": "cr2x2_total_evals",
+      "status": "OK",
+      "paper": 25050,
+      "json": 25050,
+      "delta": 0.0
+    },
+    {
+      "name": "cr2x2_pm_order",
+      "status": "OK",
+      "paper": 0.15,
+      "json": 0.15,
+      "delta": 0.0
+    },
+    {
+      "name": "cr2x2_pm_near",
+      "status": "OK",
+      "paper": 0.00952381,
+      "json": 0.009523809523809525,
+      "delta": -4.761904759398305e-10
+    },
+    {
+      "name": "cr_knapsack_gated_hv",
+      "status": "OK",
+      "paper": 0.216608,
+      "json": 0.21660764419357575,
+      "delta": -3.558064242403791e-07
+    },
+    {
+      "name": "cr_knapsack_random_hv",
+      "status": "OK",
+      "paper": 0.198307,
+      "json": 0.19830704979533337,
+      "delta": 4.9795333356694726e-08
+    },
+    {
+      "name": "cr_equity_std",
+      "status": "OK",
+      "paper": 0.752,
+      "json": 0.7516129321225241,
+      "delta": -0.00038706787747588844
+    },
+    {
+      "name": "cr_equity_gini",
+      "status": "OK",
+      "paper": 0.2295,
+      "json": 0.22950728001163512,
+      "delta": 7.280011635107941e-06
+    },
+    {
+      "name": "cr_equity_jain",
+      "status": "OK",
+      "paper": 0.936,
+      "json": 0.9360013119269135,
+      "delta": 1.3119269134387324e-06
+    },
+    {
+      "name": "cr_equity_served",
+      "status": "OK",
+      "paper": 21,
+      "json": 21,
+      "delta": 0.0
     }
   ],
-  "tex_inventory_count": 2071,
-  "tex_inventory_sample": [
-    {
-      "file": "main_submission.tex",
-      "line": 18,
-      "token": "210",
-      "context": "\\AtBeginDocument{\\pdfpagewidth=210mm \\pdfpageheight=297mm}"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 18,
-      "token": "297",
-      "context": "\\AtBeginDocument{\\pdfpagewidth=210mm \\pdfpageheight=297mm}"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 66,
-      "token": "140",
-      "context": "Many hard-constrained combinatorial problems are solved by pairing a metaheuristic with a feasibility-preserving decoder"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 66,
-      "token": "000",
-      "context": "Many hard-constrained combinatorial problems are solved by pairing a metaheuristic with a feasibility-preserving decoder"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 75,
-      "token": "140",
-      "context": "Each fiscal year the United States Congress authorizes approximately 140{,}000 employment-based (EB) immigrant visas, di"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 75,
-      "token": "000",
-      "context": "Each fiscal year the United States Congress authorizes approximately 140{,}000 employment-based (EB) immigrant visas, di"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 75,
-      "token": "620",
-      "context": "Each fiscal year the United States Congress authorizes approximately 140{,}000 employment-based (EB) immigrant visas, di"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 79,
-      "token": "105",
-      "context": "Computing that front is hard for three reasons. First, the allocation is \\emph{combinatorial}: it assigns integer visa c"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 107,
-      "token": "105",
-      "context": "The problem is discretized into $G = C \\times |\\mathcal{J}| = 21 \\times 5 = 105$ \\emph{groups}, where each group $g$ is "
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 114,
-      "token": "800",
-      "context": "The demands $n_g$ and priority dates $d_g$ form a representative instance calibrated to the documented aggregate structu"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 114,
-      "token": "000",
-      "context": "The demands $n_g$ and priority dates $d_g$ form a representative instance calibrated to the documented aggregate structu"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 131,
-      "token": "140",
-      "context": "&\\text{R1:}\\;\\; \\textstyle\\sum_{g} x_g \\le V = 140{,}000 && \\text{(total visas)}\\nonumber\\\\"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 131,
-      "token": "000",
-      "context": "&\\text{R1:}\\;\\; \\textstyle\\sum_{g} x_g \\le V = 140{,}000 && \\text{(total visas)}\\nonumber\\\\"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 132,
-      "token": "620",
-      "context": "&\\text{R2:}\\;\\; \\textstyle\\sum_{g:\\,c(g)=c} x_g \\le P_c = 25{,}620 \\;\\;\\forall c && \\text{(cross-preference country ceil"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 150,
-      "token": "105",
-      "context": "Each hawk is a position $\\mathbf{H}\\in\\mathbb{R}^{G}$ in the box $[0,1]^{G}$ (here $G=105$). At iteration $t$ the escape"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 215,
-      "token": "105",
-      "context": "To separate the contribution of the decoder, the representation, and the search heuristic, we compare a \\emph{ladder} of"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 218,
-      "token": "000",
-      "context": "A third, \\emph{(c)}~\\textbf{random restart}, draws the $25{,}000$ candidates uniformly at random (no search), isolating "
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 220,
-      "token": "105",
-      "context": "The ablation (Section~\\ref{sec:ablation}) reveals that the continuous random-key operators are a poor match for the indu"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 220,
-      "token": "100,",
-      "context": "The ablation (Section~\\ref{sec:ablation}) reveals that the continuous random-key operators are a poor match for the indu"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 225,
-      "token": "000",
-      "context": "We assess each approximation front with four indicators: the \\emph{hypervolume} (\\HV; larger is better) dominated with r"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 225,
-      "token": "126",
-      "context": "We assess each approximation front with four indicators: the \\emph{hypervolume} (\\HV; larger is better) dominated with r"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 225,
-      "token": "8.7891",
-      "context": "We assess each approximation front with four indicators: the \\emph{hypervolume} (\\HV; larger is better) dominated with r"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 225,
-      "token": "13.0",
-      "context": "We assess each approximation front with four indicators: the \\emph{hypervolume} (\\HV; larger is better) dominated with r"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 225,
-      "token": "940",
-      "context": "We assess each approximation front with four indicators: the \\emph{hypervolume} (\\HV; larger is better) dominated with r"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 238,
-      "token": "104",
-      "context": "Combining and re-filtering the 30 runs yields a front of 104 non-dominated solutions. Figure~\\ref{fig:pareto3d} shows it"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 242,
-      "token": "0.49",
-      "context": "\\begin{minipage}[t]{0.49\\textwidth}"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 245,
-      "token": "104",
-      "context": "\\caption{The 104-solution combined Pareto front over the three objectives, colored by the waste $f_3$. The FIFO baseline"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 248,
-      "token": "0.49",
-      "context": "\\begin{minipage}[t]{0.49\\textwidth}"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 265,
-      "token": "8.7884",
-      "context": "Min.\\ $f_1$ (least waiting) & 8.7884 & 13.0 & 680 & \\textbf{Dominates FIFO}\\\\"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 265,
-      "token": "13.0",
-      "context": "Min.\\ $f_1$ (least waiting) & 8.7884 & 13.0 & 680 & \\textbf{Dominates FIFO}\\\\"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 265,
-      "token": "680",
-      "context": "Min.\\ $f_1$ (least waiting) & 8.7884 & 13.0 & 680 & \\textbf{Dominates FIFO}\\\\"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 266,
-      "token": "8.9994",
-      "context": "Min.\\ $f_2$ (most equitable) & 8.9994 & 2.0 & 0 & Radical equity\\\\"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 267,
-      "token": "8.996",
-      "context": "Min.\\ $f_3$ (full use) & 8.996 & 2.46 & 0 & 100\\,\\% utilization\\\\"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 267,
-      "token": "2.46",
-      "context": "Min.\\ $f_3$ (full use) & 8.996 & 2.46 & 0 & 100\\,\\% utilization\\\\"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 267,
-      "token": "100",
-      "context": "Min.\\ $f_3$ (full use) & 8.996 & 2.46 & 0 & 100\\,\\% utilization\\\\"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 268,
-      "token": "8.7891",
-      "context": "FIFO baseline & 8.7891 & 13.0 & 1{,}940 & Reference (dominated)\\\\"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 268,
-      "token": "13.0",
-      "context": "FIFO baseline & 8.7891 & 13.0 & 1{,}940 & Reference (dominated)\\\\"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 268,
-      "token": "940",
-      "context": "FIFO baseline & 8.7891 & 13.0 & 1{,}940 & Reference (dominated)\\\\"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 273,
-      "token": "940",
-      "context": "The central empirical finding is that FIFO is not Pareto-optimal: the minimum-$f_1$ solution Pareto-dominates it---stric"
-    },
-    {
-      "file": "main_submission.tex",
-      "line": 273,
-      "token": "680",
-      "context": "The central empirical finding is that FIFO is not Pareto-optimal: the minimum-$f_1$ solution Pareto-dominates it---stric"
-    }
-  ]
+  "tex_inventory_count": 0,
+  "tex_inventory_sample": []
 }

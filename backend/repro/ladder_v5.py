@@ -39,7 +39,7 @@ def HV(F): return M.compute_hypervolume([tuple(x) for x in F])
 
 def m_nsga(s):    return run_nsga2(p,s)
 def m_naive(s):   return M.run_mohho(p,s,POP,GEN,100)[1]
-def m_comp(s):    return C.run_competent_mohho(ev,M.NUM_GROUPS,3,HV,s,POP,GEN,pm=PM,use_sbx=USE_SBX)['front']
+def m_comp(s):    return C.run_competent_mohho(ev,M.NUM_GROUPS,3,HV,s,POP,GEN,pm=PM,use_sbx=USE_SBX,arch_cap=100)['front']
 def m_random(s):  return run_random(p,s,POP*GEN)
 def m_pnsga(s):   return run_perm_nsga(p,s)
 def m_pmoead(s):  return run_perm_moead(p,s)

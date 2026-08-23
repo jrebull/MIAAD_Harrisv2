@@ -60,7 +60,9 @@ def near_identity_offspring(P, i, FP, first, xmean, t, rng):
 
 def run_cell(operator, selection, seed):
     """One 2x2 cell. operator in {order,near}; selection in {nds,gated}.
-    Budget = POP*GEN single-trial evaluations (FE parity)."""
+    Budget = POP initial + POP*GEN offspring = 25,050 evaluaciones totales.
+    OJO: las celdas difieren tambien en p_m (order 0.15, near 1/d): el factor
+    es un PAQUETE de operadores, no el operador aislado."""
     rng = np.random.default_rng(seed)
     P = [rng.uniform(0, 1, DIM) for _ in range(POP)]
     FP = [tuple(ev(P[i])) for i in range(POP)]
@@ -76,8 +78,11 @@ def run_cell(operator, selection, seed):
             O.append(o)
         FO = [tuple(ev(o)) for o in O]
         if selection == "nds":
+            # (mu+lambda) sobre la union padres+descendencia: los padres pueden
+            # sobrevivir, asi que la fraccion de reemplazo POR PARES no esta
+            # definida aqui. Antes se anotaba 1.0, que no era una medicion.
             P, FP = _env_select(P + O, FP + FO, POP)
-            moved.append(1.0)
+            moved.append(None)
         else:  # gated: offspring replaces parent only if it dominates
             mv = 0
             for i in range(POP):
@@ -86,8 +91,10 @@ def run_cell(operator, selection, seed):
             moved.append(mv / POP)
         for i in range(len(O)):
             B.archive_add(arch_pos, arch_fit, O[i], FO[i], 100, rng)
+    measured = [m for m in moved if m is not None]
     return {"hv": HV(arch_fit), "archive": len(arch_fit),
-            "moved_fraction_mean": float(np.mean(moved))}
+            "movement_measured": bool(measured),
+            "moved_fraction_mean": (float(np.mean(measured)) if measured else None)}
 
 
 def run_random_cell(seed):
@@ -112,57 +119,52 @@ def main():
     for name, (op, sel) in CELLS.items():
         hvs = []; mvs = []
         for s in seeds:
-            r = run_cell(op, sel, s); hvs.append(r["hv"]); mvs.append(r["moved_fraction_mean"])
+            r = run_cell(op, sel, s); hvs.append(r["hv"])
+            # NDS devuelve None: la fraccion de reemplazo POR PARES no esta definida
+            # bajo (mu+lambda). Acumular None y promediarlo reventaba con TypeError.
+            if r.get("movement_measured") and r["moved_fraction_mean"] is not None:
+                mvs.append(r["moved_fraction_mean"])
         hv_by_cell[name] = hvs
         u, pg = mannwhitneyu(hvs, rnd, alternative="greater")
         a12 = float(u / (len(hvs) * len(rnd)))
         cells[name] = {"operator": op, "selection": sel,
             "hv_mean": round(stx.mean(hvs), 1), "hv_std": round(stx.pstdev(hvs), 1),
-            "moved_fraction_mean": round(float(np.mean(mvs)), 4),
+            "movement_measured": bool(mvs),
+            "moved_fraction_mean": (round(float(np.mean(mvs)), 4) if mvs else None),
             "vs_random_pct": round(100 * (stx.mean(hvs) - rnd_mean) / rnd_mean, 2),
             "beats_random": stx.mean(hvs) > rnd_mean,
-            "mwu_p_greater_random": float(pg), "A12_vs_random": round(a12, 3)}
+            "mwu_p_greater_random": float(pg), "A12_vs_random": round(a12, 3),
+            "hv_per_seed": hvs}
         c = cells[name]
         print(f"  {name:12s} op={op:5s} sel={sel:5s} HV={c['hv_mean']:>11,.0f} "
               f"vs_rand={c['vs_random_pct']:+5.2f}% beats={c['beats_random']} "
               f"p={pg:.1e} moved={c['moved_fraction_mean']:.3f}")
 
-    # ---- balanced 2x2 ANOVA (variance decomposition), nrep = SEEDS ----
-    A = {n: CELLS[n][0] for n in CELLS}; Bf = {n: CELLS[n][1] for n in CELLS}
-    allv = np.array([hv_by_cell[n] for n in CELLS])  # 4 cells x nrep
-    grand = allv.mean(); sst = ((allv - grand) ** 2).sum(); nrep = SEEDS
-
-    def mean_where(fac, val):
-        idx = [i for i, n in enumerate(CELLS) if (A[n] if fac == "A" else Bf[n]) == val]
-        return allv[idx].mean()
-    mA = {v: mean_where("A", v) for v in ("order", "near")}
-    mB = {v: mean_where("B", v) for v in ("nds", "gated")}
-    ssA = 2 * nrep * sum((mA[v] - grand) ** 2 for v in mA)
-    ssB = 2 * nrep * sum((mB[v] - grand) ** 2 for v in mB)
-    cellmeans = {n: allv[i].mean() for i, n in enumerate(CELLS)}
-    sscells = nrep * sum((cellmeans[n] - grand) ** 2 for n in CELLS)
-    ssAB = sscells - ssA - ssB; sse = sst - sscells
-    eta = lambda ss: round(float(ss / sst), 4)
-    dfAB, dfE = 1, 4 * (nrep - 1)
-    F_AB = (ssAB / dfAB) / (sse / dfE) if sse > 0 else float("inf")
-    p_AB = float(1 - fdist.cdf(F_AB, dfAB, dfE))
-
-    winners = [n for n in CELLS if cells[n]["beats_random"]]
-    out = {"budget": {"pop": POP, "gen": GEN, "evals": POP * GEN, "seeds": seeds}, "pm": PM,
+    # ---- interaccion BLOQUEADA (el ANOVA/permutacion global se retiro) ----
+    # El ANOVA sobre HV no normal y la permutacion que barajaba residuos ENTRE
+    # semillas rompian los bloques. El contraste correcto es diferencias-en-
+    # diferencias dentro de cada semilla; lo calcula backend/repro/cr_derive.py
+    # desde las series almacenadas. Aqui NO se recalcula ni se escribe.
+    on = np.array(hv_by_cell["order_nds"]);  og = np.array(hv_by_cell["order_gated"])
+    nn = np.array(hv_by_cell["near_nds"]);   ng = np.array(hv_by_cell["near_gated"])
+    dvec = (on - og) - (nn - ng)
+    out = {"budget": {"pop": POP, "gen": GEN,
+                      "initial_evals": POP,            # poblacion inicial
+                      "offspring_evals": POP * GEN,    # 50 x 500
+                      "total_evals": POP + POP * GEN,  # 25,050
+                      "seeds": seeds},
+           "pm_order_cell": PM, "pm_near_cell": 1.0 / DIM,   # difieren 16x
+           "pm": PM,
         "random_restart": {"hv_mean": round(rnd_mean, 1), "hv_std": round(stx.pstdev(rnd), 1)},
         "cells": cells,
-        "anova": {"eta2_operator_A": eta(ssA), "eta2_selection_B": eta(ssB),
-                  "eta2_interaction_AxB": eta(ssAB), "eta2_residual": eta(sse),
-                  "F_interaction": round(float(F_AB), 2), "p_interaction": p_AB,
-                  "interaction_significant": bool(p_AB < 0.05)},
+           "interaction": {"contrast": "(order_nds - order_gated) - (near_nds - near_gated), per seed",
+                           "mean_did": float(dvec.mean()),
+                           "note": "p-valores en cr_derive.py (Wilcoxon bloqueado principal); "
+                                   "el ANOVA y la permutacion global se retiraron por romper los bloques"},
         "winners_vs_random": winners,
         "only_order_nds_wins": bool(winners == ["order_nds"]),
         "elapsed_s": round(time.time() - t0, 1)}
     (RESULTS / "factorial_2x2_conditions.json").write_text(json.dumps(out, indent=2))
-    a = out["anova"]
-    print(f"\nANOVA eta2: A(op)={a['eta2_operator_A']} B(sel)={a['eta2_selection_B']} "
-          f"AxB={a['eta2_interaction_AxB']} (F={a['F_interaction']}, p={a['p_interaction']:.3f}, "
-          f"sig={a['interaction_significant']})")
     print(f"winners vs random: {winners} | only_order_nds={out['only_order_nds_wins']}")
     print(f"-> factorial_2x2_conditions.json ({out['elapsed_s']:.0f}s)")
 

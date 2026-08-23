@@ -19,19 +19,19 @@
       },
       "per_benchmark": {
         "ZDT1": {
-          "hv_over_true": 0.9977,
+          "hv_over_true": 0.995,
           "sane": true
         },
         "ZDT2": {
-          "hv_over_true": 0.9962,
+          "hv_over_true": 0.992,
           "sane": true
         },
         "DTLZ2": {
-          "hv_over_true": 0.869,
+          "hv_over_true": 0.8302,
           "sane": false
         }
       },
-      "min_over_benchmarks": 0.869,
+      "min_over_benchmarks": 0.8302,
       "sane_all": false
     },
     {
@@ -41,20 +41,20 @@
       },
       "per_benchmark": {
         "ZDT1": {
-          "hv_over_true": 0.9976,
+          "hv_over_true": 0.9949,
           "sane": true
         },
         "ZDT2": {
-          "hv_over_true": 0.996,
+          "hv_over_true": 0.9918,
           "sane": true
         },
         "DTLZ2": {
-          "hv_over_true": 0.9102,
-          "sane": true
+          "hv_over_true": 0.87,
+          "sane": false
         }
       },
-      "min_over_benchmarks": 0.9102,
-      "sane_all": true
+      "min_over_benchmarks": 0.87,
+      "sane_all": false
     },
     {
       "cfg": {
@@ -63,20 +63,20 @@
       },
       "per_benchmark": {
         "ZDT1": {
-          "hv_over_true": 0.9976,
+          "hv_over_true": 0.9949,
           "sane": true
         },
         "ZDT2": {
-          "hv_over_true": 0.9961,
+          "hv_over_true": 0.9919,
           "sane": true
         },
         "DTLZ2": {
-          "hv_over_true": 0.9203,
-          "sane": true
+          "hv_over_true": 0.8829,
+          "sane": false
         }
       },
-      "min_over_benchmarks": 0.9203,
-      "sane_all": true
+      "min_over_benchmarks": 0.8829,
+      "sane_all": false
     },
     {
       "cfg": {
@@ -85,27 +85,24 @@
       },
       "per_benchmark": {
         "ZDT1": {
-          "hv_over_true": 0.9974,
+          "hv_over_true": 0.9948,
           "sane": true
         },
         "ZDT2": {
-          "hv_over_true": 0.9956,
+          "hv_over_true": 0.9915,
           "sane": true
         },
         "DTLZ2": {
-          "hv_over_true": 0.9255,
-          "sane": true
+          "hv_over_true": 0.8848,
+          "sane": false
         }
       },
-      "min_over_benchmarks": 0.9255,
-      "sane_all": true
+      "min_over_benchmarks": 0.8848,
+      "sane_all": false
     }
   ],
-  "adopted_config": {
-    "pm": 0.15,
-    "use_sbx": true
-  },
-  "any_sane": true,
-  "verdict": "MO-HHO competente SANO en ZDT1/ZDT2/DTLZ2 -> baseline justo; el resultado 'random restart vs swarm' ya no esta confundido por un swarm roto.",
-  "elapsed_s": 1471.6
+  "adopted_config": null,
+  "any_sane": false,
+  "verdict": "Ninguna config llega a 0.9 en las tres; subir GEN/seeds o pm y reintentar.",
+  "elapsed_s": 1363.6
 }
