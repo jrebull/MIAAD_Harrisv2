@@ -6,3 +6,9 @@ numpy>=1.26,<3
 scipy>=1.12
 python-multipart>=0.0.9
 pytest>=8.0
+
+# Reproduccion del camera-ready MICAI 2026 (tag micai-cameraready):
+# matplotlib regenera las figuras; pdfplumber ejecuta el control de lettering
+# >= 6 pt de cr_firewall.py, que falla en cerrado si la libreria no esta.
+matplotlib>=3.8
+pdfplumber>=0.11
