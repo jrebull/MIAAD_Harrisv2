@@ -12,3 +12,6 @@ pytest>=8.0
 # >= 6 pt de cr_firewall.py, que falla en cerrado si la libreria no esta.
 matplotlib>=3.8
 pdfplumber>=0.11
+# pulp trae CBC empaquetado: cubre el control MILP exacto (f1,f3) que el articulo
+# reporta en la Seccion 3 y entre las comprobaciones de robustez de la 5.2.
+pulp>=2.8
